@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+
+<html class="light" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed": "#002021",
+                        "surface-container-low": "#f2f4f7",
+                        "error": "#ba1a1a",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-fixed-variant": "#004f53",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-bright": "#f7f9fc",
+                        "secondary-fixed-dim": "#bbc8d0",
+                        "primary": "#00464a",
+                        "tertiary-fixed": "#9ff79f",
+                        "surface-dim": "#d8dadd",
+                        "outline-variant": "#bec8c9",
+                        "primary-fixed-dim": "#8ad3d7",
+                        "outline": "#6f7979",
+                        "on-tertiary-fixed": "#002105",
+                        "surface-container-highest": "#e0e3e6",
+                        "on-error-container": "#93000a",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-fixed-variant": "#005318",
+                        "surface-variant": "#e0e3e6",
+                        "on-surface-variant": "#3f4949",
+                        "secondary-fixed": "#d7e4ec",
+                        "on-secondary": "#ffffff",
+                        "tertiary": "#004914",
+                        "on-tertiary-container": "#88df89",
+                        "inverse-surface": "#2d3133",
+                        "on-error": "#ffffff",
+                        "surface": "#f7f9fc",
+                        "on-background": "#191c1e",
+                        "tertiary-fixed-dim": "#83da85",
+                        "on-primary-container": "#8fd8dc",
+                        "inverse-primary": "#8ad3d7",
+                        "secondary": "#546067",
+                        "surface-container": "#eceef1",
+                        "secondary-container": "#d7e4ec",
+                        "primary-fixed": "#a6eff3",
+                        "on-primary": "#ffffff",
+                        "surface-tint": "#14696d",
+                        "on-secondary-container": "#5a666d",
+                        "background": "#f7f9fc",
+                        "on-surface": "#191c1e",
+                        "inverse-on-surface": "#eff1f4",
+                        "tertiary-container": "#00641f",
+                        "primary-container": "#006064",
+                        "on-secondary-fixed-variant": "#3c494f",
+                        "surface-container-high": "#e6e8eb",
+                        "on-secondary-fixed": "#111d23"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.5rem",
+                        "lg": "0.5rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased overflow-hidden">
+<!-- SideNavBar Component -->
+<aside class="fixed left-0 top-0 h-full flex flex-col bg-slate-50 dark:bg-slate-900 h-screen w-64 border-r border-slate-200/50 dark:border-slate-800/50 z-50">
+<div class="p-8">
+<h1 class="text-xl font-bold tracking-tight text-cyan-900 dark:text-cyan-100 mb-1">Núcleo Parental</h1>
+<span class="text-xs font-inter font-medium text-slate-500 uppercase tracking-widest">Pro</span>
+</div>
+<nav class="flex-1 px-4 space-y-1">
+<!-- Active Tab: Dashboard -->
+<a class="flex items-center gap-3 px-4 py-3 text-cyan-900 dark:text-cyan-100 font-medium border-r-4 border-cyan-900 dark:border-cyan-100 bg-white/50 dark:bg-white/5 transition-all duration-150 ease-in-out active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-sm font-inter">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-cyan-900 dark:hover:text-cyan-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="chat">chat</span>
+<span class="text-sm font-inter">Chat</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-cyan-900 dark:hover:text-cyan-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span class="text-sm font-inter">Calendar</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-cyan-900 dark:hover:text-cyan-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="text-sm font-inter">Finances</span>
+</a>
+</nav>
+<div class="mt-auto p-4 space-y-4">
+<button class="w-full bg-gradient-to-br from-primary to-primary-container text-white py-3 px-4 rounded-xl font-medium text-sm flex items-center justify-center gap-2 shadow-sm">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+                New Entry
+            </button>
+<div class="pt-4 border-t border-slate-200/50">
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:text-cyan-900 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-sm font-inter">Settings</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:text-cyan-900 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="text-sm font-inter">Help</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- TopNavBar Component -->
+<header class="flex justify-between items-center h-16 w-full px-8 ml-64 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md shadow-sm dark:shadow-none fixed top-0 right-0 z-40 left-0">
+<div class="flex items-center bg-surface-container-low px-4 py-1.5 rounded-full border border-outline-variant/15 w-80">
+<span class="material-symbols-outlined text-secondary mr-2" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm font-inter w-full text-on-surface-variant" placeholder="Pesquisar registros..." type="text"/>
+</div>
+<div class="flex items-center gap-6">
+<button class="relative p-1 text-secondary hover:text-primary transition-all">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full border-2 border-white"></span>
+</button>
+<button class="p-1 text-secondary hover:text-primary transition-all">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<div class="flex items-center gap-3 border-l pl-6 border-slate-200">
+<div class="text-right">
+<p class="text-xs font-bold font-headline text-cyan-900">Mariana Silva</p>
+<p class="text-[10px] font-medium text-slate-500">Mãe do Lucas</p>
+</div>
+<img alt="User profile" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm" data-alt="Close-up portrait of a serene woman with a professional yet friendly expression in soft natural daylight studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC4eEPxD8f4xJY6fhtigRTsqpfpYU477uMFas8KHwu8DJZo3BvtfUi1PkwW7KdJsQB8mG_aOjZ26LNjjahnQA_MmSx6n1A5dInJu-klkED57bLqcSRpsMg3r252GBX6ezqYlqQVgekk6JslJEXj3hZS-zBu8EJmED4d5IR0Kn3-Ehm3BlGYu3p7xOOQ74L9SI4mO7rGLNhG0sbwgJ_ddD9hF0vj2QcktbW8WHxDpqbLesAXye4_NEyU_y4Y_HODKuCvcZGoiOchqA"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-20 p-8 min-h-screen bg-surface overflow-y-auto">
+<!-- Hero Section / Editorial Header -->
+<div class="mb-10 max-w-6xl">
+<h2 class="text-4xl font-headline font-bold text-on-surface tracking-tight mb-2">Bem-vinda de volta, Mariana.</h2>
+<p class="text-secondary font-inter text-lg">Aqui está o que precisa de sua atenção hoje.</p>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-12 gap-6 max-w-7xl">
+<!-- Urgent Alert Card -->
+<div class="col-span-12 lg:col-span-8 bg-surface-container-lowest p-8 rounded-xl shadow-[0_32px_64px_-12px_rgba(0,0,0,0.04)] relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-8xl" data-icon="warning">warning</span>
+</div>
+<div class="relative z-10 flex flex-col h-full">
+<div class="flex items-center gap-2 mb-4">
+<span class="w-3 h-3 bg-orange-500 rounded-full animate-pulse"></span>
+<span class="text-xs font-bold text-orange-600 uppercase tracking-widest">Alerta Urgente</span>
+</div>
+<h3 class="text-2xl font-headline font-bold text-on-surface mb-4">Assinatura necessária</h3>
+<p class="text-on-secondary-container max-w-md mb-8 leading-relaxed">
+                        O documento relativo à autorização de viagem escolar do Lucas para o próximo mês requer sua validação digital até amanhã.
+                    </p>
+<div class="mt-auto flex gap-4">
+<button class="bg-primary text-white px-6 py-3 rounded-xl font-medium text-sm transition-transform active:scale-95 shadow-sm">
+                            Assinar Agora
+                        </button>
+<button class="text-secondary hover:text-on-surface px-6 py-3 font-medium text-sm transition-colors">
+                            Ver Documento
+                        </button>
+</div>
+</div>
+</div>
+<!-- Financial Summary Card -->
+<div class="col-span-12 lg:col-span-4 bg-surface-container-low p-8 rounded-xl flex flex-col justify-between">
+<div>
+<span class="material-symbols-outlined text-tertiary-container mb-4 text-3xl" data-icon="account_balance_wallet">account_balance_wallet</span>
+<h3 class="text-sm font-medium text-on-secondary-container mb-1">Balanço do Mês</h3>
+<div class="flex items-baseline gap-2">
+<span class="text-3xl font-headline font-bold text-on-surface">R$ 450,00</span>
+<span class="text-sm font-bold text-tertiary">a receber</span>
+</div>
+</div>
+<div class="mt-8 pt-8 border-t border-outline-variant/30">
+<p class="text-xs text-secondary leading-relaxed mb-4">
+                        Transferência de despesas educacionais pendente de aprovação pelo Coparental.
+                    </p>
+<button class="w-full bg-white text-primary border border-outline-variant/30 py-3 rounded-xl text-sm font-bold hover:bg-surface transition-colors">
+                        Detalhes Financeiros
+                    </button>
+</div>
+</div>
+<!-- Next Event Card -->
+<div class="col-span-12 lg:col-span-4 bg-surface-container-lowest p-8 rounded-xl shadow-[0_32px_64px_-12px_rgba(0,0,0,0.04)]">
+<div class="flex justify-between items-start mb-6">
+<div>
+<h3 class="text-sm font-medium text-on-secondary-container uppercase tracking-wider">Próximo Evento</h3>
+<p class="text-xl font-headline font-bold text-on-surface mt-1">Troca de Turno</p>
+</div>
+<div class="w-12 h-12 rounded-xl bg-secondary-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="swap_horiz">swap_horiz</span>
+</div>
+</div>
+<div class="space-y-4">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary" data-icon="person">person</span>
+</div>
+<div>
+<p class="text-xs text-secondary font-medium uppercase">Responsável</p>
+<p class="text-sm font-bold text-on-surface">Lucas (Filho)</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary" data-icon="calendar_month">calendar_month</span>
+</div>
+<div>
+<p class="text-xs text-secondary font-medium uppercase">Data</p>
+<p class="text-sm font-bold text-on-surface">15 Setembro, 18:00</p>
+</div>
+</div>
+</div>
+<div class="mt-8">
+<img alt="Location preview" class="w-full h-24 object-cover rounded-lg mb-4 opacity-80" data-alt="Modern architectural building facade in a clean urban environment with blue sky background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC2T36A_j5LGeUlN2yu5teIW0L9pmXSiPJi_0mmVj2tZNm4h8Om3WeZViwgIEKldfXssOe1gpVwmJ22vKNn-_c20ccGyAFHG_UIA0wQ8RkiNkS7cjDZFjrPFBxc3lGUr7EHzIi_b8f7YmXDfEQgp3CV_OIkdTkuLuRx7tEoE2iI8BqHbeGUqErNQclSoFazCoI3o3U34-iXWm6o0HTD1tO7QG3nfMjZB8HWl0QUlQtT9hManmc2IcsrgUZiUTSS22kmrNn9JW0t7Q"/>
+<p class="text-xs text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-xs" data-icon="location_on">location_on</span>
+                        Ponto de Encontro: Shopping Central
+                    </p>
+</div>
+</div>
+<!-- Quick Actions & Insights -->
+<div class="col-span-12 lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Action 1 -->
+<button class="bg-surface-container-low hover:bg-white p-6 rounded-xl flex items-center gap-5 transition-all group border border-transparent hover:border-outline-variant/20 hover:shadow-xl hover:shadow-black/5">
+<div class="w-14 h-14 rounded-full bg-white flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-3xl" data-icon="receipt_long">receipt_long</span>
+</div>
+<div class="text-left">
+<p class="font-headline font-bold text-on-surface">Registrar Despesa</p>
+<p class="text-xs text-secondary mt-1">Anexar nota fiscal ou comprovante</p>
+</div>
+</button>
+<!-- Action 2 -->
+<button class="bg-surface-container-low hover:bg-white p-6 rounded-xl flex items-center gap-5 transition-all group border border-transparent hover:border-outline-variant/20 hover:shadow-xl hover:shadow-black/5">
+<div class="w-14 h-14 rounded-full bg-white flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-3xl" data-icon="edit_calendar">edit_calendar</span>
+</div>
+<div class="text-left">
+<p class="font-headline font-bold text-on-surface">Solicitar Troca</p>
+<p class="text-xs text-secondary mt-1">Alterar data ou horário do calendário</p>
+</div>
+</button>
+<!-- Insights Visual -->
+<div class="md:col-span-2 bg-gradient-to-r from-cyan-900 to-cyan-950 p-8 rounded-xl text-white flex flex-col md:flex-row items-center gap-8">
+<div class="flex-1">
+<h4 class="text-xl font-headline font-bold mb-2">Relatório de Coparentalidade</h4>
+<p class="text-cyan-200/80 text-sm leading-relaxed mb-4">
+                            Este mês, 94% dos compromissos foram realizados sem atrasos. A comunicação via chat manteve-se produtiva e focada.
+                        </p>
+<button class="text-sm font-bold flex items-center gap-2 hover:gap-3 transition-all">
+                            Ver métricas completas
+                            <span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+<div class="w-32 h-32 flex items-center justify-center relative">
+<svg class="w-full h-full transform -rotate-90">
+<circle class="text-cyan-800" cx="64" cy="64" fill="transparent" r="56" stroke="currentColor" stroke-width="8"></circle>
+<circle class="text-tertiary-fixed" cx="64" cy="64" fill="transparent" r="56" stroke="currentColor" stroke-dasharray="351.85" stroke-dashoffset="21" stroke-width="8"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="text-2xl font-bold">94%</span>
+<span class="text-[8px] uppercase tracking-tighter">Harmonia</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Contextual FAB (Hidden on Dash by Instruction, but available for other screens) -->
+<!-- Suppressed on Dashboard to prioritize editorial whitespace as per "Serene Mediator" guidelines -->
+</body></html>

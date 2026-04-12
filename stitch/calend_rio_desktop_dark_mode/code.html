@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Nível Parental Pro - Calendário</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-tertiary": "#00374f",
+                      "background": "#0e0e0e",
+                      "tertiary-fixed": "#33bbff",
+                      "surface-container-lowest": "#000000",
+                      "on-primary": "#00534d",
+                      "tertiary-fixed-dim": "#04aef2",
+                      "on-tertiary-fixed-variant": "#003e59",
+                      "on-surface": "#ffffff",
+                      "outline": "#767575",
+                      "outline-variant": "#484847",
+                      "error": "#ff716c",
+                      "secondary-fixed": "#2ff7fb",
+                      "secondary-fixed-dim": "#00e8ec",
+                      "primary-fixed-dim": "#71d7cd",
+                      "surface-container-high": "#20201f",
+                      "primary-dim": "#71d7cd",
+                      "on-tertiary-fixed": "#001a29",
+                      "tertiary-dim": "#00a8ea",
+                      "on-secondary-fixed": "#004547",
+                      "on-error-container": "#ffa8a3",
+                      "on-primary-container": "#002825",
+                      "on-secondary-container": "#daffff",
+                      "error-container": "#9f0519",
+                      "surface-variant": "#262626",
+                      "on-error": "#490006",
+                      "on-background": "#ffffff",
+                      "primary-container": "#47b0a7",
+                      "on-primary-fixed-variant": "#005d57",
+                      "inverse-primary": "#006b64",
+                      "surface": "#0e0e0e",
+                      "surface-container": "#1a1a1a",
+                      "inverse-on-surface": "#565555",
+                      "inverse-surface": "#fcf9f8",
+                      "surface-tint": "#7fe6db",
+                      "on-surface-variant": "#adaaaa",
+                      "error-dim": "#d7383b",
+                      "on-secondary-fixed-variant": "#006466",
+                      "surface-container-highest": "#262626",
+                      "tertiary-container": "#12b1f5",
+                      "surface-bright": "#2c2c2c",
+                      "on-tertiary-container": "#002b3f",
+                      "primary": "#7fe6db",
+                      "on-primary-fixed": "#003e39",
+                      "surface-dim": "#0e0e0e",
+                      "on-secondary": "#005a5b",
+                      "secondary-dim": "#00e8ec",
+                      "secondary-container": "#00696b",
+                      "primary-fixed": "#7fe6db",
+                      "tertiary": "#43beff",
+                      "surface-container-low": "#131313",
+                      "secondary": "#2ff7fb"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "fontFamily": {
+                      "headline": ["Manrope"],
+                      "body": ["Manrope"],
+                      "label": ["Manrope"]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; background-color: #0e0e0e; color: #ffffff; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .tonal-stepping { background-color: #1a1a1a; transition: background-color 0.3s; }
+        .glass-nav { backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); grid-auto-rows: minmax(120px, auto); }
+    </style>
+</head>
+<body class="bg-background text-on-surface overflow-hidden">
+<!-- SideNavBar Component -->
+<nav class="fixed left-0 top-0 flex flex-col h-full py-8 px-4 h-screen w-64 border-r border-transparent bg-[#1a1a1a] dark:bg-neutral-900 z-50">
+<div class="mb-10 px-2">
+<h1 class="text-xl font-bold tracking-tighter text-[#7fe6db] dark:text-teal-300">Núcleo Parental</h1>
+<p class="font-manrope text-[10px] uppercase tracking-[0.1em] text-neutral-500 mt-1">Professional Sanctuary</p>
+</div>
+<div class="flex flex-col space-y-2 flex-grow">
+<!-- Dashboard -->
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-neutral-400 dark:text-neutral-500 hover:text-neutral-200 hover:bg-neutral-800 transition-colors duration-300 font-manrope text-sm tracking-tight" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span>Dashboard</span>
+</a>
+<!-- Chat -->
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-neutral-400 dark:text-neutral-500 hover:text-neutral-200 hover:bg-neutral-800 transition-colors duration-300 font-manrope text-sm tracking-tight" href="#">
+<span class="material-symbols-outlined" data-icon="forum">forum</span>
+<span>Chat</span>
+</a>
+<!-- Calendar (ACTIVE) -->
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-[#7fe6db] dark:text-teal-300 font-bold border-l-4 border-[#7fe6db] bg-neutral-800/50 font-manrope text-sm tracking-tight" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span>Calendar</span>
+</a>
+<!-- Finances -->
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-neutral-400 dark:text-neutral-500 hover:text-neutral-200 hover:bg-neutral-800 transition-colors duration-300 font-manrope text-sm tracking-tight" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span>Finances</span>
+</a>
+</div>
+<div class="mt-auto px-2 flex items-center gap-3 border-t border-outline-variant/10 pt-6">
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden">
+<img alt="User profile photo" class="w-full h-full object-cover" data-alt="Close up portrait of a professional woman with a calm expression, soft cinematic lighting, neutral dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrFVlKm-78H_RkftVu0OyvEklq6x3RPZ5soRtSlW3fwTD7mPMmI_Sgm-6qhXkIT9KewK0tvbGJyeNpZntXv6A8jMXCyIQcuekAt97ouH5ndA1SzYkAnpIGJTH0e0aRFIVMIc-dBbbR7IpmKEwnExj-iDYHP7p1vobberI8iTdueYS-KmLwFNxFDewCxWiw2Aj-tIiaa22IRmyoDrJ_TF4HSq1c73GVYZGx21t723i_UR6fup6vtK6q_6Pay_KhF3N8z0jLlRZPPg"/>
+</div>
+<div>
+<p class="text-sm font-bold text-on-surface">Dr. Helena Silva</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-wider">Premium Member</p>
+</div>
+</div>
+</nav>
+<!-- TopNavBar Component -->
+<header class="flex justify-between items-center w-full px-8 py-4 ml-64 max-w-[calc(100%-16rem)] bg-[#0e0e0e]/60 dark:bg-black/60 backdrop-blur-xl fixed top-0 z-40">
+<div class="flex items-center gap-4">
+<span class="text-lg font-black text-white">NÚCLEO PARENTAL PRO</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative group">
+<div class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-on-surface-variant">
+<span class="material-symbols-outlined text-sm" data-icon="search">search</span>
+</div>
+<input class="bg-surface-container-lowest border-none rounded-lg pl-10 pr-4 py-2 text-[10px] tracking-widest uppercase focus:ring-1 focus:ring-teal-500 w-64 text-on-surface transition-all" placeholder="BUSCAR EVENTOS..." type="text"/>
+</div>
+<div class="flex items-center gap-4 text-neutral-400">
+<button class="hover:text-white transition-opacity duration-200">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="hover:text-white transition-opacity duration-200">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="ml-64 pt-20 p-8 h-screen overflow-y-auto">
+<div class="max-w-7xl mx-auto">
+<!-- Calendar Header -->
+<div class="flex items-end justify-between mb-8">
+<div>
+<h2 class="text-5xl font-extrabold tracking-tighter text-on-surface">Outubro 2026</h2>
+<p class="text-on-surface-variant font-label text-sm uppercase tracking-[0.2em] mt-2">Visão Mensal de Custódia e Eventos</p>
+</div>
+<div class="flex items-center gap-2 bg-surface-container rounded-lg p-1">
+<button class="p-2 hover:bg-surface-container-high rounded-md transition-colors">
+<span class="material-symbols-outlined" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="px-4 py-1 text-xs font-bold uppercase tracking-widest text-[#7fe6db]">Hoje</button>
+<button class="p-2 hover:bg-surface-container-high rounded-md transition-colors">
+<span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+<div class="grid grid-cols-12 gap-8">
+<!-- Legend & Quick Filters (Left Rail) -->
+<div class="col-span-3 space-y-8">
+<div class="p-6 bg-surface-container rounded-xl">
+<h3 class="text-[12px] font-black tracking-widest uppercase mb-6 text-on-surface">Legenda de Cores</h3>
+<div class="space-y-4">
+<div class="flex items-center gap-3">
+<div class="w-3 h-3 rounded-full bg-tertiary-dim shadow-[0_0_12px_rgba(0,168,234,0.4)]"></div>
+<span class="text-sm font-medium text-on-surface-variant">Período de Custódia</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-3 h-3 rounded-full bg-primary shadow-[0_0_12px_rgba(127,230,219,0.4)]"></div>
+<span class="text-sm font-medium text-on-surface-variant">Feriados Nacionais</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-3 h-3 rounded-full bg-[#fcd34d] shadow-[0_0_12px_rgba(252,211,77,0.4)]"></div>
+<span class="text-sm font-medium text-on-surface-variant">Feriados Municipais</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-3 h-3 rounded-full bg-error-dim shadow-[0_0_12px_rgba(215,56,59,0.4)]"></div>
+<span class="text-sm font-medium text-on-surface-variant">Compromissos Urgentes</span>
+</div>
+</div>
+</div>
+<div class="p-6 bg-surface-container-low rounded-xl border border-outline-variant/10">
+<h3 class="text-[12px] font-black tracking-widest uppercase mb-6 text-on-surface">Próximos Eventos</h3>
+<div class="space-y-6">
+<div class="relative pl-4 border-l-2 border-primary">
+<p class="text-[10px] text-primary font-bold uppercase tracking-widest">12 OUT</p>
+<p class="text-sm font-bold text-on-surface">Nossa Sra. Aparecida</p>
+<p class="text-xs text-on-surface-variant">Feriado Nacional</p>
+</div>
+<div class="relative pl-4 border-l-2 border-tertiary">
+<p class="text-[10px] text-tertiary font-bold uppercase tracking-widest">15 OUT</p>
+<p class="text-sm font-bold text-on-surface">Troca de Custódia</p>
+<p class="text-xs text-on-surface-variant">Ponto de Encontro: Shopping</p>
+</div>
+</div>
+</div>
+<div class="rounded-xl overflow-hidden relative group h-48">
+<img alt="Support" class="w-full h-full object-cover grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-60 transition-all duration-700" data-alt="A warm, atmospheric photo of two people talking over coffee in a modern office setting with soft natural light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDAQHTPYk_1IHwKghyZsbdpGnMs9hUMrUQfOkZLxSVl9tkXCup1fO5pc38nXXCICfW39PkqGttHidlW5b2YMP-iGQDi8LYoSPJqzxjLUK-pWDFr0UrOgsbuqVc_faKkb1dnjk4zot6Z8qSJw-QeIuPp9HInHgcQiPv70SmWo4eUCGyly5c-8r5-d8Tj2RXTs4BqRDCuX05xDjqHdj3Sa1gh2HbauXpg-0iyZ_zMp6HvII9ebAX7it0lA8kwP2Xpn_blB_6pbbBvkA"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background to-transparent flex flex-col justify-end p-4">
+<p class="text-xs font-bold text-primary mb-1">Dica Profissional</p>
+<p class="text-[11px] text-on-surface leading-relaxed">Mantenha os feriados escolares atualizados para evitar conflitos.</p>
+</div>
+</div>
+</div>
+<!-- Calendar Grid (Right Rail) -->
+<div class="col-span-9">
+<div class="bg-surface-container rounded-2xl overflow-hidden">
+<!-- Days Header -->
+<div class="grid grid-cols-7 border-b border-outline-variant/10">
+<div class="py-4 text-center text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant">Dom</div>
+<div class="py-4 text-center text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant">Seg</div>
+<div class="py-4 text-center text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant">Ter</div>
+<div class="py-4 text-center text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant">Qua</div>
+<div class="py-4 text-center text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant">Qui</div>
+<div class="py-4 text-center text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant">Sex</div>
+<div class="py-4 text-center text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant">Sáb</div>
+</div>
+<!-- Grid Cells -->
+<div class="calendar-grid">
+<!-- Prev Month Overflow -->
+<div class="p-3 bg-surface-container-low/30 flex flex-col gap-1 border-r border-b border-outline-variant/5">
+<span class="text-sm font-medium text-neutral-700">27</span>
+</div>
+<div class="p-3 bg-surface-container-low/30 flex flex-col gap-1 border-r border-b border-outline-variant/5">
+<span class="text-sm font-medium text-neutral-700">28</span>
+</div>
+<div class="p-3 bg-surface-container-low/30 flex flex-col gap-1 border-r border-b border-outline-variant/5">
+<span class="text-sm font-medium text-neutral-700">29</span>
+</div>
+<div class="p-3 bg-surface-container-low/30 flex flex-col gap-1 border-r border-b border-outline-variant/5">
+<span class="text-sm font-medium text-neutral-700">30</span>
+</div>
+<!-- October Days -->
+<div class="p-3 hover:bg-surface-container-high transition-colors border-r border-b border-outline-variant/5">
+<span class="text-sm font-medium text-on-surface-variant">01</span>
+</div>
+<div class="p-3 hover:bg-surface-container-high transition-colors border-r border-b border-outline-variant/5">
+<span class="text-sm font-medium text-on-surface-variant">02</span>
+<div class="mt-2 py-1 px-2 rounded bg-tertiary-dim/10 border-l-2 border-tertiary text-[9px] font-bold text-tertiary uppercase truncate">Custódia Helena</div>
+</div>
+<div class="p-3 hover:bg-surface-container-high transition-colors border-r border-b border-outline-variant/5">
+<span class="text-sm font-medium text-on-surface-variant">03</span>
+<div class="mt-2 py-1 px-2 rounded bg-tertiary-dim/10 border-l-2 border-tertiary text-[9px] font-bold text-tertiary uppercase truncate">Custódia Helena</div>
+</div>
+<!-- Row 2 -->
+<div class="p-3 hover:bg-surface-container-high transition-colors border-r border-b border-outline-variant/5">
+<span class="text-sm font-medium text-on-surface-variant">04</span>
+</div>
+<div class="p-3 hover:bg-surface-container-high transition-colors border-r border-b border-outline-variant/5">
+<span class="text-sm font-medium text-on-surface-variant">05</span>
+</div>
+<div class="p-3 hover:bg-surface-container-high transition-colors border-r border-b border-outline-variant/5">
+<span class="text-sm font-medium text-on-surface-variant">06</span>
+</div>
+<div class="p-3 hover:bg-surface-container-high transition-colors border-r border-b border-outline-variant/5">
+<span class="text-sm font-medium text-on-surface-variant">07</span>
+</div>
+<div class="p-3 hover:bg-surface-container-high transition-colors border-r border-b border-outline-variant/5">
+<span class="text-sm font-medium text-on-surface-variant">08</span>
+</div>
+<div class="p-3 hover:bg-surface-container-high transition-colors border-r border-b border-outline-variant/5">
+<span class="text-sm font-medium text-on-surface-variant">09</span>
+</div>
+<div class="p-3 hover:bg-surface-container-high transition-colors border-r border-b border-outline-variant/5">
+<span class="text-sm font-medium text-on-surface-variant">10</span>
+</div>
+<!-- Row 3 - Holidays -->
+<div class="p-3 hover:bg-surface-container-high transition-colors border-r border-b border-outline-variant/5">
+<span class="text-sm font-medium text-on-surface-variant">11</span>
+</div>
+<div class="p-3 bg-primary/5 hover:bg-primary/10 transition-colors border-r border-b border-outline-variant/5">
+<span class="text-sm font-bold text-primary">12</span>
+<div class="mt-2 py-1 px-2 rounded bg-primary/20 border-l-2 border-primary text-[9px] font-black text-primary uppercase truncate">Nsa Sra Aparecida</div>
+</div>
+<div class="p-3 hover:bg-surface-container-high transition-colors border-r border-b border-outline-variant/5">
+<span class="text-sm font-medium text-on-surface-variant">13</span>
+</div>
+<div class="p-3 hover:bg-surface-container-high transition-colors border-r border-b border-outline-variant/5">
+<span class="text-sm font-medium text-on-surface-variant">14</span>
+</div>
+<div class="p-3 hover:bg-surface-container-high transition-colors border-r border-b border-outline-variant/5">
+<span class="text-sm font-medium text-on-surface-variant">15</span>
+<div class="mt-2 py-1 px-2 rounded bg-tertiary-dim/10 border-l-2 border-tertiary text-[9px] font-bold text-tertiary uppercase truncate">Início Custódia</div>
+</div>
+<div class="p-3 hover:bg-surface-container-high transition-colors border-r border-b border-outline-variant/5">
+<span class="text-sm font-medium text-on-surface-variant">16</span>
+<div class="mt-2 py-1 px-2 rounded bg-tertiary-dim/10 border-l-2 border-tertiary text-[9px] font-bold text-tertiary uppercase truncate">Custódia Helena</div>
+</div>
+<div class="p-3 bg-[#fcd34d]/5 hover:bg-[#fcd34d]/10 transition-colors border-r border-b border-outline-variant/5">
+<span class="text-sm font-bold text-[#fcd34d]">17</span>
+<div class="mt-2 py-1 px-2 rounded bg-[#fcd34d]/20 border-l-2 border-[#fcd34d] text-[9px] font-black text-[#fcd34d] uppercase truncate">Dia Municipal</div>
+</div>
+<!-- Row 4 -->
+<div class="p-3 hover:bg-surface-container-high transition-colors border-r border-b border-outline-variant/5">
+<span class="text-sm font-medium text-on-surface-variant">18</span>
+</div>
+<div class="p-3 hover:bg-surface-container-high transition-colors border-r border-b border-outline-variant/5">
+<span class="text-sm font-medium text-on-surface-variant">19</span>
+</div>
+<div class="p-3 hover:bg-surface-container-high transition-colors border-r border-b border-outline-variant/5">
+<span class="text-sm font-medium text-on-surface-variant">20</span>
+</div>
+<div class="p-3 hover:bg-surface-container-high transition-colors border-r border-b border-outline-variant/5">
+<span class="text-sm font-medium text-on-surface-variant">21</span>
+</div>
+<div class="p-3 hover:bg-surface-container-high transition-colors border-r border-b border-outline-variant/5">
+<span class="text-sm font-medium text-on-surface-variant">22</span>
+</div>
+<div class="p-3 hover:bg-surface-container-high transition-colors border-r border-b border-outline-variant/5">
+<span class="text-sm font-medium text-on-surface-variant">23</span>
+</div>
+<div class="p-3 hover:bg-surface-container-high transition-colors border-r border-b border-outline-variant/5">
+<span class="text-sm font-medium text-on-surface-variant">24</span>
+</div>
+<!-- Row 5 -->
+<div class="p-3 hover:bg-surface-container-high transition-colors border-r border-b border-outline-variant/5">
+<span class="text-sm font-medium text-on-surface-variant">25</span>
+</div>
+<div class="p-3 hover:bg-surface-container-high transition-colors border-r border-b border-outline-variant/5">
+<span class="text-sm font-medium text-on-surface-variant">26</span>
+</div>
+<div class="p-3 hover:bg-surface-container-high transition-colors border-r border-b border-outline-variant/5">
+<span class="text-sm font-medium text-on-surface-variant">27</span>
+</div>
+<div class="p-3 hover:bg-surface-container-high transition-colors border-r border-b border-outline-variant/5">
+<span class="text-sm font-medium text-on-surface-variant">28</span>
+</div>
+<div class="p-3 hover:bg-surface-container-high transition-colors border-r border-b border-outline-variant/5">
+<span class="text-sm font-medium text-on-surface-variant">29</span>
+</div>
+<div class="p-3 hover:bg-surface-container-high transition-colors border-r border-b border-outline-variant/5">
+<span class="text-sm font-medium text-on-surface-variant">30</span>
+</div>
+<div class="p-3 hover:bg-surface-container-high transition-colors border-r border-b border-outline-variant/5">
+<span class="text-sm font-medium text-on-surface-variant">31</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- FAB for adding event -->
+<button class="fixed bottom-8 right-8 w-16 h-16 rounded-full bg-gradient-to-br from-primary to-primary-container text-on-primary flex items-center justify-center shadow-xl hover:scale-105 active:scale-95 transition-all z-50">
+<span class="material-symbols-outlined text-3xl" data-icon="add">add</span>
+</button>
+</body></html>

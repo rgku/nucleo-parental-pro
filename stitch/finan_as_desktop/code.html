@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Núcleo Parental Pro - Gestão de Finanças</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed": "#002021",
+                        "surface-container-low": "#f2f4f7",
+                        "error": "#ba1a1a",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-fixed-variant": "#004f53",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-bright": "#f7f9fc",
+                        "secondary-fixed-dim": "#bbc8d0",
+                        "primary": "#00464a",
+                        "tertiary-fixed": "#9ff79f",
+                        "surface-dim": "#d8dadd",
+                        "outline-variant": "#bec8c9",
+                        "primary-fixed-dim": "#8ad3d7",
+                        "outline": "#6f7979",
+                        "on-tertiary-fixed": "#002105",
+                        "surface-container-highest": "#e0e3e6",
+                        "on-error-container": "#93000a",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-fixed-variant": "#005318",
+                        "surface-variant": "#e0e3e6",
+                        "on-surface-variant": "#3f4949",
+                        "secondary-fixed": "#d7e4ec",
+                        "on-secondary": "#ffffff",
+                        "tertiary": "#004914",
+                        "on-tertiary-container": "#88df89",
+                        "inverse-surface": "#2d3133",
+                        "on-error": "#ffffff",
+                        "surface": "#f7f9fc",
+                        "on-background": "#191c1e",
+                        "tertiary-fixed-dim": "#83da85",
+                        "on-primary-container": "#8fd8dc",
+                        "inverse-primary": "#8ad3d7",
+                        "secondary": "#546067",
+                        "surface-container": "#eceef1",
+                        "secondary-container": "#d7e4ec",
+                        "primary-fixed": "#a6eff3",
+                        "on-primary": "#ffffff",
+                        "surface-tint": "#14696d",
+                        "on-secondary-container": "#5a666d",
+                        "background": "#f7f9fc",
+                        "on-surface": "#191c1e",
+                        "inverse-on-surface": "#eff1f4",
+                        "tertiary-container": "#00641f",
+                        "primary-container": "#006064",
+                        "on-secondary-fixed-variant": "#3c494f",
+                        "surface-container-high": "#e6e8eb",
+                        "on-secondary-fixed": "#111d23"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.5rem",
+                        "lg": "0.5rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #f7f9fc;
+            font-family: 'Inter', sans-serif;
+        }
+        .editorial-shadow {
+            box-shadow: 0 32px 64px -12px rgba(25, 28, 30, 0.04);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased">
+<!-- SideNavBar (Shared Component) -->
+<aside class="fixed left-0 top-0 h-full flex flex-col h-screen w-64 border-r border-slate-200/50 dark:border-slate-800/50 bg-slate-50 dark:bg-slate-900 z-50">
+<div class="p-8">
+<h1 class="text-xl font-bold tracking-tight text-cyan-900 dark:text-cyan-100">Núcleo Parental</h1>
+<span class="text-xs font-manrope font-semibold text-slate-500 tracking-widest uppercase">Pro</span>
+</div>
+<nav class="flex-1 flex flex-col gap-1 px-2">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-cyan-900 dark:hover:text-cyan-100 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-sm font-inter">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-cyan-900 dark:hover:text-cyan-100 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="chat">chat</span>
+<span class="text-sm font-inter">Chat</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-cyan-900 dark:hover:text-cyan-100 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span class="text-sm font-inter">Calendar</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-cyan-900 dark:text-cyan-100 font-medium border-r-4 border-cyan-900 dark:border-cyan-100 bg-white/50 dark:bg-white/5" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="text-sm font-inter">Finances</span>
+</a>
+</nav>
+<div class="mt-auto p-4 flex flex-col gap-1 border-t border-slate-200/30">
+<button class="mb-4 w-full py-3 px-4 bg-gradient-to-br from-primary to-primary-container text-white rounded-xl font-medium text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-all">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+                New Entry
+            </button>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-cyan-900 dark:hover:text-cyan-100 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-sm font-inter">Settings</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-cyan-900 dark:hover:text-cyan-100 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="text-sm font-inter">Help</span>
+</a>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="ml-64 min-h-screen flex flex-col">
+<!-- TopNavBar (Shared Component) -->
+<header class="flex justify-between items-center h-16 w-full px-8 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md sticky top-0 z-40">
+<div class="flex items-center gap-4">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary text-lg" data-icon="search">search</span>
+<input class="bg-surface-container-low border-none rounded-full pl-10 pr-4 py-1.5 text-sm focus:ring-1 focus:ring-primary w-64" placeholder="Procurar despesas..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4">
+<button class="text-secondary hover:text-primary transition-all">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-secondary hover:text-primary transition-all">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</div>
+<div class="h-8 w-px bg-outline-variant/30"></div>
+<div class="flex items-center gap-3">
+<div class="text-right">
+<p class="text-xs font-bold text-on-surface">Ana Martins</p>
+<p class="text-[10px] text-secondary">Mãe</p>
+</div>
+<img alt="User profile" class="w-10 h-10 rounded-full object-cover border-2 border-primary-fixed" data-alt="professional headshot of a smiling middle-aged woman with dark hair in a bright modern office setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDaxIsD850E3v46OBPGnwjJvrt6jjBqCNjwxRhsFEDmAd4yD9xX3QB8CMgi-xtBOortRLB-MdB5o3qmHYc3F3ULUQ4IH7wdE3DnOiFcdR4RyXSlGDCUvhTT9BFkxKM4k_6rMyOFSVWMG3wDCksoMV4OVGT2jICk_s5IltkQMALYb1yD8wHi7CEyo4cyh3sgbQh6ibOzaV9fMR9iWNNA9-qdnLql7bKN1qVYWPeK0B_NMvyYi41rzQD3WrnQ8jmvKUWIUNMt6d3dNg"/>
+</div>
+</div>
+</header>
+<!-- Content Area -->
+<div class="p-10 max-w-7xl mx-auto w-full flex flex-col gap-8">
+<!-- Page Header (Editorial Style) -->
+<section class="flex flex-col gap-2">
+<h2 class="text-4xl font-headline font-bold text-on-surface tracking-tight">Lista de Despesas</h2>
+<p class="text-secondary font-body max-w-2xl leading-relaxed">Gerencie as finanças partilhadas com clareza e transparência. Visualize gastos por categoria, estado de pagamento e divisões acordadas.</p>
+</section>
+<!-- Filters Section -->
+<section class="flex flex-wrap items-center justify-between gap-4">
+<div class="flex flex-wrap items-center gap-2">
+<button class="px-5 py-2 bg-primary text-white rounded-full text-sm font-medium transition-all editorial-shadow">Todas</button>
+<button class="px-5 py-2 bg-white text-secondary hover:bg-surface-container-low rounded-full text-sm font-medium transition-all">Educação</button>
+<button class="px-5 py-2 bg-white text-secondary hover:bg-surface-container-low rounded-full text-sm font-medium transition-all">Saúde</button>
+<button class="px-5 py-2 bg-white text-secondary hover:bg-surface-container-low rounded-full text-sm font-medium transition-all">Alimentação</button>
+<button class="px-5 py-2 bg-white text-secondary hover:bg-surface-container-low rounded-full text-sm font-medium transition-all">Lazer</button>
+<button class="px-5 py-2 bg-white text-secondary hover:bg-surface-container-low rounded-full text-sm font-medium transition-all">Vestuário</button>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex bg-surface-container-low p-1 rounded-lg">
+<button class="p-2 bg-white rounded shadow-sm text-primary">
+<span class="material-symbols-outlined block" data-icon="list">list</span>
+</button>
+<button class="p-2 text-secondary hover:text-primary transition-all">
+<span class="material-symbols-outlined block" data-icon="grid_view">grid_view</span>
+</button>
+</div>
+<button class="flex items-center gap-2 px-4 py-2 border border-outline-variant/30 rounded-lg text-sm text-secondary hover:bg-white transition-all">
+<span class="material-symbols-outlined text-sm" data-icon="filter_list">filter_list</span>
+                        Filtros Avançados
+                    </button>
+</div>
+</section>
+<!-- Main Data Card -->
+<div class="bg-surface-container-lowest rounded-xl editorial-shadow overflow-hidden">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low/50">
+<th class="px-6 py-4 text-xs font-headline font-bold text-secondary uppercase tracking-widest">Categoria</th>
+<th class="px-6 py-4 text-xs font-headline font-bold text-secondary uppercase tracking-widest">Descrição</th>
+<th class="px-6 py-4 text-xs font-headline font-bold text-secondary uppercase tracking-widest">Valor</th>
+<th class="px-6 py-4 text-xs font-headline font-bold text-secondary uppercase tracking-widest">Pagador</th>
+<th class="px-6 py-4 text-xs font-headline font-bold text-secondary uppercase tracking-widest">Divisão</th>
+<th class="px-6 py-4 text-xs font-headline font-bold text-secondary uppercase tracking-widest">Estado</th>
+<th class="px-6 py-4 text-xs font-headline font-bold text-secondary uppercase tracking-widest">Ações</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-low">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-bright transition-colors group">
+<td class="px-6 py-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="school">school</span>
+</div>
+<span class="text-sm font-medium font-body text-on-surface">Educação</span>
+</div>
+</td>
+<td class="px-6 py-6">
+<p class="text-sm font-medium text-on-surface">Mensalidade Colégio - Março</p>
+<p class="text-xs text-secondary">Vencimento: 05/03/2024</p>
+</td>
+<td class="px-6 py-6">
+<span class="text-sm font-bold font-headline text-on-surface">450,00 €</span>
+</td>
+<td class="px-6 py-6">
+<div class="flex items-center gap-2">
+<img alt="Payer" class="w-6 h-6 rounded-full object-cover" data-alt="close-up of a professional woman with a soft smile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA96vTFqAUvugxySzN7S6nm8YsuhH1JHaQWOhQy03UOP-V-ob-aWcWdEGRXnl6ycUX279V2u0ZCZcFSuFT4RrfbXMA9pnLqgPPAHFvzVNEsjWR5VmQo910tkeFRAjj5uTbRuJ3WKZtEqlNWAS0n8_g1QOxKygl413vqW10motdDnQLrkJrOM1DvSa1z41DYfNI8FHcVMLkq1gVjQu6XSP2F-Tll9pOUBzQTqR1M2VVdf6zqA0N0fPSRnGa6VJRQLIDHbT55aC5wmg"/>
+<span class="text-sm text-secondary">Pai A (Ana)</span>
+</div>
+</td>
+<td class="px-6 py-6">
+<div class="flex items-center gap-1.5">
+<div class="flex -space-x-2">
+<div class="w-5 h-5 rounded-full bg-primary/20 border border-white flex items-center justify-center text-[10px] text-primary font-bold">50</div>
+<div class="w-5 h-5 rounded-full bg-secondary/20 border border-white flex items-center justify-center text-[10px] text-secondary font-bold">50</div>
+</div>
+<span class="text-xs text-secondary">Meio a Meio</span>
+</div>
+</td>
+<td class="px-6 py-6">
+<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed text-[10px] font-bold uppercase tracking-wider">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+                                    Pago
+                                </span>
+</td>
+<td class="px-6 py-6">
+<button class="text-secondary hover:text-primary opacity-0 group-hover:opacity-100 transition-all">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-bright transition-colors group">
+<td class="px-6 py-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-[#FF7043]">
+<span class="material-symbols-outlined" data-icon="medical_services">medical_services</span>
+</div>
+<span class="text-sm font-medium font-body text-on-surface">Saúde</span>
+</div>
+</td>
+<td class="px-6 py-6">
+<p class="text-sm font-medium text-on-surface">Consulta Pediatria</p>
+<p class="text-xs text-secondary">Vencimento: 12/03/2024</p>
+</td>
+<td class="px-6 py-6">
+<span class="text-sm font-bold font-headline text-on-surface">85,00 €</span>
+</td>
+<td class="px-6 py-6">
+<div class="flex items-center gap-2">
+<img alt="Payer" class="w-6 h-6 rounded-full object-cover" data-alt="headshot of a man with short hair and a beard, looking neutral and professional" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAplb96WKsuxyRt0spdaZ-ok_TVWR35opasfTrghaYSHSypUnYZgubxam7xN5lKad4QwbMIIVJbDuz6jL4PCPvqLuaAMJ-1VZ-6qXTi0_abVdv6Tw60DGwdlnhxGVwzfuj3IV3HQfQV7OoHcqbMcPS6793j-1m0yX7PzewaZX9DWbEYy-1urQ9AE5_EeZhPr-0EqE6M34EXtgNSRxIL_wHy-QseEvDxIAz_YbQ2x5MB-9MOk9Jn3kezxGFIT31WqHG2BcA72tNo6w"/>
+<span class="text-sm text-secondary">Pai B (João)</span>
+</div>
+</td>
+<td class="px-6 py-6">
+<div class="flex items-center gap-1.5">
+<div class="flex -space-x-2">
+<div class="w-5 h-5 rounded-full bg-primary/20 border border-white flex items-center justify-center text-[10px] text-primary font-bold">40</div>
+<div class="w-5 h-5 rounded-full bg-secondary/20 border border-white flex items-center justify-center text-[10px] text-secondary font-bold">60</div>
+</div>
+<span class="text-xs text-secondary">Proporcional</span>
+</div>
+</td>
+<td class="px-6 py-6">
+<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-error-container text-on-error-container text-[10px] font-bold uppercase tracking-wider">
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span>
+                                    Pendente
+                                </span>
+</td>
+<td class="px-6 py-6">
+<button class="text-secondary hover:text-primary opacity-0 group-hover:opacity-100 transition-all">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-bright transition-colors group">
+<td class="px-6 py-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-800">
+<span class="material-symbols-outlined" data-icon="theater_comedy">theater_comedy</span>
+</div>
+<span class="text-sm font-medium font-body text-on-surface">Lazer</span>
+</div>
+</td>
+<td class="px-6 py-6">
+<p class="text-sm font-medium text-on-surface">Entradas Oceanário</p>
+<p class="text-xs text-secondary">Vencimento: 15/03/2024</p>
+</td>
+<td class="px-6 py-6">
+<span class="text-sm font-bold font-headline text-on-surface">32,50 €</span>
+</td>
+<td class="px-6 py-6">
+<div class="flex items-center gap-2">
+<img alt="Payer" class="w-6 h-6 rounded-full object-cover" data-alt="professional portrait of a woman" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBOuvaxvLqBC_n8O11QUOxQ2V51bvhFQk5H-PiQMyv4_DcOfB0SHs9vHr5c1EHhUF0u2AvJD4DlfrLE9g-Pyb8TeSKdfBpUb258ah3LpMmsCu7DQRPky8hy119yDWNtu24keoupZ8fX83uFownmjEysXydH_Tfsh2tF-LLdUaUax_rOlkM6vqdrLmCFxBvZXmkuI3cu0UlV8y5Unwnatjm_yGeDfsniKqqFKjZ1nCJyZl_Y4M8p1mAaeVffnqGjHSLzr1_-w5zOaw"/>
+<span class="text-sm text-secondary">Pai A (Ana)</span>
+</div>
+</td>
+<td class="px-6 py-6">
+<div class="flex items-center gap-1.5">
+<div class="flex">
+<div class="w-5 h-5 rounded-full bg-primary/20 border border-white flex items-center justify-center text-[10px] text-primary font-bold">100</div>
+</div>
+<span class="text-xs text-secondary">Total Pagador</span>
+</div>
+</td>
+<td class="px-6 py-6">
+<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed text-[10px] font-bold uppercase tracking-wider">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+                                    Pago
+                                </span>
+</td>
+<td class="px-6 py-6">
+<button class="text-secondary hover:text-primary opacity-0 group-hover:opacity-100 transition-all">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-bright transition-colors group">
+<td class="px-6 py-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-800">
+<span class="material-symbols-outlined" data-icon="checkroom">checkroom</span>
+</div>
+<span class="text-sm font-medium font-body text-on-surface">Vestuário</span>
+</div>
+</td>
+<td class="px-6 py-6">
+<p class="text-sm font-medium text-on-surface">Ténis Desporto</p>
+<p class="text-xs text-secondary">Vencimento: 20/03/2024</p>
+</td>
+<td class="px-6 py-6">
+<span class="text-sm font-bold font-headline text-on-surface">59,99 €</span>
+</td>
+<td class="px-6 py-6">
+<div class="flex items-center gap-2">
+<img alt="Payer" class="w-6 h-6 rounded-full object-cover" data-alt="professional headshot of a man" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_-oCM20MviwIXRJUYHkxZz_ZqjP2Ix4KK6Ro-xduaAsWEIeBbgkVdBD3_s_Ku7YUT0XXUOFOUNkEh8BhtRxZpL3YnTi8IdPJx0TWExb4fW2Q7lMgealxlXFh5OEWd5qZqdK2et3M9uMY75rxydqOgToxJ3LPBhqQXvAWlKiGM4RS4KO7UcsYAr-J8SakAZ_hSMTacxr1GX3q6S61q4SELDcRxdWY3Fhvm3Q4deoBZtoxbSeRdUcotzolxVTwE3nphirvmQ9Aqcw"/>
+<span class="text-sm text-secondary">Pai B (João)</span>
+</div>
+</td>
+<td class="px-6 py-6">
+<div class="flex items-center gap-1.5">
+<div class="flex -space-x-2">
+<div class="w-5 h-5 rounded-full bg-primary/20 border border-white flex items-center justify-center text-[10px] text-primary font-bold">50</div>
+<div class="w-5 h-5 rounded-full bg-secondary/20 border border-white flex items-center justify-center text-[10px] text-secondary font-bold">50</div>
+</div>
+<span class="text-xs text-secondary">Meio a Meio</span>
+</div>
+</td>
+<td class="px-6 py-6">
+<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-error-container text-on-error-container text-[10px] font-bold uppercase tracking-wider">
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span>
+                                    Pendente
+                                </span>
+</td>
+<td class="px-6 py-6">
+<button class="text-secondary hover:text-primary opacity-0 group-hover:opacity-100 transition-all">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+<!-- Pagination/Summary Footer -->
+<div class="px-6 py-4 bg-surface-container-low/30 border-t border-surface-container-low flex items-center justify-between">
+<p class="text-xs text-secondary font-medium">Mostrando 1-4 de 24 despesas</p>
+<div class="flex items-center gap-1">
+<button class="p-1.5 rounded hover:bg-white text-secondary transition-all">
+<span class="material-symbols-outlined text-sm block" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="w-8 h-8 rounded flex items-center justify-center bg-primary text-white text-xs font-bold">1</button>
+<button class="w-8 h-8 rounded flex items-center justify-center hover:bg-white text-secondary text-xs font-medium">2</button>
+<button class="w-8 h-8 rounded flex items-center justify-center hover:bg-white text-secondary text-xs font-medium">3</button>
+<button class="p-1.5 rounded hover:bg-white text-secondary transition-all">
+<span class="material-symbols-outlined text-sm block" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Summary Bento Grid -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Card 1 -->
+<div class="bg-primary p-6 rounded-xl text-white editorial-shadow relative overflow-hidden">
+<div class="relative z-10">
+<p class="text-xs font-bold uppercase tracking-widest opacity-80 mb-1">Total Pendente Mãe (Ana)</p>
+<h3 class="text-3xl font-headline font-bold">142,50 €</h3>
+<p class="text-xs mt-4 flex items-center gap-1">
+<span class="material-symbols-outlined text-xs" data-icon="info">info</span>
+                            Aguardando confirmação do Pai B
+                        </p>
+</div>
+<div class="absolute -right-4 -bottom-4 opacity-10">
+<span class="material-symbols-outlined text-8xl" data-icon="account_balance_wallet">account_balance_wallet</span>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl editorial-shadow border border-surface-container-low">
+<p class="text-xs font-bold uppercase tracking-widest text-secondary mb-1">Total Pendente Pai (João)</p>
+<h3 class="text-3xl font-headline font-bold text-on-surface">85,00 €</h3>
+<div class="mt-4 h-1.5 w-full bg-surface-container-low rounded-full overflow-hidden">
+<div class="h-full bg-orange-soft w-3/4"></div>
+</div>
+<p class="text-[10px] text-secondary mt-2">75% do teto mensal atingido</p>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl editorial-shadow border border-surface-container-low flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-xs font-bold uppercase tracking-widest text-secondary mb-1">Acerto de Contas</p>
+<h3 class="text-xl font-headline font-bold text-tertiary">Saldo Equilibrado</h3>
+</div>
+<span class="material-symbols-outlined text-tertiary" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<button class="mt-4 text-xs font-bold text-primary flex items-center gap-1 hover:underline">
+                        Ver histórico de transferências
+                        <span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</section>
+</div>
+</main>
+</body></html>

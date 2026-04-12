@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Add Expense - Núcleo Parental Pro</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-fixed-variant": "#3c494f",
+                    "primary": "#00464a",
+                    "outline-variant": "#bec8c9",
+                    "on-primary-fixed": "#002021",
+                    "background": "#f7f9fc",
+                    "secondary-fixed": "#d7e4ec",
+                    "inverse-surface": "#2d3133",
+                    "on-secondary-container": "#5a666d",
+                    "surface-dim": "#d8dadd",
+                    "on-tertiary": "#ffffff",
+                    "surface-variant": "#e0e3e6",
+                    "surface": "#f7f9fc",
+                    "primary-container": "#006064",
+                    "inverse-primary": "#8ad3d7",
+                    "on-tertiary-fixed": "#002105",
+                    "tertiary-fixed": "#9ff79f",
+                    "surface-container": "#eceef1",
+                    "tertiary-fixed-dim": "#83da85",
+                    "on-tertiary-container": "#88df89",
+                    "surface-bright": "#f7f9fc",
+                    "secondary-fixed-dim": "#bbc8d0",
+                    "primary-fixed": "#a6eff3",
+                    "surface-container-highest": "#e0e3e6",
+                    "surface-container-lowest": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "on-primary-container": "#8fd8dc",
+                    "tertiary-container": "#00641f",
+                    "on-background": "#191c1e",
+                    "outline": "#6f7979",
+                    "error": "#ba1a1a",
+                    "tertiary": "#004914",
+                    "surface-container-low": "#f2f4f7",
+                    "on-primary": "#ffffff",
+                    "on-surface-variant": "#3f4949",
+                    "on-secondary-fixed": "#111d23",
+                    "on-tertiary-fixed-variant": "#005318",
+                    "surface-tint": "#14696d",
+                    "on-secondary": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "inverse-on-surface": "#eff1f4",
+                    "secondary-container": "#d7e4ec",
+                    "secondary": "#546067",
+                    "on-surface": "#191c1e",
+                    "surface-container-high": "#e6e8eb",
+                    "primary-fixed-dim": "#8ad3d7",
+                    "on-primary-fixed-variant": "#004f53",
+                    "on-error": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.5rem",
+                    "lg": "0.5rem",
+                    "xl": "1.5rem",
+                    "2xl": "2rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen flex flex-col items-center">
+<!-- Header Overlay (Mocking the background behind modal) -->
+<header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl text-teal-900 dark:text-teal-100 font-manrope text-on-surface tracking-tight docked full-width top-0 sticky z-10 shadow-sm shadow-teal-900/5 flex justify-between items-center w-full px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center overflow-hidden">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="minimalist 3d avatar of a friendly professional man with short hair and glasses on a soft teal background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCsWDd07eHqq69xUnmQW8Qub5SlR2dcQmSbG6MtSTqJHlWLNY3vFm2vdJAG-S_UpeDR_7dWsjTU7ay89Ri7GTnzFoMKx5C4FNA4q4bYdzudpviU6mmkcePmPYV2TpEhJ-Ls9Sreh_FfUVP7BqEjIY6Dcd4kfx-PbJLLmTgw0NOZdP-3m81MPoVO_fT-S-7LKZu2wLRzqGKyXCTJ_q1gK3B7ob9vMCtxvY1pnzWRTuWKLkaoPPhZihFpcSlb4x7430NHfJwnxtmkvw"/>
+</div>
+<span class="text-lg font-semibold text-teal-900 dark:text-teal-100">Núcleo Parental Pro</span>
+</div>
+<button class="p-2 hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</header>
+<!-- Modal Backdrop -->
+<div class="fixed inset-0 bg-on-surface/20 backdrop-blur-md z-40 flex items-end sm:items-center justify-center">
+<!-- Add Expense Modal -->
+<div class="bg-surface-container-lowest w-full max-w-lg rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden relative max-h-[795px] flex flex-col">
+<!-- Modal Header -->
+<div class="px-6 pt-6 pb-4 flex justify-between items-start">
+<div>
+<h2 class="text-2xl font-extrabold text-on-surface tracking-tight">Add Expense</h2>
+<p class="text-on-secondary-container text-sm mt-1">Record a new shared cost</p>
+</div>
+<button class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center text-secondary hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+</div>
+<!-- Modal Content (Scrollable) -->
+<form class="px-6 pb-8 overflow-y-auto no-scrollbar space-y-8 mt-4">
+<!-- Amount Input Section -->
+<div class="text-center space-y-2">
+<label class="text-xs font-medium uppercase tracking-widest text-on-secondary-container block">Amount</label>
+<div class="relative inline-flex items-center group">
+<span class="text-4xl font-light text-primary mr-2">€</span>
+<input autofocus="" class="text-5xl font-extrabold text-on-surface bg-transparent border-none focus:ring-0 w-48 text-left placeholder:text-surface-variant p-0" placeholder="0.00" step="0.01" type="number"/>
+<div class="absolute -bottom-2 left-0 right-0 h-0.5 bg-primary-fixed-dim scale-x-0 group-focus-within:scale-x-100 transition-transform duration-300"></div>
+</div>
+</div>
+<!-- Category Selector -->
+<div class="space-y-4">
+<label class="text-sm font-semibold text-on-surface px-1">Category</label>
+<div class="grid grid-cols-4 gap-3">
+<button class="flex flex-col items-center gap-2 p-3 rounded-xl bg-primary-container text-on-primary-container shadow-sm" type="button">
+<span class="material-symbols-outlined" data-icon="school" style="font-variation-settings: 'FILL' 1;">school</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Education</span>
+</button>
+<button class="flex flex-col items-center gap-2 p-3 rounded-xl bg-surface-container-low text-secondary hover:bg-secondary-container transition-colors" type="button">
+<span class="material-symbols-outlined" data-icon="medical_services">medical_services</span>
+<span class="text-[10px] font-medium uppercase tracking-wider">Health</span>
+</button>
+<button class="flex flex-col items-center gap-2 p-3 rounded-xl bg-surface-container-low text-secondary hover:bg-secondary-container transition-colors" type="button">
+<span class="material-symbols-outlined" data-icon="restaurant">restaurant</span>
+<span class="text-[10px] font-medium uppercase tracking-wider">Food</span>
+</button>
+<button class="flex flex-col items-center gap-2 p-3 rounded-xl bg-surface-container-low text-secondary hover:bg-secondary-container transition-colors" type="button">
+<span class="material-symbols-outlined" data-icon="more_horiz">more_horiz</span>
+<span class="text-[10px] font-medium uppercase tracking-wider">Other</span>
+</button>
+</div>
+</div>
+<!-- Description Field -->
+<div class="space-y-2">
+<label class="text-sm font-semibold text-on-surface px-1">Description</label>
+<input class="w-full px-4 py-3 rounded-xl bg-surface-container-low border-none focus:ring-2 focus:ring-primary/20 text-on-surface placeholder:text-outline-variant transition-all" placeholder="What was this for?" type="text"/>
+</div>
+<!-- Who Paid Section (Asymmetric Editorial Style) -->
+<div class="space-y-3">
+<label class="text-sm font-semibold text-on-surface px-1">Who paid?</label>
+<div class="flex gap-3">
+<button class="flex-1 flex items-center justify-between p-4 rounded-xl border-2 border-primary bg-primary-fixed/10 text-primary" type="button">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary">
+<img alt="Parent A" class="w-full h-full object-cover" data-alt="minimalist avatar of a person with dark hair and blue shirt on soft gray background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCzYk_tfEZBMzAAxyBVC06b2bLRH4iQV_kk8UbR7utVJ_PuhGxOxQYTzgDIPEPOAU8WLIvaQCXlyLDvkCEpI-lKMjB8Q7mWWxTqnFdMLEo72auXxo4-KTC2ykkGpAZvxxLsyivcwvhxZIKaRnQ6ZIw48OXG4wbdRlK5OQkpU7wN3df_5ipVCf0yTGBoR-ACFQBkwnQnS84JlBNzHzyZQ8NDPOP4bEPmd_szBJ6eH9S9SDIIU6pYKwVU4k2aCw03j8suVjYAO1TSLw"/>
+</div>
+<span class="font-bold">Parent A</span>
+</div>
+<span class="material-symbols-outlined text-xl" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</button>
+<button class="flex-1 flex items-center justify-between p-4 rounded-xl bg-surface-container-low text-on-secondary-container opacity-60" type="button">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden grayscale">
+<img alt="Parent B" class="w-full h-full object-cover" data-alt="minimalist avatar of a woman with long blonde hair on soft pink background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIg0b5KnwKM70mHBPxpNLXwbWJ0wOGY0eNVP2Ch_4zw4GPNSOB9OpctoITCKaVcSL6B8R4Sl9ID8pBfzQ1dz-W4fqFWDGaB5WtTBdPYlMbVeK6jGegM2G73YgxmSfuSsopWlfjiyECVk60QdrUgawk1qsU8EmQOn7Tbfsp7Zgrv0FIliQbpqS8SzGv6-JfK-U5ZA8lS-oTJpielpHs5mSilJE799D3UZVQ9me8qdxT-km3esnikA9B1Rf2_-U4576kwRSnmwyjzw"/>
+</div>
+<span class="font-medium">Parent B</span>
+</div>
+</button>
+</div>
+</div>
+<!-- Split Ratio (The "No-Line" Slider) -->
+<div class="space-y-4 bg-surface-container-low p-5 rounded-2xl">
+<div class="flex justify-between items-end">
+<label class="text-sm font-semibold text-on-surface">Split Ratio</label>
+<span class="text-xl font-extrabold text-primary">50 / 50</span>
+</div>
+<div class="relative h-10 flex items-center px-2">
+<div class="absolute h-1.5 w-full bg-surface-variant rounded-full"></div>
+<div class="absolute h-1.5 w-1/2 bg-primary-container rounded-full"></div>
+<div class="absolute left-1/2 -translate-x-1/2 w-6 h-6 bg-white border-4 border-primary shadow-lg rounded-full z-10"></div>
+</div>
+<div class="flex justify-between text-[10px] font-bold text-outline-variant uppercase tracking-tighter">
+<span>Parent A 100%</span>
+<span>Equal Split</span>
+<span>Parent B 100%</span>
+</div>
+</div>
+<!-- Action Button -->
+<button class="w-full py-5 bg-gradient-to-br from-[#00464a] to-[#006064] text-white rounded-xl font-bold text-lg shadow-xl shadow-teal-900/10 active:scale-95 transition-transform duration-200 flex items-center justify-center gap-2" type="submit">
+<span class="material-symbols-outlined" data-icon="add_task">add_task</span>
+                    Confirm Expense
+                </button>
+</form>
+</div>
+</div>
+<!-- Bottom Navigation Bar (Hidden in focused Modal task, but present for shell integrity) -->
+<nav class="fixed bottom-6 left-6 right-6 rounded-[2rem] z-50 bg-white/90 dark:bg-slate-900/90 backdrop-blur-lg shadow-2xl shadow-teal-900/10 flex justify-around items-center w-full max-w-md mx-auto p-2">
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-5 py-2 hover:text-teal-700 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-manrope text-[11px] font-medium tracking-wide uppercase">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-5 py-2 hover:text-teal-700 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="chat_bubble">chat_bubble</span>
+<span class="font-manrope text-[11px] font-medium tracking-wide uppercase">Chat</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-5 py-2 hover:text-teal-700 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span class="font-manrope text-[11px] font-medium tracking-wide uppercase">Calendar</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-teal-50 dark:bg-teal-950 text-teal-900 dark:text-teal-50 rounded-2xl px-5 py-2" href="#">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet" style="font-variation-settings: 'FILL' 1;">account_balance_wallet</span>
+<span class="font-manrope text-[11px] font-medium tracking-wide uppercase">Finances</span>
+</a>
+</nav>
+</body></html>

@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary": "#00374f",
+                        "background": "#0e0e0e",
+                        "tertiary-fixed": "#33bbff",
+                        "surface-container-lowest": "#000000",
+                        "on-primary": "#00534d",
+                        "tertiary-fixed-dim": "#04aef2",
+                        "on-tertiary-fixed-variant": "#003e59",
+                        "on-surface": "#ffffff",
+                        "outline": "#767575",
+                        "outline-variant": "#484847",
+                        "error": "#ff716c",
+                        "secondary-fixed": "#2ff7fb",
+                        "secondary-fixed-dim": "#00e8ec",
+                        "primary-fixed-dim": "#71d7cd",
+                        "surface-container-high": "#20201f",
+                        "primary-dim": "#71d7cd",
+                        "on-tertiary-fixed": "#001a29",
+                        "tertiary-dim": "#00a8ea",
+                        "on-secondary-fixed": "#004547",
+                        "on-error-container": "#ffa8a3",
+                        "on-primary-container": "#002825",
+                        "on-secondary-container": "#daffff",
+                        "error-container": "#9f0519",
+                        "surface-variant": "#262626",
+                        "on-error": "#490006",
+                        "on-background": "#ffffff",
+                        "primary-container": "#47b0a7",
+                        "on-primary-fixed-variant": "#005d57",
+                        "inverse-primary": "#006b64",
+                        "surface": "#0e0e0e",
+                        "surface-container": "#1a1a1a",
+                        "inverse-on-surface": "#565555",
+                        "inverse-surface": "#fcf9f8",
+                        "surface-tint": "#7fe6db",
+                        "on-surface-variant": "#adaaaa",
+                        "error-dim": "#d7383b",
+                        "on-secondary-fixed-variant": "#006466",
+                        "surface-container-highest": "#262626",
+                        "tertiary-container": "#12b1f5",
+                        "surface-bright": "#2c2c2c",
+                        "on-tertiary-container": "#002b3f",
+                        "primary": "#7fe6db",
+                        "on-primary-fixed": "#003e39",
+                        "surface-dim": "#0e0e0e",
+                        "on-secondary": "#005a5b",
+                        "secondary-dim": "#00e8ec",
+                        "secondary-container": "#00696b",
+                        "primary-fixed": "#7fe6db",
+                        "tertiary": "#43beff",
+                        "surface-container-low": "#131313",
+                        "secondary": "#2ff7fb"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #262626; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-background text-on-surface overflow-hidden">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 flex flex-col h-full py-8 px-4 h-screen w-64 border-r border-transparent bg-[#1a1a1a] dark:bg-neutral-900 font-manrope text-sm tracking-tight z-50">
+<div class="mb-10 px-2">
+<h1 class="text-xl font-bold tracking-tighter text-[#7fe6db] dark:text-teal-300">Núcleo Parental</h1>
+<p class="text-[10px] uppercase tracking-widest text-neutral-500 mt-1">Professional Sanctuary</p>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="flex items-center gap-3 py-3 px-4 rounded-lg text-neutral-400 dark:text-neutral-500 hover:text-neutral-200 hover:bg-neutral-800 transition-colors duration-300" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-3 py-3 px-4 rounded-lg text-[#7fe6db] dark:text-teal-300 font-bold border-l-4 border-[#7fe6db] hover:bg-neutral-800 transition-colors duration-300" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">forum</span>
+                Chat
+            </a>
+<a class="flex items-center gap-3 py-3 px-4 rounded-lg text-neutral-400 dark:text-neutral-500 hover:text-neutral-200 hover:bg-neutral-800 transition-colors duration-300" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+                Calendar
+            </a>
+<a class="flex items-center gap-3 py-3 px-4 rounded-lg text-neutral-400 dark:text-neutral-500 hover:text-neutral-200 hover:bg-neutral-800 transition-colors duration-300" href="#">
+<span class="material-symbols-outlined">payments</span>
+                Finances
+            </a>
+</nav>
+<div class="mt-auto pt-6 px-2 flex items-center gap-3 border-t border-neutral-800">
+<img alt="User profile photo" class="w-10 h-10 rounded-full object-cover border border-outline-variant/20" data-alt="Professional headshot of a mature counselor with a warm, empathetic expression against a soft-lit neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB2Gl-w2An6OyBS_huOA51seAaHap0-BiL-cXAmjRJJDLzLo1SZ7U6ekIBjMJ98CPlCVrpm_2Frl92fpYuuoRPOZ8Fm_uRzn-rPKOHAN29rUrJvHl_kUTyR1tWBTbxXFnjjEPXV2lS7s3TD6M1t4vjHcuMllb2RpkMczAL_8w1HLYSDl1Xwr7dyC6bfWP6AUPDi5PH8MsSspKExFf6O6J3g3K4f5OEqp-1aVXMr_LskN_UiYgZGT3IPbktSc5k_4SzOylndHHWS_Q"/>
+<div class="overflow-hidden">
+<p class="font-semibold text-on-surface truncate">Dr. Julian Vance</p>
+<p class="text-xs text-neutral-500 truncate">Senior Coordinator</p>
+</div>
+</div>
+</aside>
+<!-- TopNavBar (Responsive Desktop) -->
+<header class="flex justify-between items-center w-full px-8 py-4 ml-64 max-w-[calc(100%-16rem)] bg-[#0e0e0e]/60 dark:bg-black/60 backdrop-blur-xl fixed top-0 right-0 z-40">
+<div class="flex items-center gap-6">
+<span class="text-lg font-black text-white font-manrope uppercase tracking-wider">NÚCLEO PARENTAL PRO</span>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative group">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-neutral-500 text-sm">search</span>
+<input class="bg-surface-container-lowest border-none rounded-full pl-10 pr-4 py-2 text-[10px] font-label tracking-widest w-64 focus:ring-1 focus:ring-teal-500 transition-all outline-none" placeholder="SEARCH CONVERSATIONS..." type="text"/>
+</div>
+<div class="flex gap-2">
+<button class="p-2 text-neutral-400 hover:text-white transition-opacity"><span class="material-symbols-outlined">notifications</span></button>
+<button class="p-2 text-neutral-400 hover:text-white transition-opacity"><span class="material-symbols-outlined">settings</span></button>
+</div>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="ml-64 mt-[72px] h-[calc(100vh-72px)] flex overflow-hidden">
+<!-- Conversation List -->
+<section class="w-80 lg:w-96 bg-surface flex flex-col border-r border-transparent">
+<div class="p-6">
+<div class="flex items-center justify-between mb-6">
+<h2 class="text-2xl font-bold tracking-tight">Messages</h2>
+<button class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined text-sm">add</span>
+</button>
+</div>
+<div class="flex gap-2 mb-4 overflow-x-auto pb-2 scrollbar-hide">
+<span class="px-3 py-1 rounded-full bg-primary-container text-on-primary-container text-[10px] font-bold tracking-wider uppercase">All</span>
+<span class="px-3 py-1 rounded-full bg-surface-container-high text-on-surface-variant text-[10px] font-bold tracking-wider uppercase">Unread</span>
+<span class="px-3 py-1 rounded-full bg-surface-container-high text-on-surface-variant text-[10px] font-bold tracking-wider uppercase">Urgent</span>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto px-4 space-y-1">
+<!-- Chat Item Active -->
+<div class="p-4 rounded-xl bg-surface-container flex gap-3 cursor-pointer group transition-all">
+<div class="relative shrink-0">
+<img alt="Contact" class="w-12 h-12 rounded-full object-cover" data-alt="Calm portrait of a woman in a sage green sweater, soft natural lighting, minimal professional vibe" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCHCsVKF2GDn0ZrsHBghIBWr2QNokZzGXjNSp8Ys4HWF_u8cRsIzLICxgqIbI_Tak_uCT1BUck0xjrTAJCgLC98owSPKd05_ty4j8Km8-xQiwM4_3yVvW_w35R-59gsMjiDaxm8G1mcLMAEvPwZ9DGSfJx0jdzKOBdIEXm1MTVfgP5-YiqesFfu1s2Y5ZO3FscBlt6M22WeWLGmOpeopSNC2nJa7lP8OmoyBwWENcbDQG5AW97XnIEhThEvY0-jUsbNqp-_weL6kA"/>
+<div class="absolute bottom-0 right-0 w-3 h-3 bg-tertiary rounded-full border-2 border-surface-container"></div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start mb-0.5">
+<h3 class="font-bold text-sm text-on-surface truncate">Elena Richards</h3>
+<span class="text-[10px] text-primary font-bold">4:12 PM</span>
+</div>
+<p class="text-xs text-on-surface-variant truncate mb-2">The session yesterday was transformative, thank you...</p>
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+<span class="text-[9px] font-bold uppercase tracking-widest text-tertiary">Tone: Positive</span>
+</div>
+</div>
+</div>
+<!-- Chat Item 2 -->
+<div class="p-4 rounded-xl hover:bg-surface-container/50 flex gap-3 cursor-pointer group transition-all">
+<div class="shrink-0">
+<img alt="Contact" class="w-12 h-12 rounded-full object-cover opacity-80" data-alt="Professional man with glasses in a modern office setting, soft bokeh background, calm and authoritative" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAB7RYmwEC_rWo8yeKIJFPRt72oWfrnvSe-4lNAkyUNWPFNfUordNcsfFH9QfjbosZD8BXhhgXc4X7rrRSQ39q6L9Ts2Lb57W-ZmlRE_n4C90IyvKlsqPShl7cKS-sZ0baY3r_zPx2tlyjCTXKm_WBZ7tcGOUXR-u_rKEtIFP3zGlILzghdfVmoggM5aoCzqMnbQSA2CkU_UkzCYqYpOUh6T_iX8WIzX5fR_YVMKNyDsFv2sx0qCFGZq-nOVNcdd5I3aMlofTk0Ew"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start mb-0.5">
+<h3 class="font-bold text-sm text-on-surface-variant group-hover:text-on-surface truncate">Marcus Chen</h3>
+<span class="text-[10px] text-neutral-600">2:45 PM</span>
+</div>
+<p class="text-xs text-neutral-500 truncate mb-2">I have some concerns regarding the upcoming schedule.</p>
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-outline"></span>
+<span class="text-[9px] font-bold uppercase tracking-widest text-neutral-500">Tone: Neutral</span>
+</div>
+</div>
+</div>
+<!-- Chat Item 3 -->
+<div class="p-4 rounded-xl hover:bg-surface-container/50 flex gap-3 cursor-pointer group transition-all">
+<div class="shrink-0">
+<img alt="Contact" class="w-12 h-12 rounded-full object-cover opacity-80" data-alt="Close up of a focused woman with a thoughtful expression, warm cinematic lighting, dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDw__NqeelBx3Z77uX-axvg1LOldDXHWPuieiEK7-rXmvV4GW03W7Bval9Reml32s5OEOie1x2NCGy5eFhu3XI8RAJce6YRGSyVxPmNP_L-9hWdXZ3wF78HpJDFk9qKvBvykvoT7NqRuk8VqLW9nL9xo1xpCPvtvkeC1ULfj2Jow2haqu_Hj0LloqIPy6GuOgLU690NuCr1r42wEuEesiy9sTljPVb4fVkZQJ38Ow7VaI27ba5BRADMopxDK91-XZPP1vYZimGgHg"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start mb-0.5">
+<h3 class="font-bold text-sm text-on-surface-variant group-hover:text-on-surface truncate">Sarah Jenkins</h3>
+<span class="text-[10px] text-neutral-600">Yesterday</span>
+</div>
+<p class="text-xs text-neutral-500 truncate mb-2">Needs urgent feedback on the parental plan draft.</p>
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-error-dim"></span>
+<span class="text-[9px] font-bold uppercase tracking-widest text-error-dim">Tone: Warning</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Active Chat Window -->
+<section class="flex-1 bg-surface-container-low flex flex-col">
+<!-- Chat Header -->
+<div class="px-8 py-4 bg-surface-container flex justify-between items-center z-10">
+<div class="flex items-center gap-4">
+<div class="relative">
+<img alt="Active Chat" class="w-10 h-10 rounded-full object-cover" data-alt="Portrait of a professional woman with a soft smile and calm eyes, high-end editorial lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzTfdaGEVJ1MMXzqAV90rakraIY7YgxoHM9DyfWPAvOA-qMqaswvhgRVcNrkCBx4m0d4pDA7BmBuLLPr3BPAHSuLH89scHKiPBiWeNhft6Jr4bDs8Npy1a4xu8dkbKPxZ6hZRhAea-dzu_PaaxkAJuF3q23vKYCJTn69JoNH8sEKj6kGT06MXPY6rgv__-l7xBhrxBOMZ2eClzsSnQfDZrWBT5_8L7IX9hKSfwbl7DkHClglpC__Mp-YeUJngpVvuhM5hh8WWGvg"/>
+<div class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-tertiary rounded-full border-2 border-surface-container"></div>
+</div>
+<div>
+<h2 class="font-bold text-lg leading-none">Elena Richards</h2>
+<span class="text-[10px] uppercase tracking-tighter text-tertiary-fixed font-bold">Actively Engaging • Supportive Atmosphere</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container-high border border-outline-variant/10">
+<span class="material-symbols-outlined text-tertiary text-sm">psychology</span>
+<span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Real-time Tone Analysis</span>
+</div>
+<div class="h-8 w-[1px] bg-outline-variant/20 mx-2"></div>
+<button class="w-10 h-10 rounded-full hover:bg-surface-container-highest flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined">videocam</span>
+</button>
+<button class="w-10 h-10 rounded-full hover:bg-surface-container-highest flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Messages Area -->
+<div class="flex-1 overflow-y-auto p-8 space-y-12">
+<div class="flex justify-center">
+<span class="px-4 py-1 rounded-full bg-surface-container-highest text-[10px] font-bold uppercase tracking-widest text-neutral-500">October 24, 2023</span>
+</div>
+<!-- Recipient Message -->
+<div class="flex gap-4 max-w-2xl">
+<img alt="Elena" class="w-8 h-8 rounded-full object-cover shrink-0 mt-1" data-alt="Close up portrait of a woman, soft professional lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1ZmByKeYSIjbskJU3a10HiNsYoVhcys1Evo6oKOHQ6uem2u_jLtp-HPUiGIqNLhGZeZLWmT82dsTIhi4R-OBJoYtq2EXWcLgUIWW1ABwaJzrEQe_cIQiGaqE2jRlqV7J2Q_xdfY9OTsnnoqPOs7FwBGYsZ1k0kZFKtopXtIeAZpzxRwMfZ-ektnAGm4ESplmGn5Ncl_V7242V4LeMqaGGDES7d96r27ou_vutK0NCPuz_xG7tGowsiE9r0S91vLxbc3bkyfBJKw"/>
+<div class="space-y-2">
+<div class="p-4 bg-surface-container-high rounded-2xl rounded-tl-none shadow-sm">
+<p class="text-sm leading-relaxed text-on-surface-variant">Hello Julian, I've been reflecting on our session yesterday. The techniques for active listening with the kids have already started making a difference in our morning routine.</p>
+</div>
+<div class="p-4 bg-surface-container-high rounded-2xl shadow-sm">
+<p class="text-sm leading-relaxed text-on-surface-variant">I wanted to ask if you have any specific resources for transitioning between work and "parent mode" when working from home? That's still a hurdle for me.</p>
+</div>
+<span class="text-[10px] text-neutral-600 block pl-1">4:10 PM</span>
+</div>
+</div>
+<!-- Sender Message -->
+<div class="flex gap-4 max-w-2xl ml-auto flex-row-reverse">
+<div class="space-y-2">
+<div class="p-4 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-2xl rounded-tr-none shadow-lg">
+<p class="text-sm font-medium leading-relaxed">That's wonderful to hear, Elena. Progress in the morning routine is a major win! </p>
+</div>
+<div class="p-4 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-2xl shadow-lg">
+<p class="text-sm font-medium leading-relaxed">For the WFH transition, I recommend a "Third Space" ritual. Even just a 10-minute walk around the block or a specific physical change—like changing your shirt—can signal the boundary shift to your brain. I'll send over a curated PDF guide on this shortly.</p>
+</div>
+<span class="text-[10px] text-neutral-600 block pr-1 text-right">4:12 PM • Delivered</span>
+</div>
+</div>
+<!-- Recipient Message with Tone Indicator Highlight -->
+<div class="flex gap-4 max-w-2xl">
+<img alt="Elena" class="w-8 h-8 rounded-full object-cover shrink-0 mt-1" data-alt="Portrait of a professional woman" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDWdg2PEBTa7xRGVVUi15w9FHiTWM3Ph1Gk-mk648-PVDq4G1FErFQLqoCZs4H2Vgk2C8rmWFEX7cKg-Jd-vDm1TebwknNVujqRBdFoNodee7vjowoReLtsWKFAASlcFjAB4bYdQFDTL4p8chcP_vPA6B0vtaJE5nN1wvDiHrIJn00MdMQBpAX0wyS8ayoeOabCaqFVEDxm2hq4mGgFYBWfRL2Ymox89GjBmE5EGmCksiRggSd2xa9Sw9fYOZVFVogcJiEbM-2DQ"/>
+<div class="space-y-2">
+<div class="p-4 bg-surface-container-high rounded-2xl rounded-tl-none shadow-sm border-l-2 border-tertiary">
+<p class="text-sm leading-relaxed text-on-surface-variant">The session yesterday was transformative, thank you for your patience with me.</p>
+</div>
+<div class="flex items-center gap-2 mt-1">
+<span class="material-symbols-outlined text-[14px] text-tertiary" style="font-variation-settings: 'FILL' 1;">mood</span>
+<span class="text-[9px] font-bold uppercase tracking-[0.1em] text-tertiary">Tone Analysis: Highly Positive / Receptive</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Message Input -->
+<div class="p-8 pt-0">
+<div class="bg-surface-container rounded-[20px] p-2 flex flex-col gap-2 shadow-2xl">
+<div class="flex items-center gap-2 px-3 pt-2">
+<button class="p-2 text-neutral-500 hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined">attach_file</span>
+</button>
+<button class="p-2 text-neutral-500 hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined">sentiment_satisfied</span>
+</button>
+<div class="h-6 w-[1px] bg-outline-variant/20 mx-1"></div>
+<div class="flex gap-1">
+<button class="px-3 py-1 rounded-full bg-surface-container-highest text-[10px] font-bold uppercase tracking-widest text-neutral-400 hover:text-white transition-colors">Drafts</button>
+<button class="px-3 py-1 rounded-full bg-surface-container-highest text-[10px] font-bold uppercase tracking-widest text-neutral-400 hover:text-white transition-colors">Templates</button>
+</div>
+</div>
+<div class="flex items-end gap-2 p-2">
+<textarea class="flex-1 bg-transparent border-none focus:ring-0 text-on-surface text-sm py-2 px-4 resize-none min-h-[44px] placeholder-neutral-600" placeholder="Craft your response with empathy..." rows="1"></textarea>
+<button class="bg-primary hover:bg-primary-container text-on-primary w-11 h-11 rounded-xl flex items-center justify-center transition-all shadow-lg active:scale-95">
+<span class="material-symbols-outlined">send</span>
+</button>
+</div>
+</div>
+<p class="mt-4 text-center text-[10px] text-neutral-600 uppercase tracking-widest">Messages are end-to-end encrypted and HIPAA compliant</p>
+</div>
+</section>
+<!-- Right Side Context Panel (Asymmetric touch) -->
+<section class="w-72 bg-surface p-6 flex flex-col gap-8 border-l border-transparent hidden xl:flex">
+<div>
+<h4 class="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-500 mb-4">Patient Profile</h4>
+<div class="bg-surface-container rounded-xl p-4">
+<p class="text-xs font-bold text-on-surface mb-1">Elena Richards</p>
+<p class="text-[10px] text-neutral-500 mb-3">Enrolled since Jan 2023</p>
+<div class="flex flex-wrap gap-1">
+<span class="px-2 py-0.5 rounded bg-tertiary/10 text-tertiary text-[9px] font-bold uppercase tracking-tighter">WFH Balance</span>
+<span class="px-2 py-0.5 rounded bg-tertiary/10 text-tertiary text-[9px] font-bold uppercase tracking-tighter">Toddler Phase</span>
+</div>
+</div>
+</div>
+<div>
+<h4 class="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-500 mb-4">Shared Resources</h4>
+<div class="space-y-3">
+<div class="flex items-center gap-3 p-2 rounded-lg hover:bg-surface-container transition-colors cursor-pointer">
+<div class="w-8 h-8 rounded bg-surface-container-high flex items-center justify-center">
+<span class="material-symbols-outlined text-sm text-primary">picture_as_pdf</span>
+</div>
+<div class="min-w-0">
+<p class="text-[11px] font-bold truncate">Morning_Routine_Map.pdf</p>
+<p class="text-[9px] text-neutral-600">Shared yesterday</p>
+</div>
+</div>
+<div class="flex items-center gap-3 p-2 rounded-lg hover:bg-surface-container transition-colors cursor-pointer">
+<div class="w-8 h-8 rounded bg-surface-container-high flex items-center justify-center">
+<span class="material-symbols-outlined text-sm text-tertiary">link</span>
+</div>
+<div class="min-w-0">
+<p class="text-[11px] font-bold truncate">Mindful_Parenting_Workshop</p>
+<p class="text-[9px] text-neutral-600">Shared Oct 12</p>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-auto">
+<div class="p-4 rounded-2xl bg-gradient-to-br from-surface-container-high to-surface-container border border-outline-variant/10">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-tertiary text-sm">stars</span>
+<span class="text-[10px] font-bold uppercase tracking-widest text-on-surface">Insight Engine</span>
+</div>
+<p class="text-[11px] leading-relaxed text-on-surface-variant">Elena is showing a 15% increase in positive sentiment this week compared to her baseline.</p>
+</div>
+</div>
+</section>
+</main>
+</body></html>

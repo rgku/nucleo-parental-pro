@@ -1,0 +1,136 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --primary: #00464a;
+    --primary-container: #006064;
+    --tertiary: #004914;
+    --surface: #f7f9fc;
+    --surface-card: #ffffff;
+    --on-surface: #191c1e;
+    --secondary: #546067;
+    --orange-soft: #FF7043;
+  }
+
+  .dark {
+    --primary: #8ad3d7;
+    --primary-container: #00464a;
+    --tertiary: #9ff79f;
+    --surface: #0f172a;
+    --surface-card: #1e293b;
+    --on-surface: #f1f5f9;
+    --secondary: #94a3b8;
+  }
+
+  * {
+    @apply border-outline-variant/15;
+  }
+
+  body {
+    @apply bg-surface text-on-surface font-body antialiased;
+    font-family: 'Inter', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Manrope', sans-serif;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-surface-container-lowest rounded-lg p-4 shadow-card;
+  }
+
+  .btn-primary {
+    @apply bg-gradient-to-br from-primary to-primary-container text-white rounded-xl px-6 py-3 font-medium text-sm transition-transform active:scale-95 shadow-elevated;
+  }
+
+  .btn-secondary {
+    @apply bg-surface-container-high text-on-surface rounded-xl px-6 py-3 font-medium text-sm transition-colors hover:bg-surface-container-low;
+  }
+
+  .input-field {
+    @apply bg-surface-container-lowest border border-outline-variant/15 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors;
+  }
+
+  .bottom-nav {
+    @apply fixed bottom-6 left-6 right-6 rounded-[2rem] bg-white/90 dark:bg-slate-900/90 backdrop-blur-lg shadow-nav flex justify-around items-center max-w-md mx-auto p-2 z-50;
+  }
+
+  .sidebar {
+    @apply fixed left-0 top-0 h-full bg-slate-50 dark:bg-slate-900 w-64 border-r border-slate-200/50 dark:border-slate-800/50 z-50;
+  }
+
+  .sidebar-link {
+    @apply flex items-center gap-3 px-4 py-3 text-secondary hover:text-primary dark:hover:text-primary transition-colors;
+  }
+
+  .sidebar-link-active {
+    @apply text-primary dark:text-primary border-r-4 border-primary bg-surface-container-low;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .glass {
+    @apply bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Material Symbols Outlined */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.4s ease-out;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-secondary/30 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-secondary/50;
+}
