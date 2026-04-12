@@ -8,10 +8,13 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { cn, centsToEuros } from '@/lib/utils'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+// Only create client if environment variables are available
+const supabase = supabaseUrl && supabaseAnonKey 
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : null
 
 interface Expense {
   id: string

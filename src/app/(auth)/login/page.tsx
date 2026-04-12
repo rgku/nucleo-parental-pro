@@ -7,10 +7,11 @@ import { createClient } from '@supabase/supabase-js'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+const supabase = supabaseUrl && supabaseAnonKey 
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : null
 
 export default function LoginPage() {
   const router = useRouter()
@@ -21,6 +22,12 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (!supabase) {
+      setError('Configuração do Supabase em falta')
+      return
+    }
+    
     setLoading(true)
     setError('')
 
@@ -35,7 +42,6 @@ export default function LoginPage() {
       return
     }
 
-    // Check if profile exists
     if (data.user) {
       const { data: profile } = await supabase
         .from('profiles')
@@ -53,55 +59,61 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-surface p-4">
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: '#f7f9fc' }}>
       <div className="w-full max-w-md">
-        {/* Logo */}
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-primary font-headline">
+          <h1 className="text-2xl font-bold" style={{ color: '#00464a', fontFamily: 'Manrope, sans-serif' }}>
             Núcleo Parental
           </h1>
-          <span className="text-sm text-secondary uppercase tracking-widest">
+          <span className="text-sm" style={{ color: '#546067', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
             Pro
           </span>
         </div>
 
-        {/* Login Form */}
-        <div className="bg-surface-container-lowest rounded-xl p-8 shadow-card">
-          <h2 className="text-xl font-semibold font-headline mb-6">
+        <div className="rounded-xl p-8" style={{ backgroundColor: '#ffffff', boxShadow: '0 32px 64px -12px rgba(0,0,0,0.04)' }}>
+          <h2 className="text-xl font-semibold mb-6" style={{ fontFamily: 'Manrope, sans-serif' }}>
             Iniciar Sessão
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <Input
-              type="email"
-              label="Email"
-              placeholder="seu@email.pt"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+            <div>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#191c1e' }}>Email</label>
+              <input
+                type="email"
+                className="w-full rounded-lg border px-4 py-3 text-sm"
+                style={{ borderColor: 'rgba(0,0,0,0.08)', backgroundColor: '#ffffff' }}
+                placeholder="seu@email.pt"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
 
-            <Input
-              type="password"
-              label="Palavra-passe"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+            <div>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#191c1e' }}>Palavra-passe</label>
+              <input
+                type="password"
+                className="w-full rounded-lg border px-4 py-3 text-sm"
+                style={{ borderColor: 'rgba(0,0,0,0.08)', backgroundColor: '#ffffff' }}
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
 
             {error && (
-              <p className="text-sm text-orange-soft">{error}</p>
+              <p className="text-sm" style={{ color: '#FF7043' }}>{error}</p>
             )}
 
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full" disabled={loading} style={{ background: 'linear-gradient(135deg, #00464a, #006064)', color: 'white', borderRadius: '0.75rem', padding: '0.75rem 1.5rem', fontWeight: 500 }}>
               {loading ? 'A entrar...' : 'Entrar'}
             </Button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-secondary">
+          <p className="mt-6 text-center text-sm" style={{ color: '#546067' }}>
             Não tem conta?{' '}
-            <Link href="/register" className="text-primary font-medium">
+            <Link href="/register" style={{ color: '#00464a', fontWeight: 500 }}>
               Criar conta
             </Link>
           </p>
