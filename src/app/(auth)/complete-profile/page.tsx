@@ -3,15 +3,25 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { MUNICIPALITIES } from '@/lib/holidays-pt'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-const supabase = supabaseUrl && supabaseAnonKey 
-  ? createClient(supabaseUrl, supabaseAnonKey)
-  : null
+const getSupabaseClient = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  if (!supabaseUrl || !supabaseAnonKey) return null
+  return createClient(supabaseUrl, supabaseAnonKey)
+}
+
+const MUNICIPALITIES = [
+  { id: 'aveiro', name: 'Aveiro' },
+  { id: 'beja', name: 'Beja' },
+  { id: 'braga', name: 'Braga' },
+  { id: 'braganca', name: 'Bragança' },
+  { id: 'coimbra', name: 'Coimbra' },
+  { id: 'evora', name: 'Évora' },
+  { id: 'faro', name: 'Faro' },
+  { id: 'lisboa', name: 'Lisboa' },
+  { id: 'porto', name: 'Porto' },
+]
 
 export default function CompleteProfilePage() {
   const router = useRouter()
@@ -23,7 +33,6 @@ export default function CompleteProfilePage() {
   const [municipalityId, setMunicipalityId] = useState('lisboa')
 
   useEffect(() => {
-    // Pre-fill from localStorage (set during registration)
     const savedRole = localStorage.getItem('pending_role') as 'parent_a' | 'parent_b' | null
     const savedName = localStorage.getItem('pending_name')
     
@@ -34,6 +43,12 @@ export default function CompleteProfilePage() {
   }, [])
 
   const checkUser = async () => {
+    const supabase = getSupabaseClient()
+    if (!supabase) {
+      router.push('/login')
+      return
+    }
+    
     const { data: { user } } = await supabase.auth.getUser()
     
     if (!user) {
@@ -41,7 +56,6 @@ export default function CompleteProfilePage() {
       return
     }
 
-    // Check if profile already exists
     const { data: profile } = await supabase
       .from('profiles')
       .select('*')
@@ -49,7 +63,6 @@ export default function CompleteProfilePage() {
       .single()
 
     if (profile) {
-      // Clear localStorage
       localStorage.removeItem('pending_role')
       localStorage.removeItem('pending_name')
       router.push('/dashboard')
@@ -61,6 +74,12 @@ export default function CompleteProfilePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    const supabase = getSupabaseClient()
+    if (!supabase) {
+      router.push('/login')
+      return
+    }
+    
     setSaving(true)
 
     const { data: { user } } = await supabase.auth.getUser()
@@ -70,7 +89,6 @@ export default function CompleteProfilePage() {
       return
     }
 
-    // Create profile
     const { data: profile, error } = await supabase
       .from('profiles')
       .insert({
@@ -88,116 +106,92 @@ export default function CompleteProfilePage() {
       return
     }
 
-    // Clear localStorage
     localStorage.removeItem('pending_role')
     localStorage.removeItem('pending_name')
 
-    // Check if other parent already exists (for demo, just create parental unit)
-    const { data: allProfiles } = await supabase
-      .from('profiles')
-      .select('id, role')
-      .neq('id', profile.id)
-      .limit(10)
-
-    const otherParent = allProfiles?.find(p => p.role !== role)
-
-    if (otherParent) {
-      // Link with existing parent
-      if (role === 'parent_a') {
-        await supabase
-          .from('parental_units')
-          .update({ parent_a_id: profile.id })
-          .eq('parent_b_id', otherParent.id)
-      } else {
-        await supabase
-          .from('parental_units')
-          .update({ parent_b_id: profile.id })
-          .eq('parent_a_id', otherParent.id)
-      }
-    } else {
-      // Create new parental unit
-      await supabase
-        .from('parental_units')
-        .insert({
-          agreement_name: 'Acordo de Coparentalidade',
-          parent_a_id: role === 'parent_a' ? profile.id : 'pending',
-          parent_b_id: role === 'parent_b' ? profile.id : 'pending',
-          municipality_id: municipalityId,
-        })
-    }
+    await supabase
+      .from('parental_units')
+      .insert({
+        agreement_name: 'Acordo de Coparentalidade',
+        parent_a_id: role === 'parent_a' ? profile.id : 'pending',
+        parent_b_id: role === 'parent_b' ? profile.id : 'pending',
+        municipality_id: municipalityId,
+      })
 
     router.push('/dashboard')
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-surface">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#f7f9fc' }}>
+        <div className="rounded-full h-8 w-8" style={{ borderBottom: '2px solid #00464a', animation: 'spin 1s linear infinite' }}></div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-surface p-4">
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: '#f7f9fc' }}>
       <div className="w-full max-w-md">
-        {/* Logo */}
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-primary font-headline">
+          <h1 className="text-2xl font-bold" style={{ color: '#00464a', fontFamily: 'Manrope, sans-serif' }}>
             Núcleo Parental
           </h1>
-          <span className="text-sm text-secondary uppercase tracking-widest">
+          <span className="text-sm" style={{ color: '#546067', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
             Pro
           </span>
         </div>
 
-        {/* Complete Profile Form */}
-        <div className="bg-surface-container-lowest rounded-xl p-8 shadow-card">
+        <div className="rounded-xl p-8" style={{ backgroundColor: '#ffffff', boxShadow: '0 32px 64px -12px rgba(0,0,0,0.04)' }}>
           <div className="flex items-center gap-3 mb-6">
-            <span className="material-symbols-outlined text-primary text-2xl">person_add</span>
+            <span className="material-symbols-outlined text-2xl" style={{ color: '#00464a' }}>person_add</span>
             <div>
-              <h2 className="text-xl font-semibold font-headline">
+              <h2 className="text-xl font-semibold" style={{ fontFamily: 'Manrope, sans-serif' }}>
                 Complete o seu perfil
               </h2>
-              <p className="text-xs text-secondary">
+              <p className="text-xs" style={{ color: '#546067' }}>
                 Precizamos de algumas informações
               </p>
             </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <Input
-              type="text"
-              label="Nome"
-              placeholder="Seu nome completo"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
+            <div>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#191c1e' }}>Nome</label>
+              <input
+                type="text"
+                className="w-full rounded-lg border px-4 py-3 text-sm"
+                style={{ borderColor: 'rgba(0,0,0,0.08)', backgroundColor: '#ffffff' }}
+                placeholder="Seu nome completo"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </div>
 
             <div>
-              <label className="block text-sm font-medium text-on-surface mb-2">
-                Sou o:
-              </label>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#191c1e' }}>Sou o:</label>
               <div className="flex gap-3">
                 <button
                   type="button"
                   onClick={() => setRole('parent_a')}
-                  className={`flex-1 py-3 px-4 rounded-lg border text-sm font-medium transition-colors ${
-                    role === 'parent_a'
-                      ? 'border-primary bg-primary/10 text-primary'
-                      : 'border-outline-variant/30 text-secondary hover:border-primary'
-                  }`}
+                  className="flex-1 py-3 px-4 rounded-lg border text-sm font-medium transition-colors"
+                  style={{ 
+                    borderColor: role === 'parent_a' ? '#00464a' : 'rgba(0,0,0,0.08)',
+                    backgroundColor: role === 'parent_a' ? 'rgba(0,70,74,0.1)' : 'transparent',
+                    color: role === 'parent_a' ? '#00464a' : '#546067'
+                  }}
                 >
                   Progenitor A
                 </button>
                 <button
                   type="button"
                   onClick={() => setRole('parent_b')}
-                  className={`flex-1 py-3 px-4 rounded-lg border text-sm font-medium transition-colors ${
-                    role === 'parent_b'
-                      ? 'border-primary bg-primary/10 text-primary'
-                      : 'border-outline-variant/30 text-secondary hover:border-primary'
-                  }`}
+                  className="flex-1 py-3 px-4 rounded-lg border text-sm font-medium transition-colors"
+                  style={{ 
+                    borderColor: role === 'parent_b' ? '#00464a' : 'rgba(0,0,0,0.08)',
+                    backgroundColor: role === 'parent_b' ? 'rgba(0,70,74,0.1)' : 'transparent',
+                    color: role === 'parent_b' ? '#00464a' : '#546067'
+                  }}
                 >
                   Progenitor B
                 </button>
@@ -205,13 +199,12 @@ export default function CompleteProfilePage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-on-surface mb-2">
-                Município (para feriados)
-              </label>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#191c1e' }}>Município</label>
               <select
                 value={municipalityId}
                 onChange={(e) => setMunicipalityId(e.target.value)}
-                className="w-full h-10 rounded-lg border border-outline-variant/15 bg-surface-container-lowest px-4 text-sm focus:outline-none focus:border-primary"
+                className="w-full h-10 rounded-lg border px-4 text-sm"
+                style={{ borderColor: 'rgba(0,0,0,0.08)', backgroundColor: '#ffffff' }}
               >
                 {MUNICIPALITIES.map((m) => (
                   <option key={m.id} value={m.id}>
@@ -221,20 +214,15 @@ export default function CompleteProfilePage() {
               </select>
             </div>
 
-            <Button type="submit" className="w-full" disabled={saving}>
+            <button
+              type="submit"
+              className="w-full py-3 rounded-xl font-medium"
+              style={{ background: 'linear-gradient(135deg, #00464a, #006064)', color: 'white' }}
+              disabled={saving}
+            >
               {saving ? 'A guardar...' : 'Continuar'}
-            </Button>
+            </button>
           </form>
-
-          <button
-            onClick={async () => {
-              await supabase.auth.signOut()
-              router.push('/login')
-            }}
-            className="mt-4 w-full text-center text-sm text-secondary hover:text-primary"
-          >
-            Terminar sessão
-          </button>
         </div>
       </div>
     </div>

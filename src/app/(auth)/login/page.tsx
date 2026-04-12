@@ -4,14 +4,13 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@supabase/supabase-js'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-const supabase = supabaseUrl && supabaseAnonKey 
-  ? createClient(supabaseUrl, supabaseAnonKey)
-  : null
+const getSupabaseClient = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  if (!supabaseUrl || !supabaseAnonKey) return null
+  return createClient(supabaseUrl, supabaseAnonKey)
+}
 
 export default function LoginPage() {
   const router = useRouter()
@@ -23,6 +22,7 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
+    const supabase = getSupabaseClient()
     if (!supabase) {
       setError('Configuração do Supabase em falta')
       return
@@ -106,9 +106,14 @@ export default function LoginPage() {
               <p className="text-sm" style={{ color: '#FF7043' }}>{error}</p>
             )}
 
-            <Button type="submit" className="w-full" disabled={loading} style={{ background: 'linear-gradient(135deg, #00464a, #006064)', color: 'white', borderRadius: '0.75rem', padding: '0.75rem 1.5rem', fontWeight: 500 }}>
+            <button
+              type="submit"
+              className="w-full py-3 rounded-xl font-medium"
+              style={{ background: 'linear-gradient(135deg, #00464a, #006064)', color: 'white' }}
+              disabled={loading}
+            >
               {loading ? 'A entrar...' : 'Entrar'}
-            </Button>
+            </button>
           </form>
 
           <p className="mt-6 text-center text-sm" style={{ color: '#546067' }}>
