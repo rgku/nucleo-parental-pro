@@ -1,5 +1,8 @@
-import { redirect } from 'next/navigation'
-
 export default function Home() {
-  redirect('/login')
+  return (
+    <div style={{ padding: '2rem', textAlign: 'center' }}>
+      <h1>Núcleo Parental Pro</h1>
+      <p>Loading...</p>
+    </div>
+  )
 }
