@@ -70,7 +70,7 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl
 
-  const publicRoutes = ['/', '/login', '/register']
+  const publicRoutes = ['/', '/login', '/register', '/complete-profile']
   const isPublicRoute = publicRoutes.includes(pathname)
 
   if (!session && !isPublicRoute) {
