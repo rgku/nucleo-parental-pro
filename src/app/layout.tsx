@@ -6,6 +6,11 @@ export const metadata: Metadata = {
   title: 'Núcleo Parental Pro',
   description: 'App de gestão de coparentalidade para progenitors em Portugal',
   manifest: '/manifest.json',
+  icons: {
+    icon: [
+      { url: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="%2300464a" width="100" height="100" rx="20"/><text x="50" y="60" font-size="50" text-anchor="middle" fill="white">NP</text></svg>', type: 'image/svg+xml' }
+    ]
+  }
 }
 
 export default function RootLayout({
