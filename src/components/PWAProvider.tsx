@@ -38,6 +38,9 @@ export function PWAProvider({ children }: { children: React.ReactNode }) {
 
   const registerServiceWorker = async () => {
     if (!('serviceWorker' in navigator)) return
+    if (typeof window !== 'undefined' && typeof process !== 'undefined' && process.env.NODE_ENV === 'production') {
+      return
+    }
 
     try {
       const registration = await navigator.serviceWorker.register('/service-worker.js', {
