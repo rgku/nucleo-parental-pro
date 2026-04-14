@@ -21,57 +21,33 @@ export default function LoginPage() {
   const [error, setError] = useState('')
 
   const handleDemoLogin = async () => {
-    const supabase = getSupabaseClient()
-    if (!supabase) return
-
     setDemoLoading(true)
     setError('')
 
     try {
-      const { data, error: authError } = await supabase.auth.signInWithPassword({
-        email: 'demo@nucleoparental.pt',
-        password: 'demo1234',
-      })
+      const { data, error } = await fetch('/api/demo', {
+        method: 'POST',
+      }).then(r => r.json())
 
-      if (authError) {
-        const { data: signUpData } = await supabase.auth.signUp({
-          email: 'demo@nucleoparental.pt',
-          password: 'demo1234',
-        })
-
-        if (signUpData.user) {
-          await supabase.from('profiles').insert({
-            user_id: signUpData.user.id,
-            name: 'Demo User',
-            role: 'parent_a',
-            municipality_id: 'lisboa',
-          })
-
-          const { data: newProfile } = await supabase
-            .from('profiles')
-            .select('id')
-            .eq('user_id', signUpData.user.id)
-            .single()
-
-          if (newProfile) {
-            await supabase.from('parental_units').insert({
-              agreement_name: 'Demo Acordo',
-              parent_a_id: newProfile.id,
-              parent_b_id: newProfile.id,
-              municipality_id: 'lisboa',
-            })
-          }
-        }
-
-        router.push('/dashboard')
+      if (error) {
+        setError(error)
+        setDemoLoading(false)
         return
       }
 
-      if (data.user) {
+      setError('A entrar...')
+      
+      const supabase = getSupabaseClient()
+      if (supabase) {
+        await supabase.auth.signInWithPassword({
+          email: data.email,
+          password: data.password,
+        })
         router.push('/dashboard')
       }
     } catch (err) {
       console.error('Demo login error:', err)
+      setError('Erro ao entrar em modo demo')
     } finally {
       setDemoLoading(false)
     }
