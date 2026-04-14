@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
 export async function POST() {
@@ -33,18 +33,10 @@ export async function POST() {
         password: demoPassword,
       })
 
-      if (signUpError) {
-        console.error('Signup error:', signUpError)
-        return NextResponse.json({ error: signUpError.message }, { status: 500 })
-      }
-
-      if (signUpData?.user) {
-        await supabase.from('profiles').insert({
-          user_id: signUpData.user.id,
-          name: 'Demo User',
-          role: 'parent_a',
-          municipality_id: 'lisboa',
-        })
+      if (signUpError || !signUpData.user) {
+        const msg = signUpError?.message || 'Erro ao criar utilizador'
+        console.error('Signup error:', msg)
+        return NextResponse.json({ error: msg }, { status: 500 })
       }
     }
 
