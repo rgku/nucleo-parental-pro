@@ -36,6 +36,12 @@ export default function RegisterPage() {
     const { data, error: authError } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        data: {
+          name,
+          role,
+        }
+      }
     })
 
     if (authError) {
@@ -45,9 +51,18 @@ export default function RegisterPage() {
     }
 
     if (data.user) {
-      localStorage.setItem('pending_role', role)
-      localStorage.setItem('pending_name', name)
-      router.push('/complete-profile')
+      try {
+        await supabase.from('profiles').insert({
+          user_id: data.user.id,
+          name,
+          role,
+          municipality_id: 'lisboa',
+        })
+      } catch (e) {
+        console.error('Profile insert error:', e)
+      }
+
+      router.push('/dashboard')
     }
   }
 
