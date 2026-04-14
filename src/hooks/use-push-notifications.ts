@@ -88,7 +88,7 @@ export function usePushNotifications() {
 
     try {
       const registration = await navigator.serviceWorker.ready
-      await registration.pushManager.unsubscribe()
+      await (registration.pushManager as any).unsubscribe()
 
       await fetch('/api/push/unsubscribe', {
         method: 'POST',
@@ -112,7 +112,6 @@ export function usePushNotifications() {
       body: payload.message,
       icon: '/icons/icon-192x192.png',
       badge: '/icons/icon-72x72.png',
-      vibrate: [100, 50, 100],
       data: { url: payload.url || '/' },
     })
   }, [permission])
@@ -128,15 +127,15 @@ export function usePushNotifications() {
   }
 }
 
-function urlBase64ToUint8Array(base64String: string): Uint8Array {
-  const padding = '='.repeat((4 - (base64String.length % 4)) % 4
+function urlBase64ToUint8Array(base64String: string): BufferSource {
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
   const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/')
   const rawData = window.atob(base64)
   const outputArray = new Uint8Array(rawData.length)
   for (let i = 0; i < rawData.length; ++i) {
     outputArray[i] = rawData.charCodeAt(i)
   }
-  return outputArray
+return outputArray.buffer
 }
 
 function toBase64UrlString(buffer: ArrayBuffer): string {

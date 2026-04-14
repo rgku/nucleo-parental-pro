@@ -30,6 +30,7 @@ interface Expense {
   id: string
   amount_cents: number
   paid_by_id: string
+  status: 'pending' | 'paid' | 'disputed'
 }
 
 interface CalendarEvent {
