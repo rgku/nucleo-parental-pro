@@ -1,69 +1,48 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-const getSupabaseAdmin = () => {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  )
-}
-
 export async function POST() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return NextResponse.json({ error: 'Supabase não configurado' }, { status: 500 })
+  }
+
+  const supabase = createClient(supabaseUrl, supabaseAnonKey)
+  const demoEmail = 'demo@nucleoparental.pt'
+  const demoPassword = 'demo1234'
+
   try {
-    const supabase = getSupabaseAdmin()
-    
-    const demoEmail = 'demo@nucleoparental.pt'
-    const demoPassword = 'demo1234'
+    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+      email: demoEmail,
+      password: demoPassword,
+    })
 
-    const { data: { users } } = await supabase.auth.admin.listUsers()
-    let demoUser = users.find(u => u.email === demoEmail)
-
-    if (!demoUser) {
-      try {
-        const { data: newUser } = await supabase.auth.admin.createUser({
-          email: demoEmail,
-          password: demoPassword,
-          email_confirm: true,
-        })
-        if (newUser.user) {
-          demoUser = newUser.user
-        }
-      } catch (e: any) {
-        if (!e.message?.includes('already')) {
-          console.error('Create user error:', e)
-        }
-      }
+    if (signInData?.user) {
+      return NextResponse.json({ 
+        success: true, 
+        email: demoEmail,
+        password: demoPassword 
+      })
     }
 
-    if (!demoUser) {
-      return NextResponse.json({ error: 'Não foi possível criar utilizador demo' }, { status: 500 })
-    }
-
-    const { data: existingProfile } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('user_id', demoUser.id)
-      .single()
-
-    if (!existingProfile) {
-      await supabase.from('profiles').insert({
-        user_id: demoUser.id,
-        name: 'Demo User',
-        role: 'parent_a',
-        municipality_id: 'lisboa',
+    if (signInError) {
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        email: demoEmail,
+        password: demoPassword,
       })
 
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('user_id', demoUser.id)
-        .single()
+      if (signUpError) {
+        console.error('Signup error:', signUpError)
+        return NextResponse.json({ error: signUpError.message }, { status: 500 })
+      }
 
-      if (profile) {
-        await supabase.from('parental_units').insert({
-          agreement_name: 'Demo Acordo',
-          parent_a_id: profile.id,
-          parent_b_id: profile.id,
+      if (signUpData?.user) {
+        await supabase.from('profiles').insert({
+          user_id: signUpData.user.id,
+          name: 'Demo User',
+          role: 'parent_a',
           municipality_id: 'lisboa',
         })
       }
@@ -75,7 +54,7 @@ export async function POST() {
       password: demoPassword 
     })
   } catch (error) {
-    console.error('Demo setup error:', error)
+    console.error('Demo error:', error)
     return NextResponse.json({ error: 'Erro ao criar demo' }, { status: 500 })
   }
 }
