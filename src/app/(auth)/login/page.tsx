@@ -17,7 +17,65 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [demoLoading, setDemoLoading] = useState(false)
   const [error, setError] = useState('')
+
+  const handleDemoLogin = async () => {
+    const supabase = getSupabaseClient()
+    if (!supabase) return
+
+    setDemoLoading(true)
+    setError('')
+
+    try {
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email: 'demo@nucleoparental.pt',
+        password: 'demo1234',
+      })
+
+      if (authError) {
+        const { data: signUpData } = await supabase.auth.signUp({
+          email: 'demo@nucleoparental.pt',
+          password: 'demo1234',
+        })
+
+        if (signUpData.user) {
+          await supabase.from('profiles').insert({
+            user_id: signUpData.user.id,
+            name: 'Demo User',
+            role: 'parent_a',
+            municipality_id: 'lisboa',
+          })
+
+          const { data: newProfile } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('user_id', signUpData.user.id)
+            .single()
+
+          if (newProfile) {
+            await supabase.from('parental_units').insert({
+              agreement_name: 'Demo Acordo',
+              parent_a_id: newProfile.id,
+              parent_b_id: newProfile.id,
+              municipality_id: 'lisboa',
+            })
+          }
+        }
+
+        router.push('/dashboard')
+        return
+      }
+
+      if (data.user) {
+        router.push('/dashboard')
+      }
+    } catch (err) {
+      console.error('Demo login error:', err)
+    } finally {
+      setDemoLoading(false)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -115,6 +173,25 @@ export default function LoginPage() {
               {loading ? 'A entrar...' : 'Entrar'}
             </button>
           </form>
+
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t" style={{ borderColor: 'rgba(0,0,0,0.08)' }}></div>
+            </div>
+            <div className="relative flex justify-center text-xs">
+              <span className="px-2" style={{ backgroundColor: '#ffffff', color: '#546067' }}>ou</span>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleDemoLogin}
+            className="w-full py-3 rounded-xl font-medium border"
+            style={{ borderColor: '#00464a', color: '#00464a', backgroundColor: 'transparent' }}
+            disabled={demoLoading}
+          >
+            {demoLoading ? 'A entrar...' : 'Entrar em Modo Demo'}
+          </button>
 
           <p className="mt-6 text-center text-sm" style={{ color: '#546067' }}>
             Não tem conta?{' '}
