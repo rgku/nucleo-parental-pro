@@ -17,40 +17,11 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
-  const [demoLoading, setDemoLoading] = useState(false)
+  const [demoLoading, setDemoLoading] = useState(true)
   const [error, setError] = useState('')
 
-  const handleDemoLogin = async () => {
-    setDemoLoading(true)
-    setError('')
-
-    try {
-      const { data, error } = await fetch('/api/demo', {
-        method: 'POST',
-      }).then(r => r.json())
-
-      if (error) {
-        setError(error)
-        setDemoLoading(false)
-        return
-      }
-
-      setError('A entrar...')
-      
-      const supabase = getSupabaseClient()
-      if (supabase) {
-        await supabase.auth.signInWithPassword({
-          email: data.email,
-          password: data.password,
-        })
-        router.push('/dashboard')
-      }
-    } catch (err) {
-      console.error('Demo login error:', err)
-      setError('Erro ao entrar em modo demo')
-    } finally {
-      setDemoLoading(false)
-    }
+  const handleDemoLogin = () => {
+    router.push('/register')
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -164,9 +135,8 @@ export default function LoginPage() {
             onClick={handleDemoLogin}
             className="w-full py-3 rounded-xl font-medium border"
             style={{ borderColor: '#00464a', color: '#00464a', backgroundColor: 'transparent' }}
-            disabled={demoLoading}
           >
-            {demoLoading ? 'A entrar...' : 'Entrar em Modo Demo'}
+            Criar Conta Demo
           </button>
 
           <p className="mt-6 text-center text-sm" style={{ color: '#546067' }}>
