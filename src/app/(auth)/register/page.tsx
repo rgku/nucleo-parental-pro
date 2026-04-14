@@ -51,15 +51,22 @@ export default function RegisterPage() {
     }
 
     if (data.user) {
-      try {
-        await supabase.from('profiles').insert({
-          user_id: data.user.id,
-          name,
-          role,
-          municipality_id: 'lisboa',
+      if (data.session) {
+        await supabase.auth.setSession({
+          access_token: data.session.access_token,
+          refresh_token: data.session.refresh_token,
         })
-      } catch (e) {
-        console.error('Profile insert error:', e)
+
+        try {
+          await supabase.from('profiles').insert({
+            user_id: data.user.id,
+            name,
+            role,
+            municipality_id: 'lisboa',
+          })
+        } catch (e) {
+          console.error('Profile insert error:', e)
+        }
       }
 
       router.push('/dashboard')
