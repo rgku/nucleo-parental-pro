@@ -32,10 +32,17 @@ export async function middleware(request: NextRequest) {
   const isAuthPage = request.nextUrl.pathname.startsWith('/login') || 
                      request.nextUrl.pathname.startsWith('/register')
   const isCompleteProfile = request.nextUrl.pathname.startsWith('/complete-profile')
+  const isRootPage = request.nextUrl.pathname === '/'
   const isProtectedRoute = request.nextUrl.pathname.startsWith('/dashboard') ||
                           request.nextUrl.pathname.startsWith('/finances') ||
                           request.nextUrl.pathname.startsWith('/calendar') ||
                           request.nextUrl.pathname.startsWith('/chat')
+
+  if (!user && isRootPage) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/login'
+    return NextResponse.redirect(url)
+  }
 
   if (!user && isProtectedRoute) {
     const url = request.nextUrl.clone()
@@ -68,6 +75,7 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
+    '/',
     '/dashboard/:path*',
     '/finances/:path*',
     '/calendar/:path*',
