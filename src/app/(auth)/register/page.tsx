@@ -52,24 +52,11 @@ export default function RegisterPage() {
 
     if (data.user) {
       if (data.session) {
-        await supabase.auth.setSession({
-          access_token: data.session.access_token,
-          refresh_token: data.session.refresh_token,
-        })
-
-        try {
-          await supabase.from('profiles').insert({
-            user_id: data.user.id,
-            name,
-            role,
-            municipality_id: 'lisboa',
-          })
-        } catch (e) {
-          console.error('Profile insert error:', e)
-        }
+        localStorage.setItem('pending_name', name)
+        localStorage.setItem('pending_role', role)
       }
 
-      router.push('/dashboard')
+      router.push('/complete-profile')
     }
   }
 
