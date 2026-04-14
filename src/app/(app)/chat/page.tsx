@@ -1,67 +1,100 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import { createClient } from '@supabase/supabase-js'
 import { AppLayout } from '@/components/layout/AppLayout'
-import { cn } from '@/lib/utils'
 
 interface Message {
   id: string
-  sender: 'parent_a' | 'parent_b'
+  sender_id: string
   content: string
-  originalContent?: string
-  isMediated: boolean
+  original_content?: string
+  is_mediated: boolean
   tone?: 'positive' | 'neutral' | 'negative'
-  time: string
-  avatar?: string
+  created_at: string
 }
 
-const demoMessages: Message[] = [
-  {
-    id: '1',
-    sender: 'parent_a',
-    content: 'Hello, I was checking the schedule for this weekend. Could we confirm the pickup time for Saturday at 10:00 AM?',
-    isMediated: true,
-    tone: 'neutral',
-    time: '09:15',
-  },
-  {
-    id: '2',
-    sender: 'parent_b',
-    content: 'That works for me. I\'ll have the soccer gear ready as well.',
-    isMediated: true,
-    tone: 'positive',
-    time: '09:22',
-  },
-  {
-    id: '3',
-    sender: 'parent_a',
-    content: 'Great. I also wanted to discuss the school project that\'s due next Thursday. Can we coordinate on the materials?',
-    isMediated: true,
-    tone: 'neutral',
-    time: '10:05',
-  },
-]
+interface Profile {
+  id: string
+  name: string
+  role: string
+}
+
+interface ParentalUnit {
+  id: string
+}
+
+const getSupabaseClient = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  if (!supabaseUrl || !supabaseAnonKey) return null
+  return createClient(supabaseUrl, supabaseAnonKey)
+}
 
 export default function ChatPage() {
-  const [messages, setMessages] = useState<Message[]>(demoMessages)
+  const [messages, setMessages] = useState<Message[]>([])
+  const [profile, setProfile] = useState<Profile | null>(null)
+  const [parentalUnit, setParentalUnit] = useState<ParentalUnit | null>(null)
   const [inputValue, setInputValue] = useState('')
   const [detectedTone, setDetectedTone] = useState<'positive' | 'neutral' | 'negative'>('neutral')
   const [showMediationModal, setShowMediationModal] = useState(false)
   const [mediatedContent, setMediatedContent] = useState('')
+  const [loading, setLoading] = useState(true)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  const scrollToBottom = () => {
+  useEffect(() => {
+    fetchData()
+  }, [])
+
+  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
+
+  const fetchData = async () => {
+    const supabase = getSupabaseClient()
+    if (!supabase) {
+      setLoading(false)
+      return
+    }
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', user.id)
+        .single()
+
+      setProfile(profileData)
+
+      const { data: parentalUnitData } = await supabase
+        .from('parental_units')
+        .select('id')
+        .or(`parent_a_id.eq.${profileData?.id},parent_b_id.eq.${profileData?.id}`)
+        .single()
+
+      if (parentalUnitData) {
+        setParentalUnit(parentalUnitData)
+
+        const { data: messagesData } = await supabase
+          .from('messages')
+          .select('*')
+          .eq('parental_unit_id', parentalUnitData.id)
+          .order('created_at', { ascending: true })
+
+        setMessages(messagesData || [])
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error)
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => {
-    scrollToBottom()
-  }, [messages])
-
-  // Simple tone detection (in real app, this would call the API)
-  useEffect(() => {
     const text = inputValue.toLowerCase()
-    
     const negativeWords = ['nunca', 'sempre', 'ridículo', 'estúpido', 'odia', 'odeio', 'maluco']
     const positiveWords = ['obrigado', 'agradeço', 'podemos', 'poderia', 'gostaria', 'confirmar', 'ok', 'sim']
 
@@ -75,68 +108,91 @@ export default function ChatPage() {
   }, [inputValue])
 
   const handleSend = async () => {
-    if (!inputValue.trim()) return
+    if (!inputValue.trim() || !profile || !parentalUnit) return
 
-    // If tone is negative, show mediation modal
+    const supabase = getSupabaseClient()
+    if (!supabase) return
+
     if (detectedTone === 'negative') {
       setMediatedContent(inputValue)
       setShowMediationModal(true)
       return
     }
 
-    // Otherwise, send directly
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      sender: 'parent_b',
-      content: inputValue,
-      isMediated: false,
-      tone: detectedTone,
-      time: new Date().toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }),
-    }
+    const { error } = await supabase
+      .from('messages')
+      .insert({
+        parental_unit_id: parentalUnit.id,
+        sender_id: profile.id,
+        content: inputValue,
+        is_mediated: false,
+        tone: detectedTone,
+      })
 
-    setMessages([...messages, newMessage])
-    setInputValue('')
+    if (!error) {
+      fetchData()
+      setInputValue('')
+    }
   }
 
-  const handleAcceptMediation = () => {
-    const mediatedMessage: Message = {
-      id: Date.now().toString(),
-      sender: 'parent_b',
-      content: mediatedContent.replace(/nunca/gi, 'por vezes').replace(/tu /gi, 'podemos '),
-      originalContent: inputValue,
-      isMediated: true,
-      tone: 'neutral',
-      time: new Date().toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }),
-    }
+  const handleAcceptMediation = async () => {
+    const supabase = getSupabaseClient()
+    if (!supabase || !profile || !parentalUnit) return
 
-    setMessages([...messages, mediatedMessage])
-    setInputValue('')
-    setShowMediationModal(false)
-    setMediatedContent('')
+    const mediatedText = mediatedContent
+      .replace(/nunca/gi, 'por vezes')
+      .replace(/tu /gi, 'podemos ')
+      .replace(/sempre/gi, 'algumas vezes')
+
+    const { error } = await supabase
+      .from('messages')
+      .insert({
+        parental_unit_id: parentalUnit.id,
+        sender_id: profile.id,
+        content: mediatedText,
+        original_content: inputValue,
+        is_mediated: true,
+        tone: 'neutral',
+      })
+
+    if (!error) {
+      fetchData()
+      setInputValue('')
+      setShowMediationModal(false)
+      setMediatedContent('')
+    }
   }
 
-  const handleKeepOriginal = () => {
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      sender: 'parent_b',
-      content: inputValue,
-      isMediated: false,
-      tone: detectedTone,
-      time: new Date().toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }),
-    }
+  const handleKeepOriginal = async () => {
+    const supabase = getSupabaseClient()
+    if (!supabase || !profile || !parentalUnit) return
 
-    setMessages([...messages, newMessage])
-    setInputValue('')
-    setShowMediationModal(false)
-    setMediatedContent('')
+    const { error } = await supabase
+      .from('messages')
+      .insert({
+        parental_unit_id: parentalUnit.id,
+        sender_id: profile.id,
+        content: inputValue,
+        is_mediated: false,
+        tone: detectedTone,
+      })
+
+    if (!error) {
+      fetchData()
+      setInputValue('')
+      setShowMediationModal(false)
+      setMediatedContent('')
+    }
   }
 
-  const getToneColor = (tone?: string) => {
-    switch (tone) {
-      case 'positive': return 'bg-tertiary'
-      case 'negative': return 'bg-orange-soft'
-      default: return 'bg-surface-container-high'
-    }
+  const formatTime = (dateStr: string) => {
+    const date = new Date(dateStr)
+    return date.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })
+  }
+
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr)
+    return date.toLocaleDateString('pt-PT', { day: 'numeric', month: 'short' })
   }
 
   const getToneLabel = (tone: string) => {
@@ -147,113 +203,98 @@ export default function ChatPage() {
     }
   }
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#f7f9fc' }}>
+        <div className="rounded-full h-8 w-8" style={{ borderBottom: '2px solid #00464a', animation: 'spin 1s linear infinite' }}></div>
+      </div>
+    )
+  }
+
   return (
     <AppLayout>
       <div className="flex flex-col h-[calc(100vh-200px)]">
-        {/* Messages List */}
-        <div className="flex-1 overflow-y-auto space-y-6 px-4 pt-4">
-          {/* Date Marker */}
-          <div className="flex justify-center">
-            <span className="px-4 py-1 rounded-full bg-surface-container-low text-secondary text-xs font-medium">
-              Today, 12 de Abril
-            </span>
-          </div>
+        <div className="flex-1 overflow-y-auto space-y-4 px-4 pt-4">
+          {messages.length === 0 ? (
+            <div className="text-center py-8 text-secondary">
+              <span className="material-symbols-outlined text-4xl mb-2">chat</span>
+              <p className="text-sm">Sem mensagens ainda</p>
+              <p className="text-xs">Comece uma conversa com o outro progenitor</p>
+            </div>
+          ) : (
+            messages.map((message, index) => {
+              const isOwn = message.sender_id === profile?.id
+              const showDate = index === 0 || formatDate(messages[index - 1].created_at) !== formatDate(message.created_at)
 
-          {messages.map((message) => {
-            const isOwn = message.sender === 'parent_b'
-            
-            return (
-              <div
-                key={message.id}
-                className={`flex flex-col ${isOwn ? 'items-end' : 'items-start'} max-w-[85%]`}
-              >
-                <div className={`flex items-end gap-3 mb-1 ${isOwn ? 'flex-row-reverse' : ''}`}>
-                  {/* Avatar */}
-                  <div className="w-8 h-8 rounded-full bg-surface-container-low flex items-center justify-center flex-shrink-0">
-                    <span className="material-symbols-outlined text-sm text-secondary">
-                      {isOwn ? 'person' : 'person'}
+              return (
+                <div key={message.id}>
+                  {showDate && (
+                    <div className="flex justify-center mb-4">
+                      <span className="px-4 py-1 rounded-full bg-surface-container-low text-secondary text-xs font-medium">
+                        {formatDate(message.created_at)}
+                      </span>
+                    </div>
+                  )}
+                  <div className={`flex flex-col ${isOwn ? 'items-end' : 'items-start'} max-w-[85%] ml-auto mr-0`}>
+                    {isOwn && (
+                      <div className="flex items-end gap-3 mb-1 flex-row-reverse">
+                        <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                          <span className="material-symbols-outlined text-sm text-white">person</span>
+                        </div>
+                        <div className={`p-4 rounded-2xl shadow-sm ${isOwn ? 'bg-primary text-white rounded-br-none' : 'bg-surface-container-lowest rounded-bl-none'}`}>
+                          <p className="text-sm leading-relaxed">{message.content}</p>
+                          {message.is_mediated && message.original_content && (
+                            <p className="text-xs opacity-60 mt-2 italic">
+                              Original: {message.original_content}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    {!isOwn && (
+                      <div className="flex items-end gap-3 mb-1">
+                        <div className="w-8 h-8 rounded-full bg-surface-container-low flex items-center justify-center flex-shrink-0">
+                          <span className="material-symbols-outlined text-sm text-secondary">person</span>
+                        </div>
+                        <div className={`p-4 rounded-2xl shadow-sm ${isOwn ? 'bg-primary text-white rounded-br-none' : 'bg-surface-container-lowest rounded-bl-none'}`}>
+                          <p className="text-sm leading-relaxed">{message.content}</p>
+                          {message.is_mediated && message.original_content && (
+                            <p className="text-xs opacity-60 mt-2 italic">
+                              Original: {message.original_content}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    <span className={`text-[10px] text-secondary ml-11 ${isOwn ? 'mr-11 text-right' : ''}`}>
+                      {formatTime(message.created_at)}
+                      {message.is_mediated && <span className="ml-2 text-tertiary">✓ Mediado</span>}
                     </span>
                   </div>
-
-                  {/* Message Bubble */}
-                  <div
-                    className={`p-4 rounded-2xl shadow-sm ${
-                      isOwn
-                        ? 'bg-primary text-white rounded-br-none'
-                        : 'bg-surface-container-lowest rounded-bl-none'
-                    }`}
-                  >
-                    <p className="text-sm leading-relaxed">{message.content}</p>
-                    {message.isMediated && message.originalContent && (
-                      <p className="text-xs opacity-60 mt-2 italic">
-                        Original: {message.originalContent}
-                      </p>
-                    )}
-                  </div>
                 </div>
-
-                {/* Time + Tone Indicator */}
-                <span className={`text-[10px] text-secondary ml-11 ${isOwn ? 'mr-11 text-right' : ''}`}>
-                  Parent {message.sender === 'parent_b' ? 'B' : 'A'} • {message.time}
-                  {message.isMediated && (
-                    <span className="ml-2 text-primary">✓ Mediado</span>
-                  )}
-                </span>
-              </div>
-            )
-          })}
-
-          {/* AI Mediator Alert */}
-          <div className="bg-secondary-container/30 border border-secondary-container/20 p-4 rounded-xl flex gap-4 items-center">
-            <div className="bg-white p-2 rounded-full shadow-sm">
-              <span className="material-symbols-outlined text-primary">gavel</span>
-            </div>
-            <p className="text-xs text-secondary font-medium italic">
-              AI Mediator: A comunicação mantém-se respeitosa e construtiva. Bom trabalho em focar na logística.
-            </p>
-          </div>
-
+              )
+            })
+          )}
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input Section */}
         <div className="px-4 pb-4">
-          {/* Tone Indicator */}
           <div className="flex items-center justify-between bg-white/90 backdrop-blur-lg mb-2 px-4 py-2 rounded-2xl shadow-lg">
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
                 Tom da Mensagem
               </span>
               <div className="flex gap-1.5 ml-2">
-                <div
-                  className={`w-3 h-3 rounded-full ${
-                    detectedTone === 'positive' ? 'bg-tertiary' : 'bg-surface-container-high'
-                  }`}
-                  title="Positivo"
-                />
-                <div
-                  className={`w-3 h-3 rounded-full ${
-                    detectedTone === 'neutral' ? 'bg-surface-container-high' : 'bg-surface-container-high'
-                  }`}
-                  title="Neutro"
-                />
-                <div
-                  className={`w-3 h-3 rounded-full ${
-                    detectedTone === 'negative' ? 'bg-orange-soft' : 'bg-surface-container-high'
-                  }`}
-                  title="Precisa revisão"
-                />
+                <div className={`w-3 h-3 rounded-full ${detectedTone === 'positive' ? 'bg-tertiary' : 'bg-surface-container-high'}`} />
+                <div className={`w-3 h-3 rounded-full ${detectedTone === 'neutral' ? 'bg-surface-container-high' : 'bg-surface-container-high'}`} />
+                <div className={`w-3 h-3 rounded-full ${detectedTone === 'negative' ? 'bg-orange-soft' : 'bg-surface-container-high'}`} />
               </div>
             </div>
-            <span className={`text-[10px] font-medium ${
-              detectedTone === 'positive' ? 'text-tertiary' :
-              detectedTone === 'negative' ? 'text-orange-soft' : 'text-secondary'
-            }`}>
-              Tom: {getToneLabel(detectedTone)}
+            <span className={`text-[10px] font-medium ${detectedTone === 'positive' ? 'text-tertiary' : detectedTone === 'negative' ? 'text-orange-soft' : 'text-secondary'}`}>
+              {getToneLabel(detectedTone)}
             </span>
           </div>
 
-          {/* Input Bar */}
           <div className="bg-white p-2 pl-4 rounded-3xl shadow-2xl shadow-primary/10 flex items-end gap-2 border border-surface-container">
             <textarea
               className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-3 resize-none max-h-32 font-body"
@@ -273,15 +314,12 @@ export default function ChatPage() {
               disabled={!inputValue.trim()}
               className="bg-primary-container text-white hover:opacity-90 transition-all p-3 rounded-2xl flex items-center justify-center disabled:opacity-50"
             >
-              <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>
-                send
-              </span>
+              <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>send</span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* Mediation Modal */}
       {showMediationModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-surface-container-lowest rounded-2xl p-6 max-w-md w-full shadow-2xl">
@@ -304,22 +342,16 @@ export default function ChatPage() {
               <div>
                 <p className="text-xs text-tertiary mb-1">Sugestão do Mediador:</p>
                 <p className="text-sm bg-tertiary/10 p-3 rounded-lg border border-tertiary/20">
-                  {mediatedContent.replace(/nunca/gi, 'por vezes').replace(/tu /gi, 'podemos ')}
+                  {mediatedContent.replace(/nunca/gi, 'por vezes').replace(/tu /gi, 'podemos ').replace(/sempre/gi, 'algumas vezes')}
                 </p>
               </div>
             </div>
 
             <div className="flex gap-3 mt-6">
-              <button
-                onClick={handleKeepOriginal}
-                className="flex-1 py-3 px-4 rounded-xl border border-outline-variant/30 text-secondary font-medium text-sm hover:bg-surface-container-low transition-colors"
-              >
+              <button onClick={handleKeepOriginal} className="flex-1 py-3 px-4 rounded-xl border border-outline-variant/30 text-secondary font-medium text-sm hover:bg-surface-container-low transition-colors">
                 Manter Original
               </button>
-              <button
-                onClick={handleAcceptMediation}
-                className="flex-1 py-3 px-4 rounded-xl bg-tertiary text-white font-medium text-sm hover:bg-tertiary/90 transition-colors"
-              >
+              <button onClick={handleAcceptMediation} className="flex-1 py-3 px-4 rounded-xl bg-tertiary text-white font-medium text-sm hover:bg-tertiary/90 transition-colors">
                 Usar Sugestão
               </button>
             </div>

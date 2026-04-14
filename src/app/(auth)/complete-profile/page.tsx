@@ -16,11 +16,22 @@ const MUNICIPALITIES = [
   { id: 'beja', name: 'Beja' },
   { id: 'braga', name: 'Braga' },
   { id: 'braganca', name: 'Bragança' },
+  { id: 'castelo-branco', name: 'Castelo Branco' },
   { id: 'coimbra', name: 'Coimbra' },
   { id: 'evora', name: 'Évora' },
   { id: 'faro', name: 'Faro' },
+  { id: 'funchal', name: 'Funchal' },
+  { id: 'guarda', name: 'Guarda' },
+  { id: 'leiria', name: 'Leiria' },
   { id: 'lisboa', name: 'Lisboa' },
+  { id: 'ponta-delgada', name: 'Ponta Delgada' },
+  { id: 'portalegre', name: 'Portalegre' },
   { id: 'porto', name: 'Porto' },
+  { id: 'santarem', name: 'Santarém' },
+  { id: 'setubal', name: 'Setúbal' },
+  { id: 'viana-castelo', name: 'Viana do Castelo' },
+  { id: 'vila-real', name: 'Vila Real' },
+  { id: 'viseu', name: 'Viseu' },
 ]
 
 export default function CompleteProfilePage() {

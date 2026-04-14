@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import { PWAProvider } from '@/components/PWAProvider'
 
 export const metadata: Metadata = {
   title: 'Núcleo Parental Pro',
@@ -27,7 +28,9 @@ export default function RootLayout({
         />
       </head>
       <body>
-        {children}
+        <PWAProvider>
+          {children}
+        </PWAProvider>
       </body>
     </html>
   )
