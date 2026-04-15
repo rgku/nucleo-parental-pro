@@ -67,13 +67,13 @@ export default function CompleteProfilePage() {
       return
     }
 
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('*')
       .eq('user_id', user.id)
-      .single()
+      .maybeSingle()
 
-    if (profile) {
+    if (profile && !profileError) {
       localStorage.removeItem('pending_role')
       localStorage.removeItem('pending_name')
       router.push('/dashboard')
@@ -100,14 +100,14 @@ export default function CompleteProfilePage() {
       return
     }
 
-    const { data: existingProfile } = await supabase
+    const { data: existingProfile, error: existingError } = await supabase
       .from('profiles')
       .select('*')
       .eq('user_id', user.id)
-      .single()
+      .maybeSingle()
 
     let profile
-    if (existingProfile) {
+    if (existingProfile && !existingError) {
       const { data: updated, error: updateError } = await supabase
         .from('profiles')
         .update({ name, role, municipality_id: municipalityId })
