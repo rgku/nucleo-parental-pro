@@ -246,10 +246,10 @@ export default function DashboardPage() {
               <span className="material-symbols-outlined text-2xl">event_available</span>
               <span className="text-xs font-medium tracking-wide">Calendário</span>
             </a>
-            <div className="bg-surface-container-highest text-on-surface rounded-xl p-4 flex flex-col items-center justify-center gap-2 transition-transform active:scale-95">
+            <a href="/documents" className="bg-surface-container-highest text-on-surface rounded-xl p-4 flex flex-col items-center justify-center gap-2 transition-transform active:scale-95">
               <span className="material-symbols-outlined text-2xl">folder_shared</span>
               <span className="text-xs font-medium tracking-wide">Documentos</span>
-            </div>
+            </a>
           </div>
         </section>
       </div>
