@@ -222,7 +222,7 @@ export default function FinancesPage() {
             style={{ backgroundColor: filter === 'all' ? '#00464a' : '#f2f4f7', color: filter === 'all' ? '#ffffff' : '#546067' }}>
             Todas
           </button>
-          {CATEGORIES.slice(0, 4).map((cat) => (
+          {CATEGORIES.map((cat) => (
             <button key={cat.value} onClick={() => setFilter(cat.value)}
               className="px-5 py-2 rounded-full text-xs font-medium whitespace-nowrap"
               style={{ backgroundColor: filter === cat.value ? '#00464a' : '#f2f4f7', color: filter === cat.value ? '#ffffff' : '#546067' }}>
@@ -286,6 +286,19 @@ export default function FinancesPage() {
                 <label className="block text-sm font-medium mb-2" style={{ color: '#191c1e' }}>Descrição</label>
                 <input type="text" className="w-full rounded-lg border px-4 py-3 text-sm" style={{ borderColor: 'rgba(0,0,0,0.08)' }}
                   value={newDescription} onChange={(e) => setNewDescription(e.target.value)} required placeholder="Ex: Material escolar" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#191c1e' }}>Categoria</label>
+                <select 
+                  className="w-full rounded-lg border px-4 py-3 text-sm" style={{ borderColor: 'rgba(0,0,0,0.08)' }}
+                  value={newCategory} onChange={(e) => setNewCategory(e.target.value)}
+                  required
+                >
+                  <option value="">Selecionar categoria</option>
+                  {CATEGORIES.map(cat => (
+                    <option key={cat.value} value={cat.value}>{cat.label}</option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2" style={{ color: '#191c1e' }}>Valor (€)</label>

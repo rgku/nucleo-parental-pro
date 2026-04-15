@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 
 interface SidebarProps {
@@ -17,8 +17,24 @@ const navItems = [
   { href: '/finances', label: 'Finances', icon: 'payments' },
 ]
 
+const getSupabaseClient = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  if (!supabaseUrl || !supabaseAnonKey) return null
+  return import('@supabase/supabase-js').then(m => m.createClient(supabaseUrl, supabaseAnonKey))
+}
+
 export function Sidebar({ userName = 'Utilizador', userRole = 'Progenitor', className }: SidebarProps) {
   const pathname = usePathname()
+  const router = useRouter()
+
+  const handleLogout = async () => {
+    const supabase = await getSupabaseClient()
+    if (supabase) {
+      await supabase.auth.signOut()
+    }
+    router.push('/login')
+  }
 
   return (
     <aside className={cn('sidebar', className)}>
@@ -66,6 +82,13 @@ export function Sidebar({ userName = 'Utilizador', userRole = 'Progenitor', clas
         </Link>
         
         <div className="pt-4 border-t border-slate-200/50 dark:border-slate-800/50">
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-3 px-4 py-2 text-slate-500 hover:text-red-500 transition-colors w-full"
+          >
+            <span className="material-symbols-outlined">logout</span>
+            <span className="text-sm font-body">Terminar Sessão</span>
+          </button>
           <Link
             href="/settings"
             className="flex items-center gap-3 px-4 py-2 text-slate-500 hover:text-primary transition-colors"

@@ -46,6 +46,7 @@ export default function DashboardPage() {
   const [expenses, setExpenses] = useState<Expense[]>([])
   const [nextEvent, setNextEvent] = useState<CalendarEvent | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     fetchData()
@@ -99,8 +100,9 @@ export default function DashboardPage() {
           setNextEvent(eventsData[0])
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching data:', error)
+      setError(error?.message || 'Erro ao carregar dados')
     } finally {
       setLoading(false)
     }
@@ -119,6 +121,20 @@ export default function DashboardPage() {
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#f7f9fc' }}>
         <div className="rounded-full h-8 w-8" style={{ borderBottom: '2px solid #00464a', animation: 'spin 1s linear infinite' }}></div>
       </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <AppLayout>
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-red-700">
+          <p className="font-medium">Erro</p>
+          <p className="text-sm mt-1">{error}</p>
+          <button onClick={fetchData} className="mt-3 px-4 py-2 bg-red-600 text-white rounded-lg text-sm">
+            Tentar novamente
+          </button>
+        </div>
+      </AppLayout>
     )
   }
 
