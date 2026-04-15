@@ -37,10 +37,10 @@ export function Sidebar({ userName = 'Utilizador', userRole = 'Progenitor', clas
   }
 
   return (
-    <aside className={cn('sidebar', className)}>
+    <aside className="fixed left-0 top-0 h-full flex flex-col bg-slate-50 w-64 border-r border-slate-200/50 z-50">
       {/* Logo */}
-      <div className="p-8">
-        <h1 className="text-xl font-bold tracking-tight text-primary dark:text-primary">
+      <div className="p-6">
+        <h1 className="text-xl font-bold tracking-tight text-primary">
           Núcleo Parental
         </h1>
         <span className="text-xs font-medium text-secondary uppercase tracking-widest">
@@ -49,7 +49,7 @@ export function Sidebar({ userName = 'Utilizador', userRole = 'Progenitor', clas
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-4 space-y-1">
+      <nav className="flex-1 px-3 space-y-1">
         {navItems.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
           
@@ -60,8 +60,8 @@ export function Sidebar({ userName = 'Utilizador', userRole = 'Progenitor', clas
               className={cn(
                 'flex items-center gap-3 px-4 py-3 rounded-lg transition-all',
                 isActive
-                  ? 'text-primary dark:text-primary border-r-4 border-primary bg-white/50 dark:bg-white/5'
-                  : 'text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800'
+                  ? 'text-primary border-r-4 border-primary bg-white/50'
+                  : 'text-slate-500 hover:text-primary hover:bg-slate-100'
               )}
             >
               <span className="material-symbols-outlined">{item.icon}</span>
@@ -80,16 +80,6 @@ export function Sidebar({ userName = 'Utilizador', userRole = 'Progenitor', clas
           <span className="material-symbols-outlined text-sm">add</span>
           Nova Despesa
         </Link>
-        
-        <div className="pt-4 border-t border-slate-200/50 dark:border-slate-800/50">
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-3 px-4 py-2 text-slate-500 hover:text-red-500 transition-colors w-full"
-          >
-            <span className="material-symbols-outlined">logout</span>
-            <span className="text-sm font-body">Terminar Sessão</span>
-          </button>
-        </div>
       </div>
     </aside>
   )
