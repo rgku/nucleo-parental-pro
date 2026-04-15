@@ -36,33 +36,39 @@ export default function LoginPage() {
     setLoading(true)
     setError('')
 
-    const { data, error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
+    try {
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
 
-    if (authError) {
-      setError(authError.message)
-      setLoading(false)
-      return
-    }
-
-    if (data.user) {
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('user_id', data.user.id)
-        .maybeSingle()
-
-      if (!profile || profileError) {
-        router.push('/complete-profile')
+      if (authError) {
+        setError(authError.message)
         setLoading(false)
         return
       }
-    }
 
-    router.push('/dashboard')
-    setLoading(false)
+      if (data.user) {
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('user_id', data.user.id)
+          .maybeSingle()
+
+        if (!profile || profileError) {
+          router.push('/complete-profile')
+          setLoading(false)
+          return
+        }
+      }
+
+      router.push('/dashboard')
+    } catch (err: any) {
+      console.error('Login error:', err)
+      setError(err?.message || 'Erro ao iniciar sessão')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
