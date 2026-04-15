@@ -38,11 +38,19 @@ export async function middleware(request: NextRequest) {
   try {
     const { data } = await supabase.auth.getUser()
     user = data?.user
+    
+    if (!user) {
+      const { data: sessionData } = await supabase.auth.getSession()
+      if (sessionData?.session?.user) {
+        user = sessionData.session.user
+      }
+    }
   } catch (e) {
     console.error('Auth error in middleware:', e)
   }
 
   const isAuthPage = request.nextUrl.pathname.startsWith('/login') || 
+                     request.nextUrl.pathname.startsWith('/register') 
                      request.nextUrl.pathname.startsWith('/register')
   const isCompleteProfile = request.nextUrl.pathname.startsWith('/complete-profile')
   const isRootPage = request.nextUrl.pathname === '/'
