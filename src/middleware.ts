@@ -50,7 +50,6 @@ export async function middleware(request: NextRequest) {
   }
 
   const isAuthPage = request.nextUrl.pathname.startsWith('/login') || 
-                     request.nextUrl.pathname.startsWith('/register') 
                      request.nextUrl.pathname.startsWith('/register')
   const isCompleteProfile = request.nextUrl.pathname.startsWith('/complete-profile')
   const isRootPage = request.nextUrl.pathname === '/'
