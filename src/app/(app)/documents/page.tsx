@@ -181,6 +181,9 @@ export default function DocumentsPage() {
               .from('documents')
               .getPublicUrl(data.path)
             fileUrl = publicUrl
+            console.log('Upload success, URL:', fileUrl)
+          } else {
+            console.error('Upload error:', uploadError)
           }
         } catch (err) {
           console.error('Compression/upload error:', err)
@@ -199,6 +202,9 @@ export default function DocumentsPage() {
             .from('documents')
             .getPublicUrl(data.path)
           fileUrl = publicUrl
+          console.log('Upload success (non-image), URL:', fileUrl)
+        } else {
+          console.error('Upload error (non-image):', uploadError)
         }
       }
       setCompressProgress(100)
@@ -296,14 +302,20 @@ export default function DocumentsPage() {
                   </span>
                 </div>
               </div>
-              <a
-                href={doc.file_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2 rounded-lg hover:bg-surface-container-low"
-              >
-                <span className="material-symbols-outlined text-secondary">download</span>
-              </a>
+              {doc.file_url && doc.file_url !== '#' ? (
+                <a
+                  href={doc.file_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2 rounded-lg hover:bg-surface-container-low"
+                >
+                  <span className="material-symbols-outlined text-secondary">download</span>
+                </a>
+              ) : (
+                <div className="p-2 rounded-lg opacity-50" title=" ficheiro não disponível">
+                  <span className="material-symbols-outlined text-secondary">download</span>
+                </div>
+              )}
             </div>
           ))}
         </div>
