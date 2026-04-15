@@ -89,20 +89,6 @@ export function Sidebar({ userName = 'Utilizador', userRole = 'Progenitor', clas
             <span className="material-symbols-outlined">logout</span>
             <span className="text-sm font-body">Terminar Sessão</span>
           </button>
-          <Link
-            href="/settings"
-            className="flex items-center gap-3 px-4 py-2 text-slate-500 hover:text-primary transition-colors"
-          >
-            <span className="material-symbols-outlined">settings</span>
-            <span className="text-sm font-body">Definições</span>
-          </Link>
-          <Link
-            href="/help"
-            className="flex items-center gap-3 px-4 py-2 text-slate-500 hover:text-primary transition-colors"
-          >
-            <span className="material-symbols-outlined">help</span>
-            <span className="text-sm font-body">Ajuda</span>
-          </Link>
         </div>
       </div>
     </aside>
