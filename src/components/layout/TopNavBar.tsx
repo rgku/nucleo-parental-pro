@@ -29,7 +29,7 @@ export function TopNavBar({ userName = 'Utilizador', userRole = 'Progenitor', cl
   }
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 h-16 px-4 md:px-8 ml-0 md:ml-64 bg-white/80 backdrop-blur-xl border-b border-slate-200/50 flex items-center justify-between ${className}`}>
+    <header className={`h-16 px-4 md:px-8 bg-white/80 backdrop-blur-xl border-b border-slate-200/50 flex items-center justify-between ${className}`}>
       {/* Search Bar */}
       <div className="flex-1 max-w-md">
         <div className="flex items-center bg-surface-container-low px-4 py-2 rounded-full border border-outline-variant/15">

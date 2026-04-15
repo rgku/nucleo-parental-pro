@@ -61,12 +61,14 @@ export function AppLayout({ children }: AppLayoutProps) {
       {!isMobile && (
         <div className="flex">
           <Sidebar />
-          <TopNavBar userName={userName} userRole={userRole} />
-          <main className="flex-1 ml-64 min-h-screen bg-surface pt-20 p-8">
-            <div className="max-w-6xl mx-auto">
-              {children}
-            </div>
-          </main>
+          <div className="flex-1 ml-64">
+            <TopNavBar userName={userName} userRole={userRole} />
+            <main className="min-h-screen bg-surface pt-16 p-8">
+              <div className="max-w-6xl mx-auto">
+                {children}
+              </div>
+            </main>
+          </div>
         </div>
       )}
 
