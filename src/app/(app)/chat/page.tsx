@@ -40,10 +40,14 @@ export default function ChatPage() {
   const [showMediationModal, setShowMediationModal] = useState(false)
   const [mediatedContent, setMediatedContent] = useState('')
   const [mediationResult, setMediationResult] = useState<{
-    original_content: string
-    mediated_content: string
-    tone: 'positive' | 'neutral' | 'negative'
-    should_suggest_rewrite: boolean
+    original_content?: string
+    mediated_content?: string
+    tone?: 'positive' | 'neutral' | 'negative'
+    should_suggest_rewrite?: boolean
+    confidence_score?: number
+    blocked?: boolean
+    user_message?: string
+    mediation_tip?: string
   } | null>(null)
   const [loading, setLoading] = useState(true)
   const [mediating, setMediating] = useState(false)
@@ -143,6 +147,14 @@ export default function ChatPage() {
 
     const mediationResponse = await callMediationApi(inputValue)
     setMediating(false)
+
+    // Check if blocked or low confidence_score
+    if (mediationResponse?.blocked || (mediationResponse?.confidence_score || 100) < 70) {
+      setMediationResult(mediationResponse)
+      setMediatedContent(mediationResponse.mediated_content)
+      setShowMediationModal(true)
+      return
+    }
 
     if (mediationResponse?.should_suggest_rewrite) {
       setMediationResult(mediationResponse)
@@ -357,10 +369,19 @@ export default function ChatPage() {
                 <span className="material-symbols-outlined text-orange-soft">warning</span>
               </div>
               <div>
-                <h3 className="font-semibold font-headline">Mensagem Detetada</h3>
-                <p className="text-xs text-secondary">Tom potencialmente conflituoso</p>
+                <h3 className="font-semibold font-headline">Mensagem Bloqueada</h3>
+                <p className="text-xs text-secondary">
+                  {mediationResult?.blocked ? 'Mensagem não pode ser mediada' : `Confidence: ${mediationResult?.confidence_score || 0}%`}
+                </p>
               </div>
             </div>
+
+            {mediationResult?.mediation_tip && (
+              <div className="mb-4 p-3 bg-tertiary/10 rounded-lg border border-tertiary/20">
+                <p className="text-xs text-tertiary font-medium">Dica:</p>
+                <p className="text-sm text-tertiary">{mediationResult.mediation_tip}</p>
+              </div>
+            )}
 
             <div className="space-y-4">
               <div>
