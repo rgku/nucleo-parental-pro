@@ -5,16 +5,21 @@ import { NextRequest, NextResponse } from 'next/server'
 // ============================================
 
 const BLACKLISTED_WORDS = {
-  insults: [
+  // Level 1: Serious insults - block immediately
+  level1: [
     'estúpido', 'estúpida', 'idiota', 'burro', 'burra', 'imbecil', 'retardado', 'retardada',
-    'incompetente', 'irresponsável', 'atrasado', 'atrasada', 'mentiroso', 'mentirosa',
     'nojo', 'nojento', 'nojenta', 'desgraçado', 'desgraçada', 'foda', 'caralho',
     'puta', 'porra', 'merda', 'cuzinho', 'cu'
+  ],
+  // Level 2: Softer negative words - apply recovery block
+  level2: [
+    'incompetente', 'irresponsável', 'atrasado', 'atrasada', 'mentiroso', 'mentirosa',
+    'egoísta', 'maluco', 'maluca', 'inútil'
   ],
   threats: [
     'vais pagar', 'vou pagar', 'vou tirar-te', 'tirar o miúdo', 'tirar a criança',
     'vê-mo-nos em tribunal', 'o meu advogado', 'o teu advogado', 'vou processar-te',
-    'vou entrar em tribunal', 'tu vais ver', 'há-de pagar', 'há de pagar'
+    'vou entrar em tribunal', 'tu vais ver', 'há-de pagar', 'há de payer'
   ],
   possessive: [
     'o meu filho', 'a minha filha', 'o filho é meu', 'a filha é minha'
@@ -72,6 +77,31 @@ Atuas como um Especialista em Mediação de Conflitos Familiares, certificado em
 - LÓGICA: Facto = Pagamento pendente. Ruído = Chantagem/Ameaça.
 - OUTPUT: "Em relação à mensalidade da escola, gostaria que resolvêssemos o pagamento pendente. Podemos também alinhar as próximas visitas para que tudo fique conforme o acordo?"
 
+### BLOCO DE RECUPERAÇÃO DE COMUNICAÇÃO (Mensagens Curtas e Agressivas)
+Se a mensagem for curta (< 10 palavras) e agresiva/sem evento concreto, assume que o "Facto Oculto" é a necessidade de restabelecer comunicação:
+
+- INPUT: "Olá estúpido, nunca me respondes!"
+- FACTO OCULTO: Falta de feedback/comunicação tardia.
+- OUTPUT: "Olá, gostaria de receber uma resposta às minhas mensagens anteriores para podermos decidir os assuntos pendentes."
+
+- INPUT: "És um nabo, não dizes nada!"
+- FACTO OCULTO: Necessidade de atualização de estado.
+- OUTPUT: "É importante que mantenhamos a comunicação fluida. Podes dar-me um ponto de situação sobre o que perguntei?"
+
+- INPUT: "Estou a falar para a parede? Diz alguma coisa!"
+- FACTO OCULTO: Sensação de ser ignorado.
+- OUTPUT: "Sinto que não estamos a conseguir comunicar de forma eficaz. Podemos tentar responder mais rapidamente aos assuntos do nosso filho?"
+
+- INPUT: "Faz o que quiseres, tu és sempre o dono da razão."
+- FACTO OCULTO: Bloqueio de decisão/Sarcasmo.
+- OUTPUT: "Gostaria que tomássemos esta decisão em conjunto. Como achas que devemos proceder?"
+
+- INPUT: "Não tens vergonha nessa cara?"
+- FACTO OCULTO: Frustração generalizada.
+- OUTPUT: "Estou desconfortável com a forma como as coisas estão a ser geridas. Podemos focar-nos em resolver o assunto prático?"
+
+TEMPLATE DE CONVITE AO DIÁLOGO: "Gostaria de obter uma resposta tua sobre [Assunto] para podermos avançar de forma organizada."
+
 ### FORMATO DE SAÍDA (Obrigatório JSON)
 {
   "rewritten_text": "string",
@@ -86,14 +116,24 @@ REGRA DE OURO: Se confidence_score < 70, não permitir envio automático.`
 // Blacklist Check Function
 // ============================================
 
-function checkBlacklist(content: string): { blocked: boolean; issues: string[] } {
+function checkBlacklist(content: string): { blocked: boolean; level: number; issues: string[] } {
   const lowerContent = content.toLowerCase()
   const issues: string[] = []
+  let level = 0
   
-  // Check for insults
-  for (const insult of BLACKLISTED_WORDS.insults) {
+  // Check Level 1 - serious insults (block immediately)
+  for (const insult of BLACKLISTED_WORDS.level1) {
     if (lowerContent.includes(insult)) {
-      issues.push(`insulto: ${insult}`)
+      issues.push(`insulto grave: ${insult}`)
+      level = Math.max(level, 1)
+    }
+  }
+  
+  // Check Level 2 - softer negative words (apply recovery)
+  for (const word of BLACKLISTED_WORDS.level2) {
+    if (lowerContent.includes(word)) {
+      issues.push(`palavra negativa: ${word}`)
+      level = Math.max(level, 2)
     }
   }
   
@@ -101,6 +141,7 @@ function checkBlacklist(content: string): { blocked: boolean; issues: string[] }
   for (const threat of BLACKLISTED_WORDS.threats) {
     if (lowerContent.includes(threat)) {
       issues.push(`ameaça: ${threat}`)
+      level = Math.max(level, 1)
     }
   }
   
@@ -108,11 +149,13 @@ function checkBlacklist(content: string): { blocked: boolean; issues: string[] }
   for (const poss of BLACKLISTED_WORDS.possessive) {
     if (lowerContent.includes(poss)) {
       issues.push(`posse: ${poss}`)
+      level = Math.max(level, 2)
     }
   }
   
   return {
-    blocked: issues.length > 0,
+    blocked: level >= 1,
+    level,
     issues
   }
 }
@@ -135,7 +178,9 @@ export async function POST(request: NextRequest) {
 
     // Check blacklist FIRST - before API call
     const blacklistCheck = checkBlacklist(content)
-    if (blacklistCheck.blocked) {
+    
+    // Level 1: Serious insults/threats - block immediately
+    if (blacklistCheck.level === 1) {
       const issueSummary = blacklistCheck.issues.map(i => i.split(': ')[1]).join(', ')
       return NextResponse.json({
         original_content: content,
@@ -144,10 +189,32 @@ export async function POST(request: NextRequest) {
         should_suggest_rewrite: false,
         confidence_score: 10,
         blocked: true,
-        user_message: `Palavras bloqueadas: ${issueSummary}. Por favor, foca-te no assunto prático e no bem-estar do nosso filho.`,
+        user_message: `Palavras bloqueadas: ${issueSummary}. Por favor, reformula a mensagem sem usar estas palavras.`,
         detected_issues: blacklistCheck.issues,
-        mediation_tip: 'Tenta escrever a mensagem focando-te apenas no que precisas discutir, sem usar palavras negativas.'
+        mediation_tip: 'Tenta escrever a mensagem focando-te apenas no que precisas discutir.'
       })
+    }
+    
+    // Level 2: Softer negative words - apply dialogue template instead of blocking
+    if (blacklistCheck.level === 2) {
+      // Check if short aggressive message (vazio logístico)
+      const wordCount = content.split(/\s+/).length
+      const isShortAggressive = wordCount < 10
+      
+      if (isShortAggressive) {
+        // Apply dialogue template
+        return NextResponse.json({
+          original_content: content,
+          mediated_content: 'Gostaria de obter uma resposta tua sobre o assunto para podermos avançar de forma organizada.',
+          tone: 'neutral',
+          should_suggest_rewrite: true,
+          confidence_score: 75,
+          blocked: false,
+          user_message: 'Detectamos palavras que podem dificultar a comunicação. Suggestimos esta reformulação mais positiva:',
+          detected_issues: blacklistCheck.issues,
+          mediation_tip: 'Em vez de usar palavras negativas, tenta pedir diretamente o que precisas.'
+        })
+      }
     }
 
     // Get Evaristo.ai API key from environment
