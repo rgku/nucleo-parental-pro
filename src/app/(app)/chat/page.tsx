@@ -39,7 +39,14 @@ export default function ChatPage() {
   const [detectedTone, setDetectedTone] = useState<'positive' | 'neutral' | 'negative'>('neutral')
   const [showMediationModal, setShowMediationModal] = useState(false)
   const [mediatedContent, setMediatedContent] = useState('')
+  const [mediationResult, setMediationResult] = useState<{
+    original_content: string
+    mediated_content: string
+    tone: 'positive' | 'neutral' | 'negative'
+    should_suggest_rewrite: boolean
+  } | null>(null)
   const [loading, setLoading] = useState(true)
+  const [mediating, setMediating] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -107,14 +114,39 @@ export default function ChatPage() {
     }
   }, [inputValue])
 
+  const callMediationApi = async (content: string) => {
+    try {
+      const response = await fetch('/api/chat/mediate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content,
+          parental_unit_id: parentalUnit?.id,
+          sender_id: profile?.id,
+        }),
+      })
+      if (!response.ok) throw new Error('Mediation API failed')
+      return await response.json()
+    } catch (error) {
+      console.error('Mediation API error:', error)
+      return null
+    }
+  }
+
   const handleSend = async () => {
     if (!inputValue.trim() || !profile || !parentalUnit) return
 
     const supabase = getSupabaseClient()
     if (!supabase) return
 
-    if (detectedTone === 'negative') {
-      setMediatedContent(inputValue)
+    setMediating(true)
+
+    const mediationResponse = await callMediationApi(inputValue)
+    setMediating(false)
+
+    if (mediationResponse?.should_suggest_rewrite) {
+      setMediationResult(mediationResponse)
+      setMediatedContent(mediationResponse.mediated_content)
       setShowMediationModal(true)
       return
     }
@@ -126,7 +158,7 @@ export default function ChatPage() {
         sender_id: profile.id,
         content: inputValue,
         is_mediated: false,
-        tone: detectedTone,
+        tone: mediationResponse?.tone || detectedTone,
       })
 
     if (!error) {
@@ -139,17 +171,12 @@ export default function ChatPage() {
     const supabase = getSupabaseClient()
     if (!supabase || !profile || !parentalUnit) return
 
-    const mediatedText = mediatedContent
-      .replace(/nunca/gi, 'por vezes')
-      .replace(/tu /gi, 'podemos ')
-      .replace(/sempre/gi, 'algumas vezes')
-
     const { error } = await supabase
       .from('messages')
       .insert({
         parental_unit_id: parentalUnit.id,
         sender_id: profile.id,
-        content: mediatedText,
+        content: mediationResult?.mediated_content || mediatedContent,
         original_content: inputValue,
         is_mediated: true,
         tone: 'neutral',
@@ -160,6 +187,7 @@ export default function ChatPage() {
       setInputValue('')
       setShowMediationModal(false)
       setMediatedContent('')
+      setMediationResult(null)
     }
   }
 
@@ -182,6 +210,7 @@ export default function ChatPage() {
       setInputValue('')
       setShowMediationModal(false)
       setMediatedContent('')
+      setMediationResult(null)
     }
   }
 
@@ -282,16 +311,16 @@ export default function ChatPage() {
           <div className="flex items-center justify-between bg-white/90 backdrop-blur-lg mb-2 px-4 py-2 rounded-2xl shadow-lg">
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
-                Tom da Mensagem
+                {mediating ? 'A analisar...' : 'Tom da Mensagem'}
               </span>
               <div className="flex gap-1.5 ml-2">
-                <div className={`w-3 h-3 rounded-full ${detectedTone === 'positive' ? 'bg-tertiary' : 'bg-surface-container-high'}`} />
-                <div className={`w-3 h-3 rounded-full ${detectedTone === 'neutral' ? 'bg-surface-container-high' : 'bg-surface-container-high'}`} />
-                <div className={`w-3 h-3 rounded-full ${detectedTone === 'negative' ? 'bg-orange-soft' : 'bg-surface-container-high'}`} />
+                <div className={`w-3 h-3 rounded-full ${(mediationResult?.tone || detectedTone) === 'positive' ? 'bg-tertiary' : 'bg-surface-container-high'}`} />
+                <div className={`w-3 h-3 rounded-full ${(mediationResult?.tone || detectedTone) === 'neutral' ? 'bg-surface-container-high' : 'bg-surface-container-high'}`} />
+                <div className={`w-3 h-3 rounded-full ${(mediationResult?.tone || detectedTone) === 'negative' ? 'bg-orange-soft' : 'bg-surface-container-high'}`} />
               </div>
             </div>
-            <span className={`text-[10px] font-medium ${detectedTone === 'positive' ? 'text-tertiary' : detectedTone === 'negative' ? 'text-orange-soft' : 'text-secondary'}`}>
-              {getToneLabel(detectedTone)}
+            <span className={`text-[10px] font-medium ${(mediationResult?.tone || detectedTone) === 'positive' ? 'text-tertiary' : (mediationResult?.tone || detectedTone) === 'negative' ? 'text-orange-soft' : 'text-secondary'}`}>
+              {mediating ? 'A processar...' : getToneLabel(mediationResult?.tone || detectedTone)}
             </span>
           </div>
 
@@ -311,7 +340,7 @@ export default function ChatPage() {
             />
             <button
               onClick={handleSend}
-              disabled={!inputValue.trim()}
+              disabled={!inputValue.trim() || mediating}
               className="bg-primary-container text-white hover:opacity-90 transition-all p-3 rounded-2xl flex items-center justify-center disabled:opacity-50"
             >
               <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>send</span>
@@ -342,7 +371,7 @@ export default function ChatPage() {
               <div>
                 <p className="text-xs text-tertiary mb-1">Sugestão do Mediador:</p>
                 <p className="text-sm bg-tertiary/10 p-3 rounded-lg border border-tertiary/20">
-                  {mediatedContent.replace(/nunca/gi, 'por vezes').replace(/tu /gi, 'podemos ').replace(/sempre/gi, 'algumas vezes')}
+                  {mediationResult?.mediated_content || mediatedContent}
                 </p>
               </div>
             </div>
