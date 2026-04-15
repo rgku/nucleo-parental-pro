@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
+import { AppLayout } from '@/components/layout/AppLayout'
 
 const getSupabaseClient = () => {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -197,7 +198,8 @@ export default function FinancesPage() {
   }
 
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: '#f7f9fc' }}>
+    <AppLayout>
+      <div className="min-h-screen pb-24" style={{ backgroundColor: '#f7f9fc' }}>
       <div className="p-6 max-w-md mx-auto space-y-6">
         <section>
           <h1 className="text-3xl font-bold" style={{ color: '#191c1e', fontFamily: 'Manrope, sans-serif' }}>Finanças</h1>
@@ -319,5 +321,6 @@ export default function FinancesPage() {
         </div>
       )}
     </div>
+    </AppLayout>
   )
 }
