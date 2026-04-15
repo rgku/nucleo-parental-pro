@@ -24,7 +24,7 @@ export default function LoginPage() {
     router.push('/register')
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
     const supabase = getSupabaseClient()
