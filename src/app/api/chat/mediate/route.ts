@@ -136,13 +136,17 @@ export async function POST(request: NextRequest) {
     // Check blacklist FIRST - before API call
     const blacklistCheck = checkBlacklist(content)
     if (blacklistCheck.blocked) {
+      const issueSummary = blacklistCheck.issues.map(i => i.split(': ')[1]).join(', ')
       return NextResponse.json({
         original_content: content,
-        mediated_content: 'Esta mensagem não pode ser mediada. Por favor, foca-te no assunto prático e no bem-estar do teu filho.',
+        mediated_content: 'Esta mensagem não pode ser mediada.',
         tone: 'negative',
         should_suggest_rewrite: false,
         confidence_score: 10,
-        detected_issues: blacklistCheck.issues
+        blocked: true,
+        user_message: `Palavras bloqueadas: ${issueSummary}. Por favor, foca-te no assunto prático e no bem-estar do nosso filho.`,
+        detected_issues: blacklistCheck.issues,
+        mediation_tip: 'Tenta escrever a mensagem focando-te apenas no que precisas discutir, sem usar palavras negativas.'
       })
     }
 
