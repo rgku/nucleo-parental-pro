@@ -38,6 +38,8 @@ interface MediationResponse {
   should_suggest_rewrite: boolean
   confidence_score?: number
   detected_issues?: string[]
+  blocked?: boolean
+  user_message?: string
 }
 
 // System prompt for the AI mediator (in pt-PT)
@@ -204,7 +206,9 @@ export async function POST(request: NextRequest) {
       mediationResult = {
         ...mediationResult,
         confidence_score: confidenceScore,
-        detected_issues: [...(mediationResult.detected_issues || []), 'confidence_score baixo']
+        detected_issues: [...(mediationResult.detected_issues || []), 'confidence_score baixo'],
+        blocked: true,
+        user_message: 'Detetámos um tom que pode dificultar a comunicação. Por favor, reformula a tua mensagem focando-te apenas nos factos.'
       }
     }
 
