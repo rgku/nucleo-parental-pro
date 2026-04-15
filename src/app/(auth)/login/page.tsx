@@ -56,13 +56,14 @@ const handleSubmit = async (e: React.FormEvent) => {
           .maybeSingle()
 
         if (!profile || profileError) {
-          router.push('/complete-profile')
+          window.location.href = '/complete-profile'
           setLoading(false)
           return
         }
       }
 
-      router.push('/dashboard')
+      window.location.href = '/dashboard'
+      setLoading(false)
     } catch (err: any) {
       console.error('Login error:', err)
       setError(err?.message || 'Erro ao iniciar sessão')
