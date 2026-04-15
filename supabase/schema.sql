@@ -230,6 +230,21 @@ CREATE INDEX IF NOT EXISTS idx_documents_parental_unit ON documents(parental_uni
 CREATE INDEX IF NOT EXISTS idx_documents_uploaded_by ON documents(uploaded_by);
 
 -- ============================================
+-- STORAGE BUCKETS
+-- ============================================
+
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+VALUES ('documents', 'documents', true, 10485760, ARRAY['application/pdf', 'image/jpeg', 'image/png', 'image/webp'])
+ON CONFLICT (id) DO NOTHING;
+
+-- Create storage policies for documents
+CREATE POLICY "Anyone can view documents" ON storage.objects
+FOR SELECT USING (bucket_id = 'documents');
+
+CREATE POLICY "Authenticated users can upload documents" ON storage.objects
+FOR INSERT WITH CHECK (bucket_id = 'documents' AND auth.role() = 'authenticated');
+
+-- ============================================
 -- ROW LEVEL SECURITY POLICIES
 -- ============================================
 

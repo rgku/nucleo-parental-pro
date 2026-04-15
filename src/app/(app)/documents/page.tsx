@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import { AppLayout } from '@/components/layout/AppLayout'
+import { cn } from '@/lib/utils'
 
 const getSupabaseClient = () => {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -53,6 +54,47 @@ export default function DocumentsPage() {
   const [newTitle, setNewTitle] = useState('')
   const [newDescription, setNewDescription] = useState('')
   const [newFileType, setNewFileType] = useState<string>('other')
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [compressProgress, setCompressProgress] = useState(0)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const compressImage = async (file: File): Promise<Blob> => {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas')
+      const ctx = canvas.getContext('2d')
+      const img = new Image()
+      
+      img.onload = () => {
+        const maxSize = 1200
+        let { width, height } = img
+        
+        if (width > maxSize || height > maxSize) {
+          if (width > height) {
+            height = (height / width) * maxSize
+            width = maxSize
+          } else {
+            width = (width / height) * maxSize
+            height = maxSize
+          }
+        }
+        
+        canvas.width = width
+        canvas.height = height
+        ctx?.drawImage(img, 0, 0, width, height)
+        
+        canvas.toBlob(
+          (blob) => {
+            setCompressProgress(100)
+            resolve(blob || file)
+          },
+          'image/jpeg',
+          0.7
+        )
+      }
+      
+      img.src = URL.createObjectURL(file)
+    })
+  }
 
   useEffect(() => {
     fetchData()
@@ -107,17 +149,68 @@ export default function DocumentsPage() {
     if (!newTitle.trim() || !profile || !parentalUnit) return
 
     setUploading(true)
+    setCompressProgress(0)
     const supabase = getSupabaseClient()
     if (!supabase) return
 
-    // For demo, use placeholder URL - in production would upload to storage
+    let fileUrl = '#'
+
+    // Upload and compress file if exists
+    if (selectedFile) {
+      setCompressProgress(20)
+      
+      // Compress image if it's an image file
+      let fileToUpload = selectedFile
+      if (selectedFile.type.startsWith('image/')) {
+        try {
+          setCompressProgress(40)
+          const compressedBlob = await compressImage(selectedFile)
+          setCompressProgress(80)
+          
+          // Upload to Supabase Storage
+          const fileName = `${parentalUnit.id}/${Date.now()}-${selectedFile.name}`
+          const { data, error: uploadError } = await supabase.storage
+            .from('documents')
+            .upload(fileName, compressedBlob, {
+              contentType: 'image/jpeg',
+              upsert: false
+            })
+          
+          if (!uploadError && data) {
+            const { data: { publicUrl } } = supabase.storage
+              .from('documents')
+              .getPublicUrl(data.path)
+            fileUrl = publicUrl
+          }
+        } catch (err) {
+          console.error('Compression/upload error:', err)
+        }
+      } else {
+        // For non-image files, upload directly
+        const fileName = `${parentalUnit.id}/${Date.now()}-${selectedFile.name}`
+        const { data, error: uploadError } = await supabase.storage
+          .from('documents')
+          .upload(fileName, selectedFile, {
+            upsert: false
+          })
+        
+        if (!uploadError && data) {
+          const { data: { publicUrl } } = supabase.storage
+            .from('documents')
+            .getPublicUrl(data.path)
+          fileUrl = publicUrl
+        }
+      }
+      setCompressProgress(100)
+    }
+
     const { error } = await supabase
       .from('documents')
       .insert({
         parental_unit_id: parentalUnit.id,
         title: newTitle,
         description: newDescription,
-        file_url: '#',
+        file_url: fileUrl,
         file_type: newFileType,
         uploaded_by: profile.id,
       })
@@ -128,6 +221,7 @@ export default function DocumentsPage() {
       setNewTitle('')
       setNewDescription('')
       setNewFileType('other')
+      setSelectedFile(null)
     }
 
     setUploading(false)
@@ -262,10 +356,47 @@ export default function DocumentsPage() {
                 </div>
               </div>
 
-              <div className="p-4 border-2 border-dashed border-outline-variant/30 rounded-xl text-center">
-                <span className="material-symbols-outlined text-3xl text-secondary mb-2">cloud_upload</span>
-                <p className="text-xs text-secondary">Em breve: upload de ficheiros</p>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="application/pdf,image/*"
+                onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                className="hidden"
+              />
+              
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                className={cn(
+                  "p-4 border-2 border-dashed border-outline-variant/30 rounded-xl text-center cursor-pointer hover:bg-surface-container-low transition-colors",
+                  selectedFile && "border-primary bg-primary/5"
+                )}
+              >
+                {selectedFile ? (
+                  <>
+                    <span className="material-symbols-outlined text-3xl text-primary mb-2">check_circle</span>
+                    <p className="text-sm text-primary font-medium">{selectedFile.name}</p>
+                    <p className="text-xs text-secondary">{(selectedFile.size / 1024).toFixed(1)} KB</p>
+                  </>
+                ) : (
+                  <>
+                    <span className="material-symbols-outlined text-3xl text-secondary mb-2">cloud_upload</span>
+                    <p className="text-xs text-secondary">Clica para seleccionar ou arrasta o ficheiro</p>
+                    <p className="text-xs text-secondary mt-1">PDF, PNG, JPG (max 10MB)</p>
+                  </>
+                )}
               </div>
+
+              {compressProgress > 0 && compressProgress < 100 && (
+                <div className="mt-2">
+                  <div className="h-2 bg-surface-container-low rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-primary transition-all"
+                      style={{ width: `${compressProgress}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-secondary mt-1">A comprimir... {compressProgress}%</p>
+                </div>
+              )}
             </div>
 
             <div className="flex gap-3 mt-6">
