@@ -100,34 +100,59 @@ export default function CompleteProfilePage() {
       return
     }
 
-    const { data: profile, error } = await supabase
+    const { data: existingProfile } = await supabase
       .from('profiles')
-      .insert({
-        user_id: user.id,
-        name,
-        role,
-        municipality_id: municipalityId,
-      })
-      .select()
+      .select('*')
+      .eq('user_id', user.id)
       .single()
 
-    if (error) {
-      alert('Erro ao criar perfil: ' + error.message)
-      setSaving(false)
-      return
+    let profile
+    if (existingProfile) {
+      const { data: updated, error: updateError } = await supabase
+        .from('profiles')
+        .update({ name, role, municipality_id: municipalityId })
+        .eq('id', existingProfile.id)
+        .select()
+        .single()
+      profile = updated
+      if (updateError) {
+        alert('Erro ao atualizar perfil: ' + updateError.message)
+        setSaving(false)
+        return
+      }
+    } else {
+      const { data: inserted, error: insertError } = await supabase
+        .from('profiles')
+        .insert({
+          id: user.id,
+          user_id: user.id,
+          name,
+          role,
+          municipality_id: municipalityId,
+        })
+        .select()
+        .single()
+      profile = inserted
+      if (insertError) {
+        alert('Erro ao criar perfil: ' + insertError.message)
+        setSaving(false)
+        return
+      }
     }
 
     localStorage.removeItem('pending_role')
     localStorage.removeItem('pending_name')
 
-    await supabase
-      .from('parental_units')
-      .insert({
-        agreement_name: 'Acordo de Coparentalidade',
-        parent_a_id: role === 'parent_a' ? profile.id : 'pending',
-        parent_b_id: role === 'parent_b' ? profile.id : 'pending',
-        municipality_id: municipalityId,
-      })
+    if (profile) {
+      await supabase
+        .from('parental_units')
+        .insert({
+          agreement_name: 'Acordo de Coparentalidade',
+          parent_a_id: role === 'parent_a' ? profile.id : user.id,
+          parent_b_id: role === 'parent_b' ? profile.id : user.id,
+          municipality_id: municipalityId,
+        })
+    }
 
     router.push('/dashboard')
   }
