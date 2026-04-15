@@ -56,13 +56,13 @@ const handleSubmit = async (e: React.FormEvent) => {
           .maybeSingle()
 
         if (!profile || profileError) {
-          window.location.href = '/complete-profile'
+          router.push('/complete-profile')
           setLoading(false)
           return
         }
       }
 
-      window.location.href = '/dashboard'
+      router.push('/dashboard')
       setLoading(false)
     } catch (err: any) {
       console.error('Login error:', err)

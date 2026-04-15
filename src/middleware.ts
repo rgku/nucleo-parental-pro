@@ -34,74 +34,27 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  let user = null
-  try {
-    const { data } = await supabase.auth.getUser()
-    user = data?.user
-    
-    if (!user) {
-      const { data: sessionData } = await supabase.auth.getSession()
-      if (sessionData?.session?.user) {
-        user = sessionData.session.user
-      }
-    }
-  } catch (e) {
-    console.error('Auth error in middleware:', e)
-  }
+  const { data: { session } } = await supabase.auth.getSession()
 
+  const isRootPage = request.nextUrl.pathname === '/'
   const isAuthPage = request.nextUrl.pathname.startsWith('/login') || 
                      request.nextUrl.pathname.startsWith('/register')
-  const isCompleteProfile = request.nextUrl.pathname.startsWith('/complete-profile')
-  const isRootPage = request.nextUrl.pathname === '/'
-  const isProtectedRoute = request.nextUrl.pathname.startsWith('/dashboard') ||
-                          request.nextUrl.pathname.startsWith('/finances') ||
-                          request.nextUrl.pathname.startsWith('/calendar') ||
-                          request.nextUrl.pathname.startsWith('/chat')
 
-  if (!user && isRootPage) {
+  if (!session && isRootPage) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
   }
 
-  if (!user && isProtectedRoute) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/login'
-    return NextResponse.redirect(url)
-  }
-
-  if (user && isAuthPage) {
+  if (session && isAuthPage) {
     const url = request.nextUrl.clone()
     url.pathname = '/dashboard'
     return NextResponse.redirect(url)
-  }
-
-  if (user && isCompleteProfile) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('user_id', user.id)
-      .single()
-
-    if (profile) {
-      const url = request.nextUrl.clone()
-      url.pathname = '/dashboard'
-      return NextResponse.redirect(url)
-    }
   }
 
   return supabaseResponse
 }
 
 export const config = {
-  matcher: [
-    '/',
-    '/dashboard/:path*',
-    '/finances/:path*',
-    '/calendar/:path*',
-    '/chat/:path*',
-    '/login',
-    '/register',
-    '/complete-profile',
-  ],
+  matcher: ['/', '/login', '/register', '/complete-profile'],
 }
