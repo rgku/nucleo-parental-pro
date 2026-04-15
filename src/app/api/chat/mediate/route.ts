@@ -5,16 +5,16 @@ import { NextRequest, NextResponse } from 'next/server'
 // ============================================
 
 const BLACKLISTED_WORDS = {
-  // Level 1: Serious insults - block immediately
+  // Level 1: Extreme profanity only - block immediately (very serious)
   level1: [
-    'estúpido', 'estúpida', 'idiota', 'burro', 'burra', 'imbecil', 'retardado', 'retardada',
-    'nojo', 'nojento', 'nojenta', 'desgraçado', 'desgraçada', 'foda', 'caralho',
-    'puta', 'porra', 'merda', 'cuzinho', 'cu'
+    'nojo', 'nojento', 'nojenta', 'foda', 'caralho',
+    'puta', 'porra', 'merda', 'cuzinho', 'cu', 'desgraçado', 'desgraçada'
   ],
-  // Level 2: Softer negative words - apply recovery block
+  // Level 2: Insults and negative words - apply dialogue recovery template
   level2: [
+    'estúpido', 'estúpida', 'idiota', 'burro', 'burra', 'imbecil', 'retardado', 'retardada',
     'incompetente', 'irresponsável', 'atrasado', 'atrasada', 'mentiroso', 'mentirosa',
-    'egoísta', 'maluco', 'maluca', 'inútil'
+    'egoísta', 'maluco', 'maluca', 'inútil', 'nabo', 'naba'
   ],
   threats: [
     'vais pagar', 'vou pagar', 'vou tirar-te', 'tirar o miúdo', 'tirar a criança',
