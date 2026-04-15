@@ -48,19 +48,21 @@ export default function LoginPage() {
     }
 
     if (data.user) {
-      const { data: profile } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('*')
+        .select('id')
         .eq('user_id', data.user.id)
-        .single()
+        .maybeSingle()
 
-      if (!profile) {
+      if (!profile || profileError) {
         router.push('/complete-profile')
+        setLoading(false)
         return
       }
     }
 
     router.push('/dashboard')
+    setLoading(false)
   }
 
   return (
