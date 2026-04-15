@@ -151,7 +151,6 @@ function ruleBasedMediation(content: string): MediationResponse {
     /poderia/i.test(lowerContent) ||
     /gostaria/i.test(lowerContent) ||
     /preciso/i.test(lowerContent) ||
-    /podemos/i.test(lowerContent) ||
     /combinar/i.test(lowerContent) ||
     /confirmar/i.test(lowerContent) ||
     /agradeço/i.test(lowerContent)
@@ -165,15 +164,35 @@ function ruleBasedMediation(content: string): MediationResponse {
     shouldRewrite = true
     
     // Simple rephrasing for Portuguese
-    if (/nunca/i.test(content) && /cumpr/i.test(content)) {
-      mediatedContent = content.replace(/nunca/i, 'por vezes').replace(/cumpr/i, 'cumprir')
+    let rewritten = content
+    if (/estúpido/i.test(content)) {
+      rewritten = rewritten.replace(/estúpido/gi, 'preciso avaliar melhor esta situação')
     }
     if (/ridículo/i.test(content)) {
-      mediatedContent = content.replace(/ridículo/i, 'preciso de avaliar melhor')
+      rewritten = rewritten.replace(/ridículo/gi, 'preciso de considerar')
     }
-    if (/tu/i.test(content) && content.includes('!')) {
-      mediatedContent = content.replace(/!/g, '.').replace(/tu /g, 'podemos ')
+    if (/nunca/i.test(content)) {
+      rewritten = rewritten.replace(/nunca/gi, 'por vezes')
     }
+    if (/sempre/i.test(content)) {
+      rewritten = rewritten.replace(/sempre/gi, 'algumas vezes')
+    }
+    if (/tu /i.test(content) || /tu,\s/i.test(content)) {
+      rewritten = rewritten.replace(/tu /gi, 'podemos ').replace(/tu,/gi, 'podemos,')
+    }
+    if (/odia/i.test(content) || /odeio/i.test(content)) {
+      rewritten = rewritten.replace(/odi[oa]/gi, 'tenho dificuldade em aceitar')
+    }
+    if (/maluco/i.test(content)) {
+      rewritten = rewritten.replace(/maluco/gi, 'preciso de tempo para analisar')
+    }
+    if (/inútil/i.test(content)) {
+      rewritten = rewritten.replace(/inútil/gi, 'não funciona como esperado')
+    }
+    if (content.includes('!')) {
+      rewritten = rewritten.replace(/!/g, '.')
+    }
+    mediatedContent = rewritten
   } else if (isConstructive) {
     tone = 'positive'
     shouldRewrite = false
