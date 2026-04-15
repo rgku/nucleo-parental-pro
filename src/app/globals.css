@@ -151,8 +151,22 @@ h1, h2, h3, h4, h5, h6 {
   background-color: var(--color-tertiary);
 }
 
+.bg-surface-container-low {
+  background-color: #f2f4f7;
+}
+
 .hover\:bg-surface-container-low:hover {
   background-color: #f2f4f7;
+}
+
+/* Ghost Border - 15% opacity outline */
+.ghost-border {
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.ghost-border:focus {
+  border: 1.5px solid var(--color-primary);
+  outline: none;
 }
 
 /* Material Symbols */
