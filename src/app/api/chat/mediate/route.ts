@@ -1,6 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 // ============================================
+// BLACKLISTED WORDS - Filtro de Ruído (pt-PT)
+// ============================================
+
+const BLACKLISTED_WORDS = {
+  insults: [
+    'estúpido', 'estúpida', 'idiota', 'burro', 'burra', 'imbecil', 'retardado', 'retardada',
+    'incompetente', 'irresponsável', 'atrasado', 'atrasada', 'mentiroso', 'mentirosa',
+    'nojo', 'nojento', 'nojenta', 'desgraçado', 'desgraçada', 'foda', 'caralho',
+    'puta', 'porra', 'merda', 'cuzinho', 'cu'
+  ],
+  threats: [
+    'vais pagar', 'vou pagar', 'vou tirar-te', 'tirar o miúdo', 'tirar a criança',
+    'vê-mo-nos em tribunal', 'o meu advogado', 'o teu advogado', 'vou processar-te',
+    'vou entrar em tribunal', 'tu vais ver', 'há-de pagar', 'há de pagar'
+  ],
+  possessive: [
+    'o meu filho', 'a minha filha', 'o filho é meu', 'a filha é minha'
+  ]
+}
+
+// ============================================
 // Evaristo.ai Chat Mediation API
 // ============================================
 
@@ -15,6 +36,8 @@ interface MediationResponse {
   mediated_content: string
   tone: 'positive' | 'neutral' | 'negative'
   should_suggest_rewrite: boolean
+  confidence_score?: number
+  detected_issues?: string[]
 }
 
 // System prompt for the AI mediator (in pt-PT)
@@ -46,8 +69,59 @@ Retorna SEMPRE um JSON com:
   "original_content": "mensagem original",
   "mediated_content": "mensagem reescrita (ou original se já neutra)",
   "tone": "positive|neutral|negative",
-  "should_suggest_rewrite": boolean (true se tone !== "positive")
-}`
+  "should_suggest_rewrite": boolean (true se tone !== "positive"),
+  "confidence_score": number (0-100),
+  "detected_issues": string[] (lista de problemas encontrados)
+}
+
+GUIA DE ESTILO DE MEDIAÇÃO (PT-PT):
+1. Identificar o núcleo logístico (horas, locais, necessidades da criança).
+2. Filtrar ruído emocional (culpas, ironias, adjetivos negativos).
+3. Usar estritamente Português de Portugal.
+4. Proibido usar "você" de forma fria; preferir omissão de sujeito ou "tu" neutro.
+5. Se o texto for puramente um insulto, dar confidence_score < 30.
+6. Retornar obrigatoriamente um objeto JSON com: rewritten_text e confidence_score.
+
+REGRA DE OURO: Se confidence_score < 70, não permitir envio automático.`
+
+// ============================================
+// Blacklist Check Function
+// ============================================
+
+function checkBlacklist(content: string): { blocked: boolean; issues: string[] } {
+  const lowerContent = content.toLowerCase()
+  const issues: string[] = []
+  
+  // Check for insults
+  for (const insult of BLACKLISTED_WORDS.insults) {
+    if (lowerContent.includes(insult)) {
+      issues.push(`insulto: ${insult}`)
+    }
+  }
+  
+  // Check for threats
+  for (const threat of BLACKLISTED_WORDS.threats) {
+    if (lowerContent.includes(threat)) {
+      issues.push(`ameaça: ${threat}`)
+    }
+  }
+  
+  // Check for possessive language
+  for (const poss of BLACKLISTED_WORDS.possessive) {
+    if (lowerContent.includes(poss)) {
+      issues.push(`posse: ${poss}`)
+    }
+  }
+  
+  return {
+    blocked: issues.length > 0,
+    issues
+  }
+}
+
+// ============================================
+// Main POST Handler
+// ============================================
 
 export async function POST(request: NextRequest) {
   try {
@@ -59,6 +133,19 @@ export async function POST(request: NextRequest) {
         { error: 'Missing required fields: content, parental_unit_id, sender_id' },
         { status: 400 }
       )
+    }
+
+    // Check blacklist FIRST - before API call
+    const blacklistCheck = checkBlacklist(content)
+    if (blacklistCheck.blocked) {
+      return NextResponse.json({
+        original_content: content,
+        mediated_content: 'Esta mensagem não pode ser mediada. Por favor, foca-te no assunto prático e no bem-estar do teu filho.',
+        tone: 'negative',
+        should_suggest_rewrite: false,
+        confidence_score: 10,
+        detected_issues: blacklistCheck.issues
+      })
     }
 
     // Get Evaristo.ai API key from environment
@@ -107,7 +194,19 @@ export async function POST(request: NextRequest) {
     }
 
     const data = await response.json()
-    const mediationResult = JSON.parse(data.choices[0].message.content) as MediationResponse
+    let mediationResult = JSON.parse(data.choices[0].message.content) as MediationResponse
+    
+    // Add confidence score check
+    const confidenceScore = mediationResult.confidence_score || 70
+    
+    // REGRA DE OURO: Se confidence_score < 70, não permitir envio automático
+    if (confidenceScore < 70) {
+      mediationResult = {
+        ...mediationResult,
+        confidence_score: confidenceScore,
+        detected_issues: [...(mediationResult.detected_issues || []), 'confidence_score baixo']
+      }
+    }
 
     return NextResponse.json(mediationResult)
   } catch (error) {
@@ -205,10 +304,15 @@ function ruleBasedMediation(content: string): MediationResponse {
     shouldRewrite = false
   }
 
+  // Calculate confidence score based on tone
+  const confidenceScore = tone === 'positive' ? 90 : tone === 'neutral' ? 70 : 25
+
   return {
     original_content: content,
     mediated_content: mediatedContent,
     tone,
     should_suggest_rewrite: shouldRewrite,
+    confidence_score: confidenceScore,
+    detected_issues: hasToxicPattern ? ['palavras potencialmente negativas'] : []
   }
 }
