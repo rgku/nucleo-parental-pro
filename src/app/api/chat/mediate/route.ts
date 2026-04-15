@@ -32,57 +32,53 @@ interface MediationRequest {
 }
 
 interface MediationResponse {
-  original_content: string
-  mediated_content: string
-  tone: 'positive' | 'neutral' | 'negative'
-  should_suggest_rewrite: boolean
+  original_content?: string
+  mediated_content?: string
+  tone?: 'positive' | 'neutral' | 'negative'
+  should_suggest_rewrite?: boolean
   confidence_score?: number
   detected_issues?: string[]
   blocked?: boolean
   user_message?: string
+  // New format fields
+  rewritten_text?: string
+  detected_emotion?: string
+  is_hostile?: boolean
+  mediation_tip?: string
 }
 
 // System prompt for the AI mediator (in pt-PT)
-const MEDIATOR_SYSTEM_PROMPT = `Age como um Mediador de Conflitos certificado pelo Ministério da Justiça de Portugal.
+const MEDIATOR_SYSTEM_PROMPT = `### ROLE
+Atuas como um Especialista em Mediação de Conflitos Familiares, certificado em Portugal. O teu objetivo é atuar como uma membrana neutra entre dois progenitores em processo de separação ou pós-divórcio.
 
-Processo de 3 Passos:
+### DIRETIVAS LINGUÍSTICAS (pt-PT)
+- Usa exclusivamente Português de Portugal (pt-PT).
+- Proibido o uso de gerúndios brasileiros (ex: "estou fazendo"). Usa "estou a fazer".
+- Substitui "você" (frio/distante) por omissão de sujeito ou tratamento direto por "tu" (se o tom for construtivo).
+- Substitui termos de posse ("meu filho") por termos de projeto comum ("o nosso filho" ou "[Nome]").
 
-1. Identificação: Extrai a informação logística (ex: horas, local, objeto) e ignora os adjetivos e ataques.
+### ALGORITMO DE PROCESSAMENTO (Chain of Thought)
+1. IDENTIFICAÇÃO: Extrai a necessidade logística (ex: horas, dinheiro, saúde, escola).
+2. FILTRAGEM: Remove adjetivos pejorativos, sarcasmo, culpas passadas e ameaças.
+3. REESCRITA: Reconstrói a mensagem focando APENAS no futuro e no bem-estar da criança.
+4. PONTUAÇÃO: Atribui um 'confidence_score' de 0 a 100 baseado na neutralidade final.
 
-2. Tradução Linguística: Garante o uso de pt-PT padrão. Substitui gerúndios por infinitivos conjugados (ex: 'estou fazendo' por 'estou a fazer').
+### MATRIZ DE TRANSFORMAÇÃO (Exemplos)
+- INPUT: "És um irresponsável, o miúdo chegou com fome!"
+- LÓGICA: Facto = Fome/Horário. Ruído = "Irresponsável".
+- OUTPUT: "O nosso filho chegou com bastante fome. Podemos ajustar o horário ou o lanche da próxima vez para ele não ficar tanto tempo sem comer?"
 
-3. Reescrita Empática: Reconstrói a frase focando-se no 'Nós' ou no 'Bem-estar da Criança'.
+- INPUT: "Não vou pagar a escola enquanto não me deixares vê-lo."
+- LÓGICA: Facto = Pagamento pendente. Ruído = Chantagem/Ameaça.
+- OUTPUT: "Em relação à mensalidade da escola, gostaria que resolvêssemos o pagamento pendente. Podemos também alinhar as próximas visitas para que tudo fique conforme o acordo?"
 
-Regra de Ouro: Se a frase original for impossível de reescrever sem manter o insulto (ex: apenas um palavrão), responde: 'Esta mensagem não pode ser mediada. Por favor, foca-te no assunto práticas.'
-
-CATEGORIAS DE TOM:
-- "positive": mensagem construtiva, respeitosa, focada em solução
-- "neutral": mensagem informativa, sem carga emocional significativa
-- "negative": mensagem agressiva, crítica, acusatória ou tóxica
-
-EXEMPLOS DE REESCRITA:
-- "Tu nunca cumpres o que prometes!" → "Podemos combinar uma hora fixa para a próxima troca?"
-- "O filho está contigo e tu não me avisas" → "Podíamos combinar que me informas sempre que tiveres o menor?"
-- "Isso é ridículo" → "Preciso de mais tempo para avaliar esta proposta."
-- "Estúpido" → "Preciso avaliar melhor esta situação."
-
-Retorna SEMPRE um JSON com:
+### FORMATO DE SAÍDA (Obrigatório JSON)
 {
-  "original_content": "mensagem original",
-  "mediated_content": "mensagem reescrita (ou original se já neutra)",
-  "tone": "positive|neutral|negative",
-  "should_suggest_rewrite": boolean (true se tone !== "positive"),
-  "confidence_score": number (0-100),
-  "detected_issues": string[] (lista de problemas encontrados)
+  "rewritten_text": "string",
+  "confidence_score": number,
+  "detected_emotion": "string",
+  "is_hostile": boolean
 }
-
-GUIA DE ESTILO DE MEDIAÇÃO (PT-PT):
-1. Identificar o núcleo logístico (horas, locais, necessidades da criança).
-2. Filtrar ruído emocional (culpas, ironias, adjetivos negativos).
-3. Usar estritamente Português de Portugal.
-4. Proibido usar "você" de forma fria; preferir omissão de sujeito ou "tu" neutro.
-5. Se o texto for puramente um insulto, dar confidence_score < 30.
-6. Retornar obrigatoriamente um objeto JSON com: rewritten_text e confidence_score.
 
 REGRA DE OURO: Se confidence_score < 70, não permitir envio automático.`
 
@@ -198,17 +194,35 @@ export async function POST(request: NextRequest) {
     const data = await response.json()
     let mediationResult = JSON.parse(data.choices[0].message.content) as MediationResponse
     
-    // Add confidence score check
-    const confidenceScore = mediationResult.confidence_score || 70
+    // Support both old and new field names
+    const confidenceScore = mediationResult.confidence_score || (mediationResult as any).confidence_score || 70
+    const rewrittenText = mediationResult.mediated_content || mediationResult.rewritten_text || content
+    const detectedEmotion = (mediationResult as any).detected_emotion
+    const isHostile = (mediationResult as any).is_hostile
+    
+    // Generate mediation tip based on detected issues
+    let mediationTip = ''
+    if (confidenceScore < 70) {
+      if (detectedEmotion === 'raiva' || detectedEmotion === 'frustração') {
+        mediationTip = 'Parece que a tua mensagem se foca muito no passado. Tenta focar-te apenas no que a criança precisa agora.'
+      } else if (isHostile) {
+        mediationTip = 'Detetámos um tom que pode dificultar a comunicação. Reformula a mensagem focando-te apenas nos factos.'
+      } else {
+        mediationTip = 'Parece que a tua mensagem tem bastante carga emocional. Tenta focar-te apenas no que é necessário para a criança.'
+      }
+    }
     
     // REGRA DE OURO: Se confidence_score < 70, não permitir envio automático
     if (confidenceScore < 70) {
       mediationResult = {
         ...mediationResult,
+        original_content: content,
+        mediated_content: rewrittenText,
         confidence_score: confidenceScore,
         detected_issues: [...(mediationResult.detected_issues || []), 'confidence_score baixo'],
         blocked: true,
-        user_message: 'Detetámos um tom que pode dificultar a comunicação. Por favor, reformula a tua mensagem focando-te apenas nos factos.'
+        user_message: 'Detetámos um tom que pode dificultar a comunicação. Por favor, reformula a tua mensagem focando-te apenas nos factos.',
+        mediation_tip: mediationTip
       }
     }
 
@@ -310,6 +324,12 @@ function ruleBasedMediation(content: string): MediationResponse {
 
   // Calculate confidence score based on tone
   const confidenceScore = tone === 'positive' ? 90 : tone === 'neutral' ? 70 : 25
+  
+  // Generate mediation tip
+  let mediationTip = ''
+  if (confidenceScore < 70) {
+    mediationTip = 'Parece que a tua mensagem se foca muito no passado. Tenta focar-te apenas no que a criança precisa agora.'
+  }
 
   return {
     original_content: content,
@@ -317,6 +337,7 @@ function ruleBasedMediation(content: string): MediationResponse {
     tone,
     should_suggest_rewrite: shouldRewrite,
     confidence_score: confidenceScore,
-    detected_issues: hasToxicPattern ? ['palavras potencialmente negativas'] : []
+    detected_issues: hasToxicPattern ? ['palavras potencialmente negativas'] : [],
+    mediation_tip: mediationTip
   }
 }
