@@ -11,11 +11,11 @@ interface SidebarProps {
 }
 
 const navItems = [
-  { href: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
-  { href: '/chat', label: 'Chat', icon: 'chat' },
-  { href: '/calendar', label: 'Calendar', icon: 'calendar_today' },
-  { href: '/finances', label: 'Finances', icon: 'payments' },
-  { href: '/documents', label: 'Documents', icon: 'folder' },
+  { href: '/dashboard', label: 'Painel', icon: 'dashboard' },
+  { href: '/chat', label: 'Mensagens', icon: 'chat' },
+  { href: '/calendar', label: 'Calendário', icon: 'calendar_today' },
+  { href: '/finances', label: 'Finanças', icon: 'payments' },
+  { href: '/documents', label: 'Documentos', icon: 'folder' },
 ]
 
 const getSupabaseClient = () => {
