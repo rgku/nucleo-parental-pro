@@ -17,11 +17,9 @@ interface AppLayoutProps {
   children: React.ReactNode
 }
 
-export function AppLayout({ children }: AppLayoutProps) {
+function useIsMobile() {
   const [isMobile, setIsMobile] = useState(true)
-  const [userName, setUserName] = useState('Utilizador')
-  const [userRole, setUserRole] = useState('Progenitor')
-
+  
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768)
@@ -31,6 +29,14 @@ export function AppLayout({ children }: AppLayoutProps) {
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
+  
+  return isMobile
+}
+
+export function AppLayout({ children }: AppLayoutProps) {
+  const isMobile = useIsMobile()
+  const [userName, setUserName] = useState('Utilizador')
+  const [userRole, setUserRole] = useState('Progenitor')
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -63,7 +69,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           <Sidebar />
           <div className="flex-1 ml-64">
             <TopNavBar userName={userName} userRole={userRole} />
-            <main className="min-h-screen bg-surface pt-16 p-8">
+            <main className="min-h-screen bg-surface pt-16 p-6 lg:p-8">
               <div className="max-w-6xl mx-auto">
                 {children}
               </div>
@@ -75,7 +81,16 @@ export function AppLayout({ children }: AppLayoutProps) {
       {/* Mobile: Full width with Bottom Nav */}
       {isMobile && (
         <div className="min-h-screen pb-24">
-          {children}
+          {/* Mobile header */}
+          <header className="sticky top-0 z-40 bg-surface/95 backdrop-blur-sm border-b border-outline-variant/20 px-4 py-3">
+            <div className="flex items-center justify-between">
+              <h1 className="text-lg font-bold text-primary">Núcleo Parental</h1>
+              <div className="text-xs text-secondary">{userRole}</div>
+            </div>
+          </header>
+          <main className="p-4">
+            {children}
+          </main>
           <BottomNav />
         </div>
       )}
