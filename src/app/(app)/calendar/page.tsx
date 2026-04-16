@@ -215,6 +215,19 @@ export default function CalendarPage() {
     }
   }
 
+  const deleteEvent = async (eventId: string) => {
+    const supabase = await getSupabaseClient()
+    if (!supabase) return
+
+    await supabase
+      .from('calendar_events')
+      .delete()
+      .eq('id', eventId)
+
+    fetchEvents()
+    setSelectedDayEvents(selectedDayEvents.filter(e => e.id !== eventId))
+  }
+
   const handleAddEvent = async () => {
     if (!newEventTitle.trim() || !selectedDate) return
 
@@ -442,6 +455,12 @@ export default function CalendarPage() {
                           {event.parent === 'parent_a' ? 'Progenitor A' : event.parent === 'parent_b' ? 'Progenitor B' : 'Evento'}
                         </p>
                       </div>
+                      <button
+                        onClick={() => deleteEvent(event.id)}
+                        className="p-1.5 rounded-lg hover:bg-red-100 text-red-400"
+                      >
+                        <span className="material-symbols-outlined text-sm">delete</span>
+                      </button>
                     </div>
                   ))}
                 </div>
