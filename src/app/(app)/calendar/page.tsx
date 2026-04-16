@@ -182,21 +182,21 @@ export default function CalendarPage() {
           </div>
 
           {/* Calendar Grid */}
-          <div className="grid grid-cols-7 gap-y-4">
+          <div className="grid grid-cols-7 gap-y-2">
             {calendarDays.map((day, index) => (
               <div
                 key={index}
-                className={`flex flex-col items-center gap-1 min-h-[60px] ${
+                className={`flex flex-col items-center gap-0.5 min-h-[40px] ${
                   day.date === 0 ? 'invisible' : ''
                 }`}
               >
                 {day.date > 0 && (
                   <>
                     <span
-                      className={`text-sm font-medium ${
+                      className={`text-xs font-medium ${
                         day.isToday
-                          ? 'w-8 h-8 flex items-center justify-center rounded-full bg-primary text-white'
-                          : 'text-on-surface'
+                          ? 'w-6 h-6 flex items-center justify-center rounded-full bg-primary text-white text-xs'
+                          : 'text-on-surface text-xs'
                       }`}
                     >
                       {day.date}
@@ -253,28 +253,28 @@ export default function CalendarPage() {
         </Card>
 
         {/* Event Cards */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="col-span-2 bg-orange-soft/10 p-5 rounded-xl border-l-4 border-yellow-400">
+        <div className="grid grid-cols-2 gap-3">
+          <div className="col-span-2 bg-orange-soft/10 p-3 rounded-xl border-l-4 border-yellow-400">
             <p className="text-[10px] font-bold text-orange-soft uppercase mb-1">Municipal</p>
-            <h3 className="text-lg font-bold font-headline">
+            <h3 className="text-sm font-bold font-headline">
               {getMunicipalityHoliday(municipalityId)?.name || 'Selecione município'}
             </h3>
             <p className="text-xs text-secondary">
               {getMunicipalityHoliday(municipalityId)?.date || '-'} de {getMonthNamePT(currentMonth)}
             </p>
           </div>
-          <div className="bg-primary/5 p-4 rounded-xl flex flex-col justify-between aspect-square">
-            <span className="material-symbols-outlined text-primary">child_care</span>
+          <div className="bg-primary/5 p-3 rounded-xl flex items-center gap-2">
+            <span className="material-symbols-outlined text-primary text-xl">child_care</span>
             <div>
-              <h3 className="text-sm font-bold text-primary">Próxima Troca</h3>
-              <p className="text-xs text-primary/80">13 de Abril, 18:00</p>
+              <h3 className="text-xs font-bold text-primary">Próxima Troca</h3>
+              <p className="text-[10px] text-primary/80">13 de Abril, 18:00</p>
             </div>
           </div>
-          <div className="bg-tertiary/5 p-4 rounded-xl flex flex-col justify-between aspect-square">
-            <span className="material-symbols-outlined text-tertiary">restaurant</span>
+          <div className="bg-tertiary/5 p-3 rounded-xl flex items-center gap-2">
+            <span className="material-symbols-outlined text-tertiary text-xl">restaurant</span>
             <div>
-              <h3 className="text-sm font-bold text-tertiary">Jantar Pai</h3>
-              <p className="text-xs text-tertiary/80">20 de Abril</p>
+              <h3 className="text-xs font-bold text-tertiary">Jantar Pai</h3>
+              <p className="text-[10px] text-tertiary/80">20 de Abril</p>
             </div>
           </div>
         </div>
