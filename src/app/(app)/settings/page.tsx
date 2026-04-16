@@ -156,12 +156,18 @@ export default function SettingsPage() {
   }
 
   const handleLeaveUnit = async () => {
-    if (!parentalUnit || !profile) return
+    if (!parentalUnit || !profile) {
+      console.error('Missing parentalUnit or profile', { parentalUnit, profile })
+      return
+    }
     if (!confirm('Tens a certeza que queres sair desta unidade parental?')) return
 
     setSaving(true)
     const supabase = getSupabaseClient()
-    if (!supabase) return
+    if (!supabase) {
+      console.error('No supabase client')
+      return
+    }
 
     const updateData: any = {}
     if (parentalUnit.parent_a_id === profile.id) {
@@ -170,10 +176,16 @@ export default function SettingsPage() {
       updateData.parent_b_id = null
     }
 
-    await supabase
+    console.log('Updating parental_unit:', parentalUnit.id, updateData)
+
+    const { error } = await supabase
       .from('parental_units')
       .update(updateData)
       .eq('id', parentalUnit.id)
+
+    if (error) {
+      console.error('Error leaving unit:', error)
+    }
 
     fetchData()
     setSaving(false)

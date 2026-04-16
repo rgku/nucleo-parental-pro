@@ -16,6 +16,7 @@ ALTER TABLE parental_units ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Parents can view their parental unit" ON parental_units;
 CREATE POLICY "parental_units_select" ON parental_units FOR SELECT USING (true);
 CREATE POLICY "parental_units_insert" ON parental_units FOR INSERT WITH CHECK (true);
+CREATE POLICY "parental_units_update" ON parental_units FOR UPDATE USING (true);
 
 -- Children
 ALTER TABLE children ENABLE ROW LEVEL SECURITY;

@@ -271,6 +271,11 @@ CREATE POLICY "Parents can view their parental unit" ON parental_units FOR SELEC
   OR EXISTS (SELECT 1 FROM profiles WHERE user_id = auth.uid() AND id = parent_b_id)
 );
 
+CREATE POLICY "Parents can update their parental unit" ON parental_units FOR UPDATE USING (
+  EXISTS (SELECT 1 FROM profiles WHERE user_id = auth.uid() AND id = parent_a_id)
+  OR EXISTS (SELECT 1 FROM profiles WHERE user_id = auth.uid() AND id = parent_b_id)
+);
+
 -- CHILDREN
 CREATE POLICY "Parents can view children" ON children FOR SELECT USING (
   parental_unit_id IN (SELECT id FROM parental_units WHERE parent_a_id IN (SELECT id FROM profiles WHERE user_id = auth.uid()) OR parent_b_id IN (SELECT id FROM profiles WHERE user_id = auth.uid()))
