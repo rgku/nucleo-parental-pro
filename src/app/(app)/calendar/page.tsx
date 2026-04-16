@@ -175,12 +175,10 @@ export default function CalendarPage() {
   }
 
   const getEventColor = (type: string, parent?: string) => {
-    // Use parent colors for custody, type colors for others
-    if (type === 'custody' || parent) {
-      if (parent === 'parent_a') return 'bg-blue-600'
-      if (parent === 'parent_b') return 'bg-teal-600'
-      return 'bg-blue-600' // default
-    }
+    // Always use parent color - blue for A, teal for B
+    if (parent === 'parent_a') return 'bg-blue-600'
+    if (parent === 'parent_b') return 'bg-teal-600'
+    // For events without parent, use type-based default colors
     switch (type) {
       case 'health': return 'bg-orange-500'
       case 'education': return 'bg-violet-500'
