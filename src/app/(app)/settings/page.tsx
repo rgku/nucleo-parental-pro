@@ -169,22 +169,23 @@ export default function SettingsPage() {
       return
     }
 
-    const updateData: any = {}
+    let otherParent: string | null = null
     if (parentalUnit.parent_a_id === profile.id) {
-      updateData.parent_a_id = null
+      otherParent = parentalUnit.parent_b_id
     } else if (parentalUnit.parent_b_id === profile.id) {
-      updateData.parent_b_id = null
+      otherParent = parentalUnit.parent_a_id
     }
 
-    console.log('Updating parental_unit:', parentalUnit.id, updateData)
-
-    const { error } = await supabase
-      .from('parental_units')
-      .update(updateData)
-      .eq('id', parentalUnit.id)
-
-    if (error) {
-      console.error('Error leaving unit:', error)
+    if (otherParent) {
+      await supabase
+        .from('parental_units')
+        .update({ parent_a_id: null, parent_b_id: null })
+        .eq('id', parentalUnit.id)
+    } else {
+      await supabase
+        .from('parental_units')
+        .delete()
+        .eq('id', parentalUnit.id)
     }
 
     fetchData()
