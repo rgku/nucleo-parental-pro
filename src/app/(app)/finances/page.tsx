@@ -465,11 +465,16 @@ export default function FinancesPage() {
                           <span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#00464a' }} />
                           Pago por {isPaidByMe ? 'Próprio' : 'Outro progenitor'}
                         </span>
-                        {doc && (
-                          <span className="flex items-center gap-1">
-                            <span className="material-symbols-outlined text-xs">attach_file</span>
-                            Com documento
-                          </span>
+                        {doc && doc.file_url && doc.file_url !== '#' && (
+                          <a 
+                            href={doc.file_url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1 text-primary hover:underline"
+                          >
+                            <span className="material-symbols-outlined text-xs">visibility</span>
+                            Ver documento
+                          </a>
                         )}
                       </div>
                     </div>
@@ -603,6 +608,16 @@ export default function FinancesPage() {
                   <div className="flex items-center gap-2 p-2 mb-2 rounded-lg" style={{ backgroundColor: '#f2f4f7' }}>
                     <span className="material-symbols-outlined text-sm">attach_file</span>
                     <span className="text-xs flex-1 truncate">Documento anexado</span>
+                    {documents.find(d => d.id === existingDocId)?.file_url && (
+                      <a 
+                        href={documents.find(d => d.id === existingDocId)?.file_url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="p-1 text-primary"
+                      >
+                        <span className="material-symbols-outlined text-sm">visibility</span>
+                      </a>
+                    )}
                     <button type="button" onClick={() => setExistingDocId(null)} className="p-1">
                       <span className="material-symbols-outlined text-sm">close</span>
                     </button>
