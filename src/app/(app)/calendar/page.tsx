@@ -266,7 +266,10 @@ export default function CalendarPage() {
         .or(`parent_a_id.eq.${profile.id},parent_b_id.eq.${profile.id}`)
         .single()
 
-      if (!parentalUnit) return
+      if (!parentalUnit) {
+        console.error('No parental unit found for profile:', profile.id)
+        return
+      }
 
       const insertData: any = {
           parental_unit_id: parentalUnit.id,
@@ -281,9 +284,15 @@ export default function CalendarPage() {
           insertData.end_date = `${endDate}T23:59:59`
         }
 
-      await supabase
+      console.log('Inserting calendar event:', insertData)
+
+      const { data, error } = await supabase
         .from('calendar_events')
         .insert(insertData)
+
+      if (error) {
+        console.error('Error inserting event:', error)
+      }
 
       setShowAddModal(false)
       setNewEventTitle('')

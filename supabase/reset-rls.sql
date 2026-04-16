@@ -29,9 +29,11 @@ ALTER TABLE calendar_events ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Parents can view calendar events" ON calendar_events;
 DROP POLICY IF EXISTS "Parents can create calendar events" ON calendar_events;
 DROP POLICY IF EXISTS "Event creator can update" ON calendar_events;
+DROP POLICY IF EXISTS "Event creator can delete" ON calendar_events;
 CREATE POLICY "calendar_events_select" ON calendar_events FOR SELECT USING (true);
 CREATE POLICY "calendar_events_insert" ON calendar_events FOR INSERT WITH CHECK (true);
 CREATE POLICY "calendar_events_update" ON calendar_events FOR UPDATE USING (true);
+CREATE POLICY "calendar_events_delete" ON calendar_events FOR DELETE USING (true);
 
 -- Expenses
 ALTER TABLE expenses ENABLE ROW LEVEL SECURITY;

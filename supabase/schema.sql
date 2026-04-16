@@ -288,6 +288,7 @@ CREATE POLICY "Parents can view calendar events" ON calendar_events FOR SELECT U
 
 CREATE POLICY "Parents can create calendar events" ON calendar_events FOR INSERT WITH CHECK (created_by IN (SELECT id FROM profiles WHERE user_id = auth.uid()));
 CREATE POLICY "Event creator can update" ON calendar_events FOR UPDATE USING (created_by IN (SELECT id FROM profiles WHERE user_id = auth.uid()));
+CREATE POLICY "Event creator can delete" ON calendar_events FOR DELETE USING (created_by IN (SELECT id FROM profiles WHERE user_id = auth.uid()));
 
 -- EXPENSES
 CREATE POLICY "Parents can view expenses" ON expenses FOR SELECT USING (
