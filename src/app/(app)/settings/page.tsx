@@ -38,6 +38,10 @@ export default function SettingsPage() {
   const [joinCode, setJoinCode] = useState('')
   const [joinError, setJoinError] = useState('')
 
+  useEffect(() => {
+    fetchData()
+  }, [])
+
   const handleLogout = async () => {
     if (!confirm('Tens a certeza que queres sair?')) return
     const supabase = getSupabaseClient()
