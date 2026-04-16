@@ -175,9 +175,13 @@ export default function CalendarPage() {
   }
 
   const getEventColor = (type: string, parent?: string) => {
-    // Use type colors for calendar dots
+    // Use parent colors for custody, type colors for others
+    if (type === 'custody' || parent) {
+      if (parent === 'parent_a') return 'bg-blue-600'
+      if (parent === 'parent_b') return 'bg-teal-600'
+      return 'bg-blue-600' // default
+    }
     switch (type) {
-      case 'custody': return 'bg-indigo-500'
       case 'health': return 'bg-orange-500'
       case 'education': return 'bg-violet-500'
       case 'activity': return 'bg-cyan-500'
@@ -398,7 +402,7 @@ export default function CalendarPage() {
           <div className="space-y-2">
             <div className="flex items-center gap-3">
               <div className="w-3 h-3 rounded-full bg-blue-600" />
-              <span className="text-sm text-on-surface-variant font-medium">Progenitor A</span>
+              <span className="text-sm text-on-surface-variant font-medium">Progenitor A (Custódia)</span>
             </div>
             <div className="flex items-center gap-3">
               <div className="w-3 h-3 rounded-full bg-teal-600" />
