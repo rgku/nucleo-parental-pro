@@ -80,12 +80,15 @@ export default function CalendarPage() {
         .single()
 
       if (parentalUnit) {
+        const monthStart = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01T00:00:00`
+        const monthEnd = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-31T23:59:59`
+        
         const { data: eventsData } = await supabase
           .from('calendar_events')
           .select('*')
           .eq('parental_unit_id', parentalUnit.id)
-          .gte('start_date', `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`)
-          .lte('start_date', `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-31`)
+          .gte('start_date', monthStart)
+          .lte('start_date', monthEnd)
 
         setEvents(eventsData || [])
       }
@@ -219,7 +222,7 @@ export default function CalendarPage() {
         .insert({
           parental_unit_id: parentalUnit.id,
           title: newEventTitle,
-          start_date: selectedDate,
+          start_date: `${selectedDate}T00:00:00`,
           type: newEventType,
           created_by: profile.id,
         })
