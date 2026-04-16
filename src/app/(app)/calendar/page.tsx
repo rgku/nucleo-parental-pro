@@ -20,6 +20,7 @@ interface CalendarEvent {
   end_date?: string
   type: string
   created_by: string
+  parent?: string
 }
 
 interface CalendarDay {
@@ -48,8 +49,10 @@ export default function CalendarPage() {
   const [currentYear, setCurrentYear] = useState(today.getFullYear())
   const [municipalityId, setMunicipalityId] = useState('lisboa')
   const [events, setEvents] = useState<CalendarEvent[]>([])
+  const [profile, setProfile] = useState<{ id: string; role: string } | null>(null)
   const [showAddModal, setShowAddModal] = useState(false)
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
+  const [selectedDayEvents, setSelectedDayEvents] = useState<CalendarEvent[]>([])
   const [newEventTitle, setNewEventTitle] = useState('')
   const [newEventType, setNewEventType] = useState('custody')
 
@@ -67,7 +70,7 @@ export default function CalendarPage() {
 
       const { data: profile } = await supabase
         .from('profiles')
-        .select('id')
+        .select('id, role')
         .eq('user_id', user.id)
         .single()
 
@@ -75,7 +78,7 @@ export default function CalendarPage() {
 
       const { data: parentalUnit } = await supabase
         .from('parental_units')
-        .select('id')
+        .select('id, role')
         .or(`parent_a_id.eq.${profile.id},parent_b_id.eq.${profile.id}`)
         .single()
 
@@ -172,7 +175,26 @@ export default function CalendarPage() {
     }
   }
 
-  const getEventColor = (type: string) => {
+  const getEventColor = (type: string, parent?: string) => {
+    // Parent A = blue tones, Parent B = green tones
+    if (parent === 'parent_a') {
+      switch (type) {
+        case 'custody': return 'bg-blue-500'
+        case 'health': return 'bg-blue-600'
+        case 'education': return 'bg-blue-400'
+        case 'activity': return 'bg-blue-300'
+        default: return 'bg-blue-400'
+      }
+    } else if (parent === 'parent_b') {
+      switch (type) {
+        case 'custody': return 'bg-emerald-500'
+        case 'health': return 'bg-emerald-600'
+        case 'education': return 'bg-emerald-400'
+        case 'activity': return 'bg-emerald-300'
+        default: return 'bg-emerald-400'
+      }
+    }
+    // Default colors for holidays
     switch (type) {
       case 'custody': return 'bg-blue-500'
       case 'health': return 'bg-red-400'
@@ -188,6 +210,7 @@ export default function CalendarPage() {
   const handleDayClick = (day: CalendarDay) => {
     if (day.date > 0) {
       setSelectedDate(day.dateStr)
+      setSelectedDayEvents(day.events)
       setShowAddModal(true)
     }
   }
@@ -204,7 +227,7 @@ export default function CalendarPage() {
 
       const { data: profile } = await supabase
         .from('profiles')
-        .select('id')
+        .select('id, role')
         .eq('user_id', user.id)
         .single()
 
@@ -212,7 +235,7 @@ export default function CalendarPage() {
 
       const { data: parentalUnit } = await supabase
         .from('parental_units')
-        .select('id')
+        .select('id, role')
         .or(`parent_a_id.eq.${profile.id},parent_b_id.eq.${profile.id}`)
         .single()
 
@@ -226,6 +249,7 @@ export default function CalendarPage() {
           start_date: `${selectedDate}T00:00:00`,
           type: newEventType,
           created_by: profile.id,
+          parent: profile.role,
         })
 
       setShowAddModal(false)
@@ -318,7 +342,7 @@ export default function CalendarPage() {
                         {day.events.slice(0, 3).map((event, i) => (
                           <div
                             key={i}
-                            className={`w-1.5 h-1.5 rounded-full ${getEventColor(event.type)}`}
+                            className={`w-1.5 h-1.5 rounded-full ${getEventColor(event.type, event.parent)}`}
                           />
                         ))}
                       </div>
@@ -395,12 +419,35 @@ export default function CalendarPage() {
       {showAddModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-surface-container-lowest rounded-2xl p-6 max-w-md w-full shadow-2xl">
-            <h3 className="font-semibold font-headline mb-4">Adicionar Evento</h3>
-            <p className="text-xs text-secondary mb-4">
-              Data: {selectedDate}
-            </p>
+            <h3 className="font-semibold font-headline mb-4">Eventos do dia {selectedDate}</h3>
             
             <div className="space-y-4">
+              {/* Existing events */}
+              {selectedDayEvents.length > 0 && (
+                <div className="space-y-2">
+                  <label className="text-xs text-secondary">Eventos existentes</label>
+                  {selectedDayEvents.map((event) => (
+                    <div
+                      key={event.id}
+                      className={`p-3 rounded-lg flex items-center gap-2 ${
+                        event.parent === 'parent_a' ? 'bg-blue-50 border border-blue-200' : 
+                        event.parent === 'parent_b' ? 'bg-emerald-50 border border-emerald-200' : 
+                        'bg-surface-container-low'
+                      }`}
+                    >
+                      <div className={`w-2 h-2 rounded-full ${getEventColor(event.type, event.parent)}`} />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">{event.title}</p>
+                        <p className="text-xs text-secondary">
+                          {event.parent === 'parent_a' ? 'Progenitor A' : event.parent === 'parent_b' ? 'Progenitor B' : 'Evento'}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Add new event */}
               <div>
                 <label className="text-xs text-secondary mb-1 block">Título do evento</label>
                 <input

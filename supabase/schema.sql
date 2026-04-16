@@ -90,6 +90,7 @@ CREATE TABLE IF NOT EXISTS calendar_events (
   end_date TIMESTAMPTZ,
   type TEXT NOT NULL CHECK (type IN ('custody', 'health', 'education', 'holiday', 'activity')),
   created_by UUID NOT NULL REFERENCES profiles(id),
+  parent TEXT CHECK (parent IN ('parent_a', 'parent_b')),
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
