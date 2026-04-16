@@ -115,7 +115,6 @@ export default function CalendarPage() {
     // Days of month
     for (let day = 1; day <= daysInMonth; day++) {
       const dateStr = `${String(currentYear)}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-      console.log(`Checking day ${dateStr}, events:`, events.map(e => ({ title: e.title, start_date: e.start_date, parent: e.parent })))
       const dayEvents: CalendarEvent[] = []
       let holiday: string | undefined
 
@@ -128,15 +127,11 @@ export default function CalendarPage() {
 
       // Check DB events for this day (including multi-day events)
       const dayEventsData = events.filter(e => {
-        const eventStartDate = new Date(e.start_date.split('T')[0])
-        const eventEndDate = e.end_date ? new Date(e.end_date.split('T')[0]) : eventStartDate
-        const currentDayDate = new Date(currentYear, currentMonth, day)
+        const eventStartDateStr = e.start_date.split('T')[0]
+        const eventEndDateStr = e.end_date ? e.end_date.split('T')[0] : eventStartDateStr
+        const currentDayStr = dateStr
         
-        const matches = currentDayDate >= eventStartDate && currentDayDate <= eventEndDate
-        if (matches) {
-          console.log(`Event "${e.title}" matches day ${dateStr}`, { eventStartDate, eventEndDate, currentDayDate })
-        }
-        return matches
+        return currentDayStr >= eventStartDateStr && currentDayStr <= eventEndDateStr
       })
       dayEvents.push(...dayEventsData)
 
