@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { BottomNav } from '@/components/layout/BottomNav'
 import { TopNavBar } from '@/components/layout/TopNavBar'
@@ -85,7 +86,12 @@ export function AppLayout({ children }: AppLayoutProps) {
           <header className="sticky top-0 z-40 bg-surface/95 backdrop-blur-sm border-b border-outline-variant/20 px-4 py-3">
             <div className="flex items-center justify-between">
               <h1 className="text-lg font-bold text-primary">Núcleo Parental</h1>
-              <div className="text-xs text-secondary">{userRole}</div>
+              <div className="flex items-center gap-3">
+                <Link href="/settings" className="p-1">
+                  <span className="material-symbols-outlined text-secondary">settings</span>
+                </Link>
+                <span className="text-xs text-secondary">{userRole}</span>
+              </div>
             </div>
           </header>
           <main className="p-4">

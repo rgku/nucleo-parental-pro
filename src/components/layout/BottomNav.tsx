@@ -14,7 +14,6 @@ const navItems = [
   { href: '/calendar', label: 'Calendário', icon: 'calendar_today' },
   { href: '/finances', label: 'Finanças', icon: 'account_balance_wallet' },
   { href: '/documents', label: 'Documentos', icon: 'folder' },
-  { href: '/settings', label: 'Definições', icon: 'settings' },
 ]
 
 export function BottomNav({ className }: BottomNavProps) {
@@ -32,7 +31,7 @@ export function BottomNav({ className }: BottomNavProps) {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  'flex flex-col items-center justify-center px-2 py-2 rounded-2xl transition-all active:scale-90 min-w-[56px]',
+                  'flex flex-col items-center justify-center px-1 py-2 rounded-2xl transition-all active:scale-90 min-w-[60px]',
                   isActive
                     ? 'bg-primary/10 text-primary'
                     : 'text-secondary hover:text-primary'
