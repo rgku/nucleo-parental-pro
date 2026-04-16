@@ -85,11 +85,13 @@ export default function CalendarPage() {
         .single()
 
       if (parentalUnit) {
-        const { data: eventsData } = await supabase
+        console.log('Fetching events for parental unit:', parentalUnit.id)
+        const { data: eventsData, error: eventsError } = await supabase
           .from('calendar_events')
           .select('*')
           .eq('parental_unit_id', parentalUnit.id)
 
+        console.log('Events fetched:', eventsData, eventsError)
         setEvents(eventsData || [])
       }
     } catch (error) {
@@ -290,6 +292,8 @@ export default function CalendarPage() {
         .from('calendar_events')
         .insert(insertData)
 
+      console.log('Insert result:', data, error)
+
       if (error) {
         console.error('Error inserting event:', error)
       }
@@ -299,7 +303,8 @@ export default function CalendarPage() {
       setNewEventType('custody')
       setIsRange(false)
       setEndDate(null)
-      fetchEvents()
+      
+      setTimeout(() => fetchEvents(), 500)
     } catch (error) {
       console.error('Error adding event:', error)
     }
