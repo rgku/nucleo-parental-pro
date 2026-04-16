@@ -175,13 +175,7 @@ export default function CalendarPage() {
   }
 
   const getEventColor = (type: string, parent?: string) => {
-    // Parent A = blue tones, Parent B = teal/cyan tones
-    if (parent === 'parent_a') {
-      return 'bg-blue-600'
-    } else if (parent === 'parent_b') {
-      return 'bg-teal-600'
-    }
-    // Default colors for event types
+    // Always use type colors for calendar dots
     switch (type) {
       case 'custody': return 'bg-indigo-500'
       case 'health': return 'bg-orange-500'
