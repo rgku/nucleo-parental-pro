@@ -2,27 +2,44 @@
 
 import { useState, useEffect } from 'react'
 import { AppLayout } from '@/components/layout/AppLayout'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-import { getMonthNamePT, formatDatePT } from '@/lib/utils'
+import { Card } from '@/components/ui/card'
+import { getMonthNamePT } from '@/lib/utils'
 import { NATIONAL_HOLIDAYS_2026, MUNICIPALITIES, getMunicipalityHoliday } from '@/lib/holidays-pt'
+
+const getSupabaseClient = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  if (!supabaseUrl || !supabaseAnonKey) return null
+  return import('@supabase/supabase-js').then(m => m.createClient(supabaseUrl, supabaseAnonKey))
+}
+
+interface CalendarEvent {
+  id: string
+  title: string
+  start_date: string
+  end_date?: string
+  type: string
+  created_by: string
+}
 
 interface CalendarDay {
   date: number
   month: number
   year: number
   dateStr: string
-  events: string[]
+  events: CalendarEvent[]
   holiday?: string
   isToday: boolean
 }
 
 const DAYS_OF_WEEK = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom']
 
-// Demo events
-const demoEvents = [
-  { date: '2026-04-13', type: 'custody' },
-  { date: '2026-04-15', type: 'health' },
-  { date: '2026-04-20', type: 'education' },
+const EVENT_TYPES = [
+  { id: 'custody', label: 'Custódia', icon: 'child_care', color: 'bg-blue-500' },
+  { id: 'health', label: 'Médico', icon: 'medical_services', color: 'bg-red-400' },
+  { id: 'education', label: 'Escola', icon: 'school', color: 'bg-purple-500' },
+  { id: 'activity', label: 'Atividade', icon: 'sports', color: 'bg-green-500' },
+  { id: 'other', label: 'Outro', icon: 'event', color: 'bg-gray-400' },
 ]
 
 export default function CalendarPage() {
@@ -30,11 +47,56 @@ export default function CalendarPage() {
   const [currentMonth, setCurrentMonth] = useState(today.getMonth())
   const [currentYear, setCurrentYear] = useState(today.getFullYear())
   const [municipalityId, setMunicipalityId] = useState('lisboa')
+  const [events, setEvents] = useState<CalendarEvent[]>([])
+  const [showAddModal, setShowAddModal] = useState(false)
+  const [selectedDate, setSelectedDate] = useState<string | null>(null)
+  const [newEventTitle, setNewEventTitle] = useState('')
+  const [newEventType, setNewEventType] = useState('custody')
+
+  useEffect(() => {
+    fetchEvents()
+  }, [])
+
+  const fetchEvents = async () => {
+    const supabase = await getSupabaseClient()
+    if (!supabase) return
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .single()
+
+      if (!profile) return
+
+      const { data: parentalUnit } = await supabase
+        .from('parental_units')
+        .select('id')
+        .or(`parent_a_id.eq.${profile.id},parent_b_id.eq.${profile.id}`)
+        .single()
+
+      if (parentalUnit) {
+        const { data: eventsData } = await supabase
+          .from('calendar_events')
+          .select('*')
+          .eq('parental_unit_id', parentalUnit.id)
+          .gte('start_date', `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`)
+          .lte('start_date', `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-31`)
+
+        setEvents(eventsData || [])
+      }
+    } catch (error) {
+      console.error('Error fetching events:', error)
+    }
+  }
 
   const monthName = getMonthNamePT(currentMonth)
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate()
   const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay()
-
   const adjustFirstDay = firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1
 
   const generateCalendarDays = (): CalendarDay[] => {
@@ -47,34 +109,25 @@ export default function CalendarPage() {
 
     // Days of month
     for (let day = 1; day <= daysInMonth; day++) {
-      const dateStr = `${String(day).padStart(2, '0')}-${String(currentMonth + 1).padStart(2, '0')}`
-      const events: string[] = []
+      const dateStr = `${String(currentYear)}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+      const dayEvents: CalendarEvent[] = []
       let holiday: string | undefined
 
       // Check national holidays
-      const nationalHoliday = NATIONAL_HOLIDAYS_2026.find(h => h.date === dateStr)
+      const dateStrShort = `${String(day).padStart(2, '0')}-${String(currentMonth + 1).padStart(2, '0')}`
+      const nationalHoliday = NATIONAL_HOLIDAYS_2026.find(h => h.date === dateStrShort)
       if (nationalHoliday) {
         holiday = nationalHoliday.name
-        events.push('national')
       }
 
-      // Check municipal holiday
-      const municipalHoliday = getMunicipalityHoliday(municipalityId)
-      if (municipalHoliday?.date === dateStr) {
-        holiday = municipalHoliday.name
-        events.push('municipal')
-      }
-
-      // Check demo events
-      const demoEvent = demoEvents.find(e => {
-        const eventDate = new Date(e.date)
+      // Check DB events for this day
+      const dayEventsData = events.filter(e => {
+        const eventDate = new Date(e.start_date)
         return eventDate.getDate() === day && 
                eventDate.getMonth() === currentMonth && 
                eventDate.getFullYear() === currentYear
       })
-      if (demoEvent) {
-        events.push(demoEvent.type)
-      }
+      dayEvents.push(...dayEventsData)
 
       const isToday = 
         day === today.getDate() && 
@@ -86,7 +139,7 @@ export default function CalendarPage() {
         month: currentMonth,
         year: currentYear,
         dateStr,
-        events,
+        events: dayEvents,
         holiday,
         isToday,
       })
@@ -120,9 +173,63 @@ export default function CalendarPage() {
       case 'custody': return 'bg-blue-500'
       case 'health': return 'bg-red-400'
       case 'education': return 'bg-purple-500'
+      case 'activity': return 'bg-green-500'
+      case 'other': return 'bg-gray-400'
       case 'national': return 'bg-tertiary'
       case 'municipal': return 'bg-yellow-400'
       default: return 'bg-gray-400'
+    }
+  }
+
+  const handleDayClick = (day: CalendarDay) => {
+    if (day.date > 0) {
+      setSelectedDate(day.dateStr)
+      setShowAddModal(true)
+    }
+  }
+
+  const handleAddEvent = async () => {
+    if (!newEventTitle.trim() || !selectedDate) return
+
+    const supabase = await getSupabaseClient()
+    if (!supabase) return
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .single()
+
+      if (!profile) return
+
+      const { data: parentalUnit } = await supabase
+        .from('parental_units')
+        .select('id')
+        .or(`parent_a_id.eq.${profile.id},parent_b_id.eq.${profile.id}`)
+        .single()
+
+      if (!parentalUnit) return
+
+      await supabase
+        .from('calendar_events')
+        .insert({
+          parental_unit_id: parentalUnit.id,
+          title: newEventTitle,
+          start_date: selectedDate,
+          type: newEventType,
+          created_by: profile.id,
+        })
+
+      setShowAddModal(false)
+      setNewEventTitle('')
+      setNewEventType('custody')
+      fetchEvents()
+    } catch (error) {
+      console.error('Error adding event:', error)
     }
   }
 
@@ -186,7 +293,8 @@ export default function CalendarPage() {
             {calendarDays.map((day, index) => (
               <div
                 key={index}
-                className={`flex flex-col items-center gap-0.5 min-h-[40px] ${
+                onClick={() => handleDayClick(day)}
+                className={`flex flex-col items-center gap-0.5 min-h-[40px] cursor-pointer hover:bg-surface-container-low rounded ${
                   day.date === 0 ? 'invisible' : ''
                 }`}
               >
@@ -206,7 +314,7 @@ export default function CalendarPage() {
                         {day.events.slice(0, 3).map((event, i) => (
                           <div
                             key={i}
-                            className={`w-1.5 h-1.5 rounded-full ${getEventColor(event)}`}
+                            className={`w-1.5 h-1.5 rounded-full ${getEventColor(event.type)}`}
                           />
                         ))}
                       </div>
@@ -279,6 +387,65 @@ export default function CalendarPage() {
           </div>
         </div>
       </div>
+
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-surface-container-lowest rounded-2xl p-6 max-w-md w-full shadow-2xl">
+            <h3 className="font-semibold font-headline mb-4">Adicionar Evento</h3>
+            <p className="text-xs text-secondary mb-4">
+              Data: {selectedDate}
+            </p>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs text-secondary mb-1 block">Título do evento</label>
+                <input
+                  type="text"
+                  value={newEventTitle}
+                  onChange={(e) => setNewEventTitle(e.target.value)}
+                  placeholder="ex: Dia de descida"
+                  className="w-full p-3 rounded-xl border border-outline-variant/30 bg-white"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs text-secondary mb-1 block">Tipo</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {EVENT_TYPES.map((type) => (
+                    <button
+                      key={type.id}
+                      onClick={() => setNewEventType(type.id)}
+                      className={`p-2 rounded-lg text-xs font-medium transition-colors ${
+                        newEventType === type.id
+                          ? 'bg-primary text-white'
+                          : 'bg-surface-container-low text-secondary hover:bg-surface-container-high'
+                      }`}
+                    >
+                      {type.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setShowAddModal(false)}
+                className="flex-1 py-3 px-4 rounded-xl border border-outline-variant/30 text-secondary font-medium text-sm hover:bg-surface-container-low transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleAddEvent}
+                disabled={!newEventTitle.trim()}
+                className="flex-1 py-3 px-4 rounded-xl bg-primary text-white font-medium text-sm hover:opacity-90 transition-colors disabled:opacity-50"
+              >
+                Guardar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </AppLayout>
   )
 }
