@@ -162,12 +162,19 @@ export default function FinancesPage() {
         return null
       }
 
+      const { data: { publicUrl } } = supabase.storage
+        .from('documents')
+        .getPublicUrl(filePath)
+
       const { data: docData, error: docError } = await supabase
         .from('documents')
         .insert({
           parental_unit_id: parentalUnitId,
-          file_name: file.name,
+          title: file.name,
+          description: 'Documento de despesa',
+          file_url: publicUrl,
           file_path: filePath,
+          file_type: 'expense',
           file_size: file.size,
           mime_type: file.type,
           uploaded_by: profileId,
@@ -194,9 +201,12 @@ export default function FinancesPage() {
     const supabase = getSupabaseClient()
     if (!supabase) return
 
-    await supabase.storage
-      .from('documents')
-      .remove([docId])
+    const doc = documents.find(d => d.id === docId)
+    if (doc?.file_path) {
+      await supabase.storage
+        .from('documents')
+        .remove([doc.file_path])
+    }
 
     await supabase
       .from('documents')
