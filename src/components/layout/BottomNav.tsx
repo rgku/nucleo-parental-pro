@@ -9,8 +9,8 @@ interface BottomNavProps {
 }
 
 const navItems = [
-  { href: '/dashboard', label: 'Painel', icon: 'dashboard' },
-  { href: '/chat', label: 'Mensagens', icon: 'chat_bubble' },
+  { href: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
+  { href: '/chat', label: 'Chat', icon: 'chat_bubble' },
   { href: '/calendar', label: 'Calendário', icon: 'calendar_today' },
   { href: '/finances', label: 'Finanças', icon: 'account_balance_wallet' },
   { href: '/documents', label: 'Documentos', icon: 'folder' },
