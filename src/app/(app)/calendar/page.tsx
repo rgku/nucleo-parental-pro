@@ -125,6 +125,12 @@ export default function CalendarPage() {
         holiday = nationalHoliday.name
       }
 
+      // Check municipal holiday
+      const municipalHoliday = getMunicipalityHoliday(municipalityId)
+      if (municipalHoliday?.date === dateStrShort) {
+        holiday = municipalHoliday.name
+      }
+
       // Check DB events for this day (including multi-day events)
       const dayEventsData = events.filter(e => {
         const eventStartDateStr = e.start_date.split('T')[0]
@@ -382,9 +388,12 @@ export default function CalendarPage() {
                       </div>
                     )}
                     {day.holiday && (
-                      <span className="text-[8px] text-tertiary font-medium truncate max-w-[60px]">
-                        {day.holiday}
-                      </span>
+                      <>
+                        <div className="w-1.5 h-1.5 rounded-full bg-yellow-400" />
+                        <span className="text-[8px] text-tertiary font-medium truncate max-w-[60px]">
+                          {day.holiday}
+                        </span>
+                      </>
                     )}
                   </>
                 )}
