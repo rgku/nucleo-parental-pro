@@ -27,10 +27,13 @@ interface Expense {
 
 interface Document {
   id: string
-  file_name: string
+  title?: string
+  file_name?: string
   file_url: string
-  file_size: number
-  mime_type: string
+  file_path?: string
+  file_size?: number
+  mime_type?: string
+  file_type?: string
   created_at: string
 }
 
