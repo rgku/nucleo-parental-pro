@@ -219,19 +219,29 @@ export default function CalendarPage() {
     const supabase = await getSupabaseClient()
     if (!supabase) return
 
+    // Optimistic update - remove from UI immediately
+    const remainingEvents = selectedDayEvents.filter(e => e.id !== eventId)
+    setSelectedDayEvents(remainingEvents)
+    
+    // Delete from database
     const { error } = await supabase
       .from('calendar_events')
       .delete()
       .eq('id', eventId)
 
-    if (!error) {
-      const remainingEvents = selectedDayEvents.filter(e => e.id !== eventId)
-      setSelectedDayEvents(remainingEvents)
-      fetchEvents()
-      
-      if (remainingEvents.length === 0) {
-        setShowAddModal(false)
-      }
+    if (error) {
+      console.error('Error deleting event:', error)
+      // Revert if error
+      setSelectedDayEvents([...selectedDayEvents])
+      return
+    }
+
+    // Refresh data
+    await fetchEvents()
+    
+    // Close modal if no events left
+    if (remainingEvents.length === 0) {
+      setShowAddModal(false)
     }
   }
 
