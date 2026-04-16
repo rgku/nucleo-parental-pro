@@ -85,16 +85,10 @@ export default function CalendarPage() {
         .single()
 
       if (parentalUnit) {
-        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate()
-        const monthStart = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01T00:00:00`
-        const monthEnd = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(daysInMonth).padStart(2, '0')}T23:59:59`
-        
         const { data: eventsData } = await supabase
           .from('calendar_events')
           .select('*')
           .eq('parental_unit_id', parentalUnit.id)
-          .gte('start_date', monthStart)
-          .lte('start_date', monthEnd)
 
         setEvents(eventsData || [])
       }
@@ -131,11 +125,11 @@ export default function CalendarPage() {
 
       // Check DB events for this day (including multi-day events)
       const dayEventsData = events.filter(e => {
-        const eventStart = new Date(e.start_date)
-        const eventEnd = e.end_date ? new Date(e.end_date) : eventStart
-        const currentDay = new Date(currentYear, currentMonth, day)
+        const eventStartDate = new Date(e.start_date.split('T')[0])
+        const eventEndDate = e.end_date ? new Date(e.end_date.split('T')[0]) : eventStartDate
+        const currentDayDate = new Date(currentYear, currentMonth - 1, day)
         
-        return currentDay >= eventStart && currentDay <= eventEnd
+        return currentDayDate >= eventStartDate && currentDayDate <= eventEndDate
       })
       dayEvents.push(...dayEventsData)
 
