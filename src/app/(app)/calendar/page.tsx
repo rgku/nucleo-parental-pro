@@ -36,11 +36,11 @@ interface CalendarDay {
 const DAYS_OF_WEEK = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom']
 
 const EVENT_TYPES = [
-  { id: 'custody', label: 'Custódia', icon: 'child_care', color: 'bg-blue-500' },
-  { id: 'health', label: 'Médico', icon: 'medical_services', color: 'bg-red-400' },
-  { id: 'education', label: 'Escola', icon: 'school', color: 'bg-purple-500' },
-  { id: 'activity', label: 'Atividade', icon: 'sports', color: 'bg-green-500' },
-  { id: 'other', label: 'Outro', icon: 'event', color: 'bg-gray-400' },
+  { id: 'custody', label: 'Custódia', icon: 'child_care', color: 'bg-indigo-500' },
+  { id: 'health', label: 'Consulta', icon: 'medical_services', color: 'bg-orange-500' },
+  { id: 'education', label: 'Escola', icon: 'school', color: 'bg-violet-500' },
+  { id: 'activity', label: 'Atividade', icon: 'sports', color: 'bg-cyan-500' },
+  { id: 'other', label: 'Outro', icon: 'event', color: 'bg-zinc-500' },
 ]
 
 export default function CalendarPage() {
@@ -175,34 +175,22 @@ export default function CalendarPage() {
   }
 
   const getEventColor = (type: string, parent?: string) => {
-    // Parent A = blue tones, Parent B = green tones
+    // Parent A = blue tones, Parent B = teal/cyan tones
     if (parent === 'parent_a') {
-      switch (type) {
-        case 'custody': return 'bg-blue-500'
-        case 'health': return 'bg-blue-600'
-        case 'education': return 'bg-blue-400'
-        case 'activity': return 'bg-blue-300'
-        default: return 'bg-blue-400'
-      }
+      return 'bg-blue-600'
     } else if (parent === 'parent_b') {
-      switch (type) {
-        case 'custody': return 'bg-emerald-500'
-        case 'health': return 'bg-emerald-600'
-        case 'education': return 'bg-emerald-400'
-        case 'activity': return 'bg-emerald-300'
-        default: return 'bg-emerald-400'
-      }
+      return 'bg-teal-600'
     }
-    // Default colors for holidays
+    // Default colors for event types
     switch (type) {
-      case 'custody': return 'bg-blue-500'
-      case 'health': return 'bg-red-400'
-      case 'education': return 'bg-purple-500'
-      case 'activity': return 'bg-green-500'
-      case 'other': return 'bg-gray-400'
+      case 'custody': return 'bg-indigo-500'
+      case 'health': return 'bg-orange-500'
+      case 'education': return 'bg-violet-500'
+      case 'activity': return 'bg-cyan-500'
+      case 'other': return 'bg-zinc-500'
       case 'national': return 'bg-tertiary'
       case 'municipal': return 'bg-yellow-400'
-      default: return 'bg-gray-400'
+      default: return 'bg-zinc-400'
     }
   }
 
@@ -413,22 +401,44 @@ export default function CalendarPage() {
           <h2 className="text-xs font-bold uppercase tracking-widest text-secondary mb-4">
             Legenda
           </h2>
-          <div className="space-y-3">
+          <div className="space-y-2">
             <div className="flex items-center gap-3">
-              <div className="w-3 h-3 rounded-full bg-blue-500" />
+              <div className="w-3 h-3 rounded-full bg-blue-600" />
               <span className="text-sm text-on-surface-variant font-medium">Progenitor A</span>
             </div>
             <div className="flex items-center gap-3">
-              <div className="w-3 h-3 rounded-full bg-emerald-500" />
+              <div className="w-3 h-3 rounded-full bg-teal-600" />
               <span className="text-sm text-on-surface-variant font-medium">Progenitor B</span>
             </div>
+            <div className="border-t border-outline-variant/30 my-2" />
+            <div className="flex items-center gap-3">
+              <div className="w-3 h-3 rounded-full bg-indigo-500" />
+              <span className="text-sm text-on-surface-variant font-medium">Custódia</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="w-3 h-3 rounded-full bg-orange-500" />
+              <span className="text-sm text-on-surface-variant font-medium">Consulta</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="w-3 h-3 rounded-full bg-violet-500" />
+              <span className="text-sm text-on-surface-variant font-medium">Escola</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="w-3 h-3 rounded-full bg-cyan-500" />
+              <span className="text-sm text-on-surface-variant font-medium">Atividade</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="w-3 h-3 rounded-full bg-zinc-500" />
+              <span className="text-sm text-on-surface-variant font-medium">Outro</span>
+            </div>
+            <div className="border-t border-outline-variant/30 my-2" />
             <div className="flex items-center gap-3">
               <div className="w-3 h-3 rounded-full bg-tertiary" />
-              <span className="text-sm text-on-surface-variant font-medium">Feriados Nacionais</span>
+              <span className="text-sm text-on-surface-variant font-medium">Feriado Nacional</span>
             </div>
             <div className="flex items-center gap-3">
               <div className="w-3 h-3 rounded-full bg-yellow-400" />
-              <span className="text-sm text-on-surface-variant font-medium">Feriados Municipais</span>
+              <span className="text-sm text-on-surface-variant font-medium">Feriado Municipal</span>
             </div>
           </div>
         </Card>
