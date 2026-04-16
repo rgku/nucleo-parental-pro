@@ -507,17 +507,21 @@ export default function CalendarPage() {
 
             <div className="flex gap-3 mt-6">
               <button
-                onClick={() => setShowAddModal(false)}
+                onClick={() => {
+                  setShowAddModal(false)
+                  setNewEventTitle('')
+                  setNewEventType('custody')
+                }}
                 className="flex-1 py-3 px-4 rounded-xl border border-outline-variant/30 text-secondary font-medium text-sm hover:bg-surface-container-low transition-colors"
               >
-                Cancelar
+                Fechar
               </button>
               <button
                 onClick={handleAddEvent}
                 disabled={!newEventTitle.trim()}
                 className="flex-1 py-3 px-4 rounded-xl bg-primary text-white font-medium text-sm hover:opacity-90 transition-colors disabled:opacity-50"
               >
-                Guardar
+                Adicionar
               </button>
             </div>
           </div>
