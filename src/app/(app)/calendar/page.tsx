@@ -55,6 +55,8 @@ export default function CalendarPage() {
   const [selectedDayEvents, setSelectedDayEvents] = useState<CalendarEvent[]>([])
   const [newEventTitle, setNewEventTitle] = useState('')
   const [newEventType, setNewEventType] = useState('custody')
+  const [isRange, setIsRange] = useState(false)
+  const [endDate, setEndDate] = useState<string | null>(null)
 
   useEffect(() => {
     fetchEvents()
@@ -127,12 +129,13 @@ export default function CalendarPage() {
         holiday = nationalHoliday.name
       }
 
-      // Check DB events for this day
+      // Check DB events for this day (including multi-day events)
       const dayEventsData = events.filter(e => {
-        const eventDate = new Date(e.start_date)
-        return eventDate.getDate() === day && 
-               eventDate.getMonth() === currentMonth && 
-               eventDate.getFullYear() === currentYear
+        const eventStart = new Date(e.start_date)
+        const eventEnd = e.end_date ? new Date(e.end_date) : eventStart
+        const currentDay = new Date(currentYear, currentMonth, day)
+        
+        return currentDay >= eventStart && currentDay <= eventEnd
       })
       dayEvents.push(...dayEventsData)
 
@@ -271,20 +274,28 @@ export default function CalendarPage() {
 
       if (!parentalUnit) return
 
-      await supabase
-        .from('calendar_events')
-        .insert({
+      const insertData: any = {
           parental_unit_id: parentalUnit.id,
           title: newEventTitle,
           start_date: `${selectedDate}T00:00:00`,
           type: newEventType,
           created_by: profile.id,
           parent: profile.role,
-        })
+        }
+        
+        if (isRange && endDate) {
+          insertData.end_date = `${endDate}T23:59:59`
+        }
+
+      await supabase
+        .from('calendar_events')
+        .insert(insertData)
 
       setShowAddModal(false)
       setNewEventTitle('')
       setNewEventType('custody')
+      setIsRange(false)
+      setEndDate(null)
       fetchEvents()
     } catch (error) {
       console.error('Error adding event:', error)
@@ -494,6 +505,36 @@ export default function CalendarPage() {
                   className="w-full p-3 rounded-xl border border-outline-variant/30 bg-white"
                 />
               </div>
+
+              {/* Range toggle */}
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="isRange"
+                  checked={isRange}
+                  onChange={(e) => {
+                    setIsRange(e.target.checked)
+                    if (!e.target.checked) setEndDate(null)
+                  }}
+                  className="w-4 h-4 rounded"
+                />
+                <label htmlFor="isRange" className="text-sm text-secondary">
+                  Vários dias (período)
+                </label>
+              </div>
+
+              {isRange && (
+                <div>
+                  <label className="text-xs text-secondary mb-1 block">Data fim</label>
+                  <input
+                    type="date"
+                    value={endDate || ''}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    min={selectedDate || undefined}
+                    className="w-full p-3 rounded-xl border border-outline-variant/30 bg-white"
+                  />
+                </div>
+              )}
 
               <div>
                 <label className="text-xs text-secondary mb-1 block">Tipo</label>
