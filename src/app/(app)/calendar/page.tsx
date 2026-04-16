@@ -219,13 +219,20 @@ export default function CalendarPage() {
     const supabase = await getSupabaseClient()
     if (!supabase) return
 
-    await supabase
+    const { error } = await supabase
       .from('calendar_events')
       .delete()
       .eq('id', eventId)
 
-    fetchEvents()
-    setSelectedDayEvents(selectedDayEvents.filter(e => e.id !== eventId))
+    if (!error) {
+      const remainingEvents = selectedDayEvents.filter(e => e.id !== eventId)
+      setSelectedDayEvents(remainingEvents)
+      fetchEvents()
+      
+      if (remainingEvents.length === 0) {
+        setShowAddModal(false)
+      }
+    }
   }
 
   const handleAddEvent = async () => {
