@@ -38,9 +38,14 @@ export default function SettingsPage() {
   const [joinCode, setJoinCode] = useState('')
   const [joinError, setJoinError] = useState('')
 
-  useEffect(() => {
-    fetchData()
-  }, [])
+  const handleLogout = async () => {
+    if (!confirm('Tens a certeza que queres sair?')) return
+    const supabase = getSupabaseClient()
+    if (supabase) {
+      await supabase.auth.signOut()
+    }
+    router.push('/login')
+  }
 
   const fetchData = async () => {
     const supabase = getSupabaseClient()
@@ -352,6 +357,15 @@ export default function SettingsPage() {
             </div>
           </div>
         )}
+
+        {/* Logout Button */}
+        <button
+          onClick={handleLogout}
+          className="w-full py-3 px-4 rounded-xl border border-red-200 bg-red-50 text-red-600 font-medium text-sm hover:bg-red-100 transition-colors flex items-center justify-center gap-2"
+        >
+          <span className="material-symbols-outlined">logout</span>
+          Terminar Sessão
+        </button>
       </div>
     </AppLayout>
   )
