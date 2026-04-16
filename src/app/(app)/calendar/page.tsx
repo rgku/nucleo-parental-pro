@@ -80,8 +80,9 @@ export default function CalendarPage() {
         .single()
 
       if (parentalUnit) {
+        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate()
         const monthStart = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01T00:00:00`
-        const monthEnd = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-31T23:59:59`
+        const monthEnd = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(daysInMonth).padStart(2, '0')}T23:59:59`
         
         const { data: eventsData } = await supabase
           .from('calendar_events')
