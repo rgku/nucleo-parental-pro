@@ -78,7 +78,7 @@ export default function CalendarPage() {
 
       const { data: parentalUnit } = await supabase
         .from('parental_units')
-        .select('id, role')
+        .select('id')
         .or(`parent_a_id.eq.${profile.id},parent_b_id.eq.${profile.id}`)
         .single()
 
@@ -235,7 +235,7 @@ export default function CalendarPage() {
 
       const { data: parentalUnit } = await supabase
         .from('parental_units')
-        .select('id, role')
+        .select('id')
         .or(`parent_a_id.eq.${profile.id},parent_b_id.eq.${profile.id}`)
         .single()
 
