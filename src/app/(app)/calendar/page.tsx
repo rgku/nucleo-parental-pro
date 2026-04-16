@@ -389,7 +389,7 @@ export default function CalendarPage() {
                     )}
                     {day.holiday && (
                       <>
-                        <div className="w-1.5 h-1.5 rounded-full bg-yellow-400" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-tertiary" />
                         <span className="text-[8px] text-tertiary font-medium truncate max-w-[60px]">
                           {day.holiday}
                         </span>
@@ -432,6 +432,15 @@ export default function CalendarPage() {
             <div className="flex items-center gap-3">
               <div className="w-3 h-3 rounded-full bg-zinc-500" />
               <span className="text-sm text-on-surface-variant font-medium">Outro</span>
+            </div>
+            <div className="border-t border-outline-variant/30 my-2" />
+            <div className="flex items-center gap-3">
+              <div className="w-3 h-3 rounded-full bg-tertiary" />
+              <span className="text-sm text-on-surface-variant font-medium">Feriado Nacional</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="w-3 h-3 rounded-full bg-yellow-400" />
+              <span className="text-sm text-on-surface-variant font-medium">Feriado Municipal</span>
             </div>
             <div className="border-t border-outline-variant/30 my-2" />
             <div className="flex items-center gap-3">
