@@ -15,6 +15,7 @@ const navItems = [
   { href: '/chat', label: 'Chat', icon: 'chat' },
   { href: '/calendar', label: 'Calendar', icon: 'calendar_today' },
   { href: '/finances', label: 'Finances', icon: 'payments' },
+  { href: '/documents', label: 'Documents', icon: 'folder' },
 ]
 
 const getSupabaseClient = () => {
@@ -72,14 +73,21 @@ export function Sidebar({ userName = 'Utilizador', userRole = 'Progenitor', clas
       </nav>
 
       {/* Bottom Actions */}
-      <div className="mt-auto p-4 space-y-4">
+      <div className="mt-auto p-4 space-y-2">
         <Link
-          href="/finances"
-          className="w-full bg-gradient-to-br from-primary to-primary-container text-white py-3 px-4 rounded-xl font-medium text-sm flex items-center justify-center gap-2 shadow-sm"
+          href="/settings"
+          className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-500 hover:text-primary hover:bg-slate-100 transition-all"
         >
-          <span className="material-symbols-outlined text-sm">add</span>
-          Nova Despesa
+          <span className="material-symbols-outlined">settings</span>
+          <span className="text-sm font-body">Definições</span>
         </Link>
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-500 hover:text-red-500 hover:bg-red-50 transition-all"
+        >
+          <span className="material-symbols-outlined">logout</span>
+          <span className="text-sm font-body">Sair</span>
+        </button>
       </div>
     </aside>
   )
