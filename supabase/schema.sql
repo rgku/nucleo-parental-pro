@@ -113,6 +113,7 @@ CREATE TABLE IF NOT EXISTS expenses (
   status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'paid', 'disputed')),
   requires_approval BOOLEAN DEFAULT FALSE,
   approved_by UUID REFERENCES profiles(id),
+  document_id UUID REFERENCES documents(id) ON DELETE SET NULL,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -225,8 +226,12 @@ CREATE TABLE IF NOT EXISTS documents (
   title TEXT NOT NULL,
   description TEXT,
   file_url TEXT NOT NULL,
-  file_type TEXT CHECK (file_type IN ('agreement', 'medical', 'education', 'receipt', 'other')),
+  file_path TEXT,
+  file_type TEXT CHECK (file_type IN ('agreement', 'medical', 'education', 'receipt', 'expense', 'other')),
+  file_size BIGINT,
+  mime_type TEXT,
   uploaded_by UUID NOT NULL REFERENCES profiles(id),
+  expense_id UUID REFERENCES expenses(id) ON DELETE SET NULL,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -297,6 +302,7 @@ CREATE POLICY "Parents can view expenses" ON expenses FOR SELECT USING (
 
 CREATE POLICY "Parents can create expenses" ON expenses FOR INSERT WITH CHECK (paid_by_id IN (SELECT id FROM profiles WHERE user_id = auth.uid()));
 CREATE POLICY "Expense creator can update" ON expenses FOR UPDATE USING (paid_by_id IN (SELECT id FROM profiles WHERE user_id = auth.uid()));
+CREATE POLICY "Expense creator can delete" ON expenses FOR DELETE USING (paid_by_id IN (SELECT id FROM profiles WHERE user_id = auth.uid()));
 
 -- MESSAGES
 CREATE POLICY "Parents can view messages" ON messages FOR SELECT USING (

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import { AppLayout } from '@/components/layout/AppLayout'
 
@@ -21,6 +21,16 @@ interface Expense {
   status: 'pending' | 'paid' | 'disputed'
   requires_approval: boolean
   approved_by?: string
+  document_id?: string
+  created_at: string
+}
+
+interface Document {
+  id: string
+  file_name: string
+  file_url: string
+  file_size: number
+  mime_type: string
   created_at: string
 }
 
@@ -55,16 +65,28 @@ export default function FinancesPage() {
   const [expenses, setExpenses] = useState<Expense[]>([])
   const [profile, setProfile] = useState<Profile | null>(null)
   const [parentalUnit, setParentalUnit] = useState<ParentalUnit | null>(null)
+  const [documents, setDocuments] = useState<Document[]>([])
   const [loading, setLoading] = useState(true)
   const [showAddModal, setShowAddModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
   const [showApprovalModal, setShowApprovalModal] = useState(false)
   const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null)
   const [filter, setFilter] = useState<'all' | string>('all')
+  const [saving, setSaving] = useState(false)
+  const [uploading, setUploading] = useState(false)
 
   const [newDescription, setNewDescription] = useState('')
   const [newAmount, setNewAmount] = useState('')
   const [newCategory, setNewCategory] = useState('')
-  const [paidBySelf, setPaidBySelf] = useState(true)
+  const [newFile, setNewFile] = useState<File | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const editFileInputRef = useRef<HTMLInputElement>(null)
+
+  const [editDescription, setEditDescription] = useState('')
+  const [editAmount, setEditAmount] = useState('')
+  const [editCategory, setEditCategory] = useState('')
+  const [editFile, setEditFile] = useState<File | null>(null)
+  const [existingDocId, setExistingDocId] = useState<string | null>(null)
 
   useEffect(() => {
     fetchData()
@@ -104,12 +126,82 @@ export default function FinancesPage() {
           .order('created_at', { ascending: false })
 
         setExpenses(expensesData || [])
+
+        const { data: documentsData } = await supabase
+          .from('documents')
+          .select('*')
+          .eq('parental_unit_id', parentalUnitData.id)
+          .order('created_at', { ascending: false })
+
+        setDocuments(documentsData || [])
       }
     } catch (error) {
       console.error('Error fetching data:', error)
     } finally {
       setLoading(false)
     }
+  }
+
+  const uploadFile = async (file: File, parentalUnitId: string, profileId: string): Promise<string | null> => {
+    const supabase = getSupabaseClient()
+    if (!supabase) return null
+
+    setUploading(true)
+    try {
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
+      const filePath = `${parentalUnitId}/${fileName}`
+
+      const { error: uploadError } = await supabase.storage
+        .from('documents')
+        .upload(filePath, file)
+
+      if (uploadError) {
+        console.error('Upload error:', uploadError)
+        setUploading(false)
+        return null
+      }
+
+      const { data: docData, error: docError } = await supabase
+        .from('documents')
+        .insert({
+          parental_unit_id: parentalUnitId,
+          file_name: file.name,
+          file_path: filePath,
+          file_size: file.size,
+          mime_type: file.type,
+          uploaded_by: profileId,
+        })
+        .select()
+        .single()
+
+      if (docError) {
+        console.error('Document error:', docError)
+        setUploading(false)
+        return null
+      }
+
+      setUploading(false)
+      return docData.id
+    } catch (error) {
+      console.error('Error uploading file:', error)
+      setUploading(false)
+      return null
+    }
+  }
+
+  const deleteDocument = async (docId: string) => {
+    const supabase = getSupabaseClient()
+    if (!supabase) return
+
+    await supabase.storage
+      .from('documents')
+      .remove([docId])
+
+    await supabase
+      .from('documents')
+      .delete()
+      .eq('id', docId)
   }
 
   const totalExpenses = expenses.reduce((sum, e) => sum + e.amount_cents, 0)
@@ -125,8 +217,14 @@ export default function FinancesPage() {
     const supabase = getSupabaseClient()
     if (!supabase || !parentalUnit || !profile) return
 
+    setSaving(true)
     const amountCents = Math.round(parseFloat(newAmount) * 100)
     const requiresApproval = amountCents > 25000
+
+    let docId: string | null = null
+    if (newFile) {
+      docId = await uploadFile(newFile, parentalUnit.id, profile.id)
+    }
 
     const { error } = await supabase
       .from('expenses')
@@ -139,10 +237,12 @@ export default function FinancesPage() {
         split_ratio: 0.5,
         status: requiresApproval ? 'pending' : 'paid',
         requires_approval: requiresApproval,
+        document_id: docId,
       })
 
     if (error) {
       alert('Erro ao criar despesa: ' + error.message)
+      setSaving(false)
       return
     }
 
@@ -150,7 +250,81 @@ export default function FinancesPage() {
     setNewDescription('')
     setNewAmount('')
     setNewCategory('')
+    setNewFile(null)
+    setSaving(false)
     fetchData()
+  }
+
+  const handleEditExpense = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const supabase = getSupabaseClient()
+    if (!supabase || !parentalUnit || !profile || !selectedExpense) return
+
+    setSaving(true)
+    const amountCents = Math.round(parseFloat(editAmount) * 100)
+    const requiresApproval = amountCents > 25000
+
+    let docId = existingDocId
+
+    if (editFile) {
+      if (existingDocId) {
+        await deleteDocument(existingDocId)
+      }
+      docId = await uploadFile(editFile, parentalUnit.id, profile.id)
+    }
+
+    const { error } = await supabase
+      .from('expenses')
+      .update({
+        description: editDescription,
+        amount_cents: amountCents,
+        category: editCategory,
+        status: requiresApproval && selectedExpense.status === 'paid' ? 'pending' : selectedExpense.status,
+        requires_approval: requiresApproval,
+        document_id: docId,
+      })
+      .eq('id', selectedExpense.id)
+
+    if (error) {
+      alert('Erro ao editar despesa: ' + error.message)
+      setSaving(false)
+      return
+    }
+
+    setShowEditModal(false)
+    setSelectedExpense(null)
+    setEditFile(null)
+    setExistingDocId(null)
+    setSaving(false)
+    fetchData()
+  }
+
+  const handleDeleteExpense = async (expense: Expense) => {
+    if (!confirm('Tens a certeza que queres eliminar esta despesa?')) return
+
+    const supabase = getSupabaseClient()
+    if (!supabase) return
+
+    if (expense.document_id) {
+      await deleteDocument(expense.document_id)
+    }
+
+    await supabase
+      .from('expenses')
+      .delete()
+      .eq('id', expense.id)
+
+    fetchData()
+  }
+
+  const openEditModal = (expense: Expense) => {
+    setSelectedExpense(expense)
+    setEditDescription(expense.description)
+    setEditAmount((expense.amount_cents / 100).toString())
+    setEditCategory(expense.category)
+    setExistingDocId(expense.document_id || null)
+    setEditFile(null)
+    setShowEditModal(true)
   }
 
   const handleApprove = async () => {
@@ -187,6 +361,11 @@ export default function FinancesPage() {
     fetchData()
   }
 
+  const getExpenseDocument = (docId?: string) => {
+    if (!docId) return null
+    return documents.find(d => d.id === docId)
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen p-4" style={{ backgroundColor: '#f7f9fc' }}>
@@ -213,14 +392,14 @@ export default function FinancesPage() {
           </div>
           <div className="rounded-xl p-5" style={{ backgroundColor: '#ffffff', boxShadow: '0 32px 64px -12px rgba(0,0,0,0.04)' }}>
             <span className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: '#546067' }}>A Reembolsar</span>
-            <span className={`text-xl font-bold block mt-1 ${balance >= 0 ? '' : ''}`} style={{ color: balance >= 0 ? '#004914' : '#FF7043' }}>
+            <span className={`text-xl font-bold block mt-1`} style={{ color: balance >= 0 ? '#004914' : '#FF7043' }}>
               {formatCurrency(Math.abs(balance))}{balance < 0 && ' a pagar'}
             </span>
           </div>
         </div>
 
         <div className="flex gap-3 overflow-x-auto pb-4">
-          <button onClick={() => setFilter('all')} className={`px-5 py-2 rounded-full text-xs font-medium whitespace-nowrap ${filter === 'all' ? '' : ''}`}
+          <button onClick={() => setFilter('all')} className={`px-5 py-2 rounded-full text-xs font-medium whitespace-nowrap`}
             style={{ backgroundColor: filter === 'all' ? '#00464a' : '#f2f4f7', color: filter === 'all' ? '#ffffff' : '#546067' }}>
             Todas
           </button>
@@ -243,24 +422,43 @@ export default function FinancesPage() {
               const category = CATEGORIES.find(c => c.value === expense.category)
               const isPaidByMe = expense.paid_by_id === profile?.id
               const needsApproval = expense.requires_approval && expense.status === 'pending' && !isPaidByMe
+              const doc = getExpenseDocument(expense.document_id)
 
               return (
-                <div key={expense.id} className="rounded-xl p-4 flex items-center gap-4" style={{ backgroundColor: '#ffffff', boxShadow: '0 32px 64px -12px rgba(0,0,0,0.04)', borderLeft: needsApproval ? '4px solid #FF7043' : 'none' }}>
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#f2f4f7' }}>
-                    <span className="material-symbols-outlined" style={{ color: '#00464a' }}>{category?.icon || 'category'}</span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex justify-between items-start mb-1">
-                      <h3 className="font-semibold text-sm truncate" style={{ color: '#191c1e' }}>{expense.description}</h3>
-                      <span className="font-bold text-sm ml-2" style={{ color: '#00464a' }}>{formatCurrency(expense.amount_cents)}</span>
+                <div key={expense.id} className="rounded-xl p-4" style={{ backgroundColor: '#ffffff', boxShadow: '0 32px 64px -12px rgba(0,0,0,0.04)', borderLeft: needsApproval ? '4px solid #FF7043' : 'none' }}>
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#f2f4f7' }}>
+                      <span className="material-symbols-outlined" style={{ color: '#00464a' }}>{category?.icon || 'category'}</span>
                     </div>
-                    <div className="flex items-center gap-3 text-[11px]" style={{ color: '#546067' }}>
-                      <span className="flex items-center gap-1">
-                        <span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#00464a' }} />
-                        Pago por {isPaidByMe ? 'Próprio' : 'Outro progenitor'}
-                      </span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between items-start mb-1">
+                        <h3 className="font-semibold text-sm truncate" style={{ color: '#191c1e' }}>{expense.description}</h3>
+                        <span className="font-bold text-sm ml-2" style={{ color: '#00464a' }}>{formatCurrency(expense.amount_cents)}</span>
+                      </div>
+                      <div className="flex items-center gap-3 text-[11px]" style={{ color: '#546067' }}>
+                        <span className="flex items-center gap-1">
+                          <span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#00464a' }} />
+                          Pago por {isPaidByMe ? 'Próprio' : 'Outro progenitor'}
+                        </span>
+                        {doc && (
+                          <span className="flex items-center gap-1">
+                            <span className="material-symbols-outlined text-xs">attach_file</span>
+                            Com documento
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
+                  {isPaidByMe && (
+                    <div className="flex gap-2 mt-3 pt-3 border-t border-gray-100">
+                      <button onClick={() => openEditModal(expense)} className="flex-1 py-2 text-xs font-medium rounded-lg" style={{ backgroundColor: '#f2f4f7', color: '#546067' }}>
+                        Editar
+                      </button>
+                      <button onClick={() => handleDeleteExpense(expense)} className="flex-1 py-2 text-xs font-medium rounded-lg" style={{ backgroundColor: '#ffebee', color: '#c62828' }}>
+                        Eliminar
+                      </button>
+                    </div>
+                  )}
                 </div>
               )
             })
@@ -276,10 +474,10 @@ export default function FinancesPage() {
 
       {showAddModal && (
         <div className="fixed inset-0 flex items-end md:items-center justify-center z-50" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <div className="rounded-t-3xl md:rounded-2xl p-6 w-full max-w-md" style={{ backgroundColor: '#ffffff', animation: 'slideUp 0.4s ease-out' }}>
+          <div className="rounded-t-3xl md:rounded-2xl p-6 w-full max-w-md" style={{ backgroundColor: '#ffffff', animation: 'slideUp 0.4s ease-out', maxHeight: '90vh', overflowY: 'auto' }}>
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-semibold" style={{ fontFamily: 'Manrope, sans-serif' }}>Nova Despesa</h2>
-              <button onClick={() => setShowAddModal(false)} className="p-2 rounded-full">
+              <button onClick={() => { setShowAddModal(false); setNewFile(null); }} className="p-2 rounded-full">
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
@@ -313,8 +511,91 @@ export default function FinancesPage() {
                   </p>
                 )}
               </div>
-              <button type="submit" className="w-full py-3 rounded-xl font-medium" style={{ background: 'linear-gradient(135deg, #00464a, #006064)', color: 'white' }}>
-                Registar Despesa
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#191c1e' }}>Documento (opcional)</label>
+                <input 
+                  type="file" 
+                  ref={fileInputRef}
+                  className="hidden"
+                  accept="image/*,.pdf"
+                  onChange={(e) => setNewFile(e.target.files?.[0] || null)}
+                />
+                <div className="flex gap-2">
+                  <button type="button" onClick={() => fileInputRef.current?.click()} className="flex-1 py-3 rounded-lg border text-sm" style={{ borderColor: 'rgba(0,0,0,0.08)' }}>
+                    {newFile ? newFile.name : 'Selecionar ficheiro'}
+                  </button>
+                  {newFile && (
+                    <button type="button" onClick={() => { setNewFile(null); if (fileInputRef.current) fileInputRef.current.value = ''; }} className="px-3 py-2 rounded-lg" style={{ backgroundColor: '#f2f4f7' }}>
+                      <span className="material-symbols-outlined text-sm">close</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+              <button type="submit" disabled={saving || uploading} className="w-full py-3 rounded-xl font-medium disabled:opacity-50" style={{ background: 'linear-gradient(135deg, #00464a, #006064)', color: 'white' }}>
+                {saving || uploading ? 'A guardar...' : 'Registar Despesa'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {showEditModal && selectedExpense && (
+        <div className="fixed inset-0 flex items-end md:items-center justify-center z-50" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="rounded-t-3xl md:rounded-2xl p-6 w-full max-w-md" style={{ backgroundColor: '#ffffff', animation: 'slideUp 0.4s ease-out', maxHeight: '90vh', overflowY: 'auto' }}>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold" style={{ fontFamily: 'Manrope, sans-serif' }}>Editar Despesa</h2>
+              <button onClick={() => { setShowEditModal(false); setEditFile(null); setExistingDocId(null); }} className="p-2 rounded-full">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <form onSubmit={handleEditExpense} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#191c1e' }}>Descrição</label>
+                <input type="text" className="w-full rounded-lg border px-4 py-3 text-sm" style={{ borderColor: 'rgba(0,0,0,0.08)' }}
+                  value={editDescription} onChange={(e) => setEditDescription(e.target.value)} required />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#191c1e' }}>Categoria</label>
+                <select 
+                  className="w-full rounded-lg border px-4 py-3 text-sm" style={{ borderColor: 'rgba(0,0,0,0.08)' }}
+                  value={editCategory} onChange={(e) => setEditCategory(e.target.value)}
+                  required
+                >
+                  <option value="">Selecionar categoria</option>
+                  {CATEGORIES.map(cat => (
+                    <option key={cat.value} value={cat.value}>{cat.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#191c1e' }}>Valor (€)</label>
+                <input type="number" step="0.01" min="0" className="w-full rounded-lg border px-4 py-3 text-sm" style={{ borderColor: 'rgba(0,0,0,0.08)' }}
+                  value={editAmount} onChange={(e) => setEditAmount(e.target.value)} required />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#191c1e' }}>Documento (opcional)</label>
+                {existingDocId && (
+                  <div className="flex items-center gap-2 p-2 mb-2 rounded-lg" style={{ backgroundColor: '#f2f4f7' }}>
+                    <span className="material-symbols-outlined text-sm">attach_file</span>
+                    <span className="text-xs flex-1 truncate">Documento anexado</span>
+                    <button type="button" onClick={() => setExistingDocId(null)} className="p-1">
+                      <span className="material-symbols-outlined text-sm">close</span>
+                    </button>
+                  </div>
+                )}
+                <input 
+                  type="file" 
+                  ref={editFileInputRef}
+                  className="hidden"
+                  accept="image/*,.pdf"
+                  onChange={(e) => setEditFile(e.target.files?.[0] || null)}
+                />
+                <button type="button" onClick={() => editFileInputRef.current?.click()} className="w-full py-3 rounded-lg border text-sm" style={{ borderColor: 'rgba(0,0,0,0.08)' }}>
+                  {editFile ? editFile.name : (existingDocId ? 'Substituir documento' : 'Adicionar documento')}
+                </button>
+              </div>
+              <button type="submit" disabled={saving || uploading} className="w-full py-3 rounded-xl font-medium disabled:opacity-50" style={{ background: 'linear-gradient(135deg, #00464a, #006064)', color: 'white' }}>
+                {saving || uploading ? 'A guardar...' : 'Guardar Alterações'}
               </button>
             </form>
           </div>

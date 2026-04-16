@@ -17,8 +17,12 @@ interface Document {
   title: string
   description: string
   file_url: string
+  file_path?: string
   file_type: string
+  file_size?: number
+  mime_type?: string
   uploaded_by: string
+  expense_id?: string
   created_at: string
 }
 
@@ -40,6 +44,7 @@ const FILE_TYPE_LABELS: Record<string, { label: string; icon: string }> = {
   medical: { label: 'Médico', icon: 'medical_services' },
   education: { label: 'Educação', icon: 'school' },
   receipt: { label: 'Recibo', icon: 'receipt_long' },
+  expense: { label: 'Despesa', icon: 'receipt' },
   other: { label: 'Outro', icon: 'folder' }
 }
 
@@ -50,6 +55,7 @@ export default function DocumentsPage() {
   const [loading, setLoading] = useState(true)
   const [showAddModal, setShowAddModal] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [filter, setFilter] = useState<'all' | 'expense' | string>('all')
 
   const [newTitle, setNewTitle] = useState('')
   const [newDescription, setNewDescription] = useState('')
@@ -270,7 +276,26 @@ export default function DocumentsPage() {
         </button>
       </div>
 
-      {documents.length === 0 ? (
+      {/* Filter tabs */}
+      <div className="flex gap-2 overflow-x-auto pb-2">
+        <button onClick={() => setFilter('all')} className={`px-4 py-2 rounded-full text-xs font-medium whitespace-nowrap ${filter === 'all' ? 'bg-primary text-white' : 'bg-surface-container-low text-secondary'}`}>
+          Todos
+        </button>
+        <button onClick={() => setFilter('expense')} className={`px-4 py-2 rounded-full text-xs font-medium whitespace-nowrap ${filter === 'expense' ? 'bg-primary text-white' : 'bg-surface-container-low text-secondary'}`}>
+          Despesas
+        </button>
+        <button onClick={() => setFilter('agreement')} className={`px-4 py-2 rounded-full text-xs font-medium whitespace-nowrap ${filter === 'agreement' ? 'bg-primary text-white' : 'bg-surface-container-low text-secondary'}`}>
+          Acordos
+        </button>
+        <button onClick={() => setFilter('medical')} className={`px-4 py-2 rounded-full text-xs font-medium whitespace-nowrap ${filter === 'medical' ? 'bg-primary text-white' : 'bg-surface-container-low text-secondary'}`}>
+          Médicos
+        </button>
+        <button onClick={() => setFilter('education')} className={`px-4 py-2 rounded-full text-xs font-medium whitespace-nowrap ${filter === 'education' ? 'bg-primary text-white' : 'bg-surface-container-low text-secondary'}`}>
+          Educação
+        </button>
+      </div>
+
+      {documents.filter(d => filter === 'all' || d.file_type === filter).length === 0 ? (
         <div className="bg-white rounded-2xl p-8 shadow-sm text-center">
           <span className="material-symbols-outlined text-4xl text-secondary mb-4">folder_open</span>
           <p className="text-secondary">Sem documentos ainda</p>
@@ -278,7 +303,7 @@ export default function DocumentsPage() {
         </div>
       ) : (
         <div className="grid gap-4">
-          {documents.map((doc) => (
+          {documents.filter(d => filter === 'all' || d.file_type === filter).map((doc) => (
             <div
               key={doc.id}
               className="bg-white rounded-xl p-4 shadow-sm flex items-center gap-4"
@@ -352,7 +377,7 @@ export default function DocumentsPage() {
               <div>
                 <label className="text-xs text-secondary mb-1 block">Tipo</label>
                 <div className="grid grid-cols-3 gap-2">
-                  {Object.entries(FILE_TYPE_LABELS).map(([key, { label }]) => (
+                  {Object.entries(FILE_TYPE_LABELS).filter(([key]) => key !== 'expense').map(([key, { label }]) => (
                     <button
                       key={key}
                       onClick={() => setNewFileType(key)}
