@@ -411,12 +411,16 @@ export default function CalendarPage() {
         {/* Legend */}
         <Card className="p-5">
           <h2 className="text-xs font-bold uppercase tracking-widest text-secondary mb-4">
-            Legenda de Eventos
+            Legenda
           </h2>
           <div className="space-y-3">
             <div className="flex items-center gap-3">
               <div className="w-3 h-3 rounded-full bg-blue-500" />
-              <span className="text-sm text-on-surface-variant font-medium">Dias de Custódia</span>
+              <span className="text-sm text-on-surface-variant font-medium">Progenitor A</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="w-3 h-3 rounded-full bg-emerald-500" />
+              <span className="text-sm text-on-surface-variant font-medium">Progenitor B</span>
             </div>
             <div className="flex items-center gap-3">
               <div className="w-3 h-3 rounded-full bg-tertiary" />
@@ -425,14 +429,6 @@ export default function CalendarPage() {
             <div className="flex items-center gap-3">
               <div className="w-3 h-3 rounded-full bg-yellow-400" />
               <span className="text-sm text-on-surface-variant font-medium">Feriados Municipais</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-3 h-3 rounded-full bg-purple-500" />
-              <span className="text-sm text-on-surface-variant font-medium">Eventos Educacionais</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-3 h-3 rounded-full bg-red-400" />
-              <span className="text-sm text-on-surface-variant font-medium">Eventos de Saúde</span>
             </div>
           </div>
         </Card>
