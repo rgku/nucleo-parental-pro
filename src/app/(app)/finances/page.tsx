@@ -144,7 +144,10 @@ export default function FinancesPage() {
 
   const uploadFile = async (file: File, parentalUnitId: string, profileId: string): Promise<string | null> => {
     const supabase = getSupabaseClient()
-    if (!supabase) return null
+    if (!supabase) {
+      console.error('No supabase client')
+      return null
+    }
 
     setUploading(true)
     try {
@@ -152,6 +155,8 @@ export default function FinancesPage() {
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
       const filePath = `${parentalUnitId}/${fileName}`
 
+      console.log('Uploading file to storage:', filePath)
+      
       const { error: uploadError } = await supabase.storage
         .from('documents')
         .upload(filePath, file)
@@ -162,10 +167,15 @@ export default function FinancesPage() {
         return null
       }
 
+      console.log('File uploaded, getting public URL')
+      
       const { data: { publicUrl } } = supabase.storage
         .from('documents')
         .getPublicUrl(filePath)
 
+      console.log('Public URL:', publicUrl)
+
+      console.log('Inserting document record')
       const { data: docData, error: docError } = await supabase
         .from('documents')
         .insert({
@@ -181,6 +191,8 @@ export default function FinancesPage() {
         })
         .select()
         .single()
+
+      console.log('Document insert result:', docData, docError)
 
       if (docError) {
         console.error('Document error:', docError)
