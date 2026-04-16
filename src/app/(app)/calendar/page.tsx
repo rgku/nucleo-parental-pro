@@ -115,6 +115,7 @@ export default function CalendarPage() {
     // Days of month
     for (let day = 1; day <= daysInMonth; day++) {
       const dateStr = `${String(currentYear)}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+      console.log(`Checking day ${dateStr}, events:`, events)
       const dayEvents: CalendarEvent[] = []
       let holiday: string | undefined
 
@@ -129,7 +130,7 @@ export default function CalendarPage() {
       const dayEventsData = events.filter(e => {
         const eventStartDate = new Date(e.start_date.split('T')[0])
         const eventEndDate = e.end_date ? new Date(e.end_date.split('T')[0]) : eventStartDate
-        const currentDayDate = new Date(currentYear, currentMonth - 1, day)
+        const currentDayDate = new Date(currentYear, currentMonth, day)
         
         return currentDayDate >= eventStartDate && currentDayDate <= eventEndDate
       })
