@@ -135,6 +135,50 @@ export default function SettingsPage() {
     setSaving(false)
   }
 
+  const handleCreateUnit = async () => {
+    setSaving(true)
+    const supabase = getSupabaseClient()
+    if (!supabase || !profile) return
+
+    const code = Math.random().toString(36).substring(2, 8).toUpperCase()
+
+    await supabase
+      .from('parental_units')
+      .insert({
+        agreement_name: 'Acordo Parental',
+        parent_a_id: profile.id,
+        municipality_id: profile.municipality_id,
+        join_code: code,
+      })
+
+    fetchData()
+    setSaving(false)
+  }
+
+  const handleLeaveUnit = async () => {
+    if (!parentalUnit || !profile) return
+    if (!confirm('Tens a certeza que queres sair desta unidade parental?')) return
+
+    setSaving(true)
+    const supabase = getSupabaseClient()
+    if (!supabase) return
+
+    const updateData: any = {}
+    if (parentalUnit.parent_a_id === profile.id) {
+      updateData.parent_a_id = null
+    } else if (parentalUnit.parent_b_id === profile.id) {
+      updateData.parent_b_id = null
+    }
+
+    await supabase
+      .from('parental_units')
+      .update(updateData)
+      .eq('id', parentalUnit.id)
+
+    fetchData()
+    setSaving(false)
+  }
+
   if (loading) {
     return (
       <AppLayout>
@@ -235,6 +279,19 @@ export default function SettingsPage() {
                   <p className="text-xs text-red-500 mt-2">{joinError}</p>
                 )}
               </div>
+
+              {/* Create new */}
+              <div className="pt-4 border-t border-outline-variant/30">
+                <label className="text-xs text-secondary mb-2 block">Ou cria uma nova unidade</label>
+                <button
+                  onClick={handleCreateUnit}
+                  disabled={saving}
+                  className="w-full py-3 bg-tertiary text-white rounded-xl font-medium text-sm disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  <span className="material-symbols-outlined text-sm">add</span>
+                  {saving ? 'A criar...' : 'Criar Nova Unidade'}
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -270,6 +327,15 @@ export default function SettingsPage() {
                   </p>
                 </div>
               </div>
+
+              {/* Leave Unit */}
+              <button
+                onClick={handleLeaveUnit}
+                disabled={saving}
+                className="w-full mt-4 py-2 text-red-500 text-sm font-medium disabled:opacity-50"
+              >
+                {saving ? 'A sair...' : 'Sair da Unidade'}
+              </button>
             </div>
           </div>
         )}
