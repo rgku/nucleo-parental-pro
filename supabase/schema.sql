@@ -49,13 +49,16 @@ CREATE INDEX IF NOT EXISTS idx_profiles_role ON profiles(role);
 CREATE TABLE IF NOT EXISTS parental_units (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   agreement_name TEXT NOT NULL,
-  parent_a_id UUID NOT NULL REFERENCES profiles(id),
-  parent_b_id UUID NOT NULL REFERENCES profiles(id),
+  parent_a_id UUID REFERENCES profiles(id),
+  parent_b_id UUID REFERENCES profiles(id),
   municipality_id TEXT NOT NULL,
   agreement_date DATE,
   custody_schedule JSONB,
+  join_code TEXT UNIQUE,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+CREATE INDEX IF NOT EXISTS idx_parental_units_join_code ON parental_units(join_code);
 
 CREATE INDEX IF NOT EXISTS idx_parental_units_parent_a ON parental_units(parent_a_id);
 CREATE INDEX IF NOT EXISTS idx_parental_units_parent_b ON parental_units(parent_b_id);

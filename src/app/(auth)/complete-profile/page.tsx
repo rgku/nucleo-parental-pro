@@ -42,6 +42,8 @@ export default function CompleteProfilePage() {
   const [name, setName] = useState('')
   const [role, setRole] = useState<'parent_a' | 'parent_b'>('parent_a')
   const [municipalityId, setMunicipalityId] = useState('lisboa')
+  const [joinCode, setJoinCode] = useState('')
+  const [mode, setMode] = useState<'create' | 'join'>('create')
 
   useEffect(() => {
     const savedRole = localStorage.getItem('pending_role') as 'parent_a' | 'parent_b' | null
@@ -143,15 +145,47 @@ export default function CompleteProfilePage() {
     localStorage.removeItem('pending_role')
     localStorage.removeItem('pending_name')
 
+    // Generate join code for new parental unit
+    const joinCode = Math.random().toString(36).substring(2, 8).toUpperCase()
+
     if (profile) {
-      await supabase
-        .from('parental_units')
-        .insert({
-          agreement_name: 'Acordo de Coparentalidade',
-          parent_a_id: role === 'parent_a' ? profile.id : user.id,
-          parent_b_id: role === 'parent_b' ? profile.id : user.id,
-          municipality_id: municipalityId,
-        })
+      if (mode === 'create') {
+        await supabase
+          .from('parental_units')
+          .insert({
+            agreement_name: 'Acordo de Coparentalidade',
+            parent_a_id: profile.id,
+            parent_b_id: null,
+            municipality_id: municipalityId,
+            join_code: joinCode,
+          })
+      } else {
+        // Join existing parental unit by code
+        const { data: existingUnit } = await supabase
+          .from('parental_units')
+          .select('*')
+          .eq('join_code', joinCode.toUpperCase())
+          .single()
+        
+        if (existingUnit) {
+          // Determine which parent slot is empty
+          if (!existingUnit.parent_a_id) {
+            await supabase
+              .from('parental_units')
+              .update({ parent_a_id: profile.id })
+              .eq('id', existingUnit.id)
+          } else if (!existingUnit.parent_b_id) {
+            await supabase
+              .from('parental_units')
+              .update({ parent_b_id: profile.id })
+              .eq('id', existingUnit.id)
+          }
+        } else {
+          alert('Código de convite inválido')
+          setSaving(false)
+          return
+        }
+      }
     }
 
     router.push('/dashboard')
@@ -205,34 +239,49 @@ export default function CompleteProfilePage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: '#191c1e' }}>Sou o:</label>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#191c1e' }}>Como queres começar?</label>
               <div className="flex gap-3">
                 <button
                   type="button"
-                  onClick={() => setRole('parent_a')}
+                  onClick={() => setMode('create')}
                   className="flex-1 py-3 px-4 rounded-lg border text-sm font-medium transition-colors"
                   style={{ 
-                    borderColor: role === 'parent_a' ? '#00464a' : 'rgba(0,0,0,0.08)',
-                    backgroundColor: role === 'parent_a' ? 'rgba(0,70,74,0.1)' : 'transparent',
-                    color: role === 'parent_a' ? '#00464a' : '#546067'
+                    borderColor: mode === 'create' ? '#00464a' : 'rgba(0,0,0,0.08)',
+                    backgroundColor: mode === 'create' ? 'rgba(0,70,74,0.1)' : 'transparent',
+                    color: mode === 'create' ? '#00464a' : '#546067'
                   }}
                 >
-                  Progenitor A
+                  + Criar nova unidade
                 </button>
                 <button
                   type="button"
-                  onClick={() => setRole('parent_b')}
+                  onClick={() => setMode('join')}
                   className="flex-1 py-3 px-4 rounded-lg border text-sm font-medium transition-colors"
                   style={{ 
-                    borderColor: role === 'parent_b' ? '#00464a' : 'rgba(0,0,0,0.08)',
-                    backgroundColor: role === 'parent_b' ? 'rgba(0,70,74,0.1)' : 'transparent',
-                    color: role === 'parent_b' ? '#00464a' : '#546067'
+                    borderColor: mode === 'join' ? '#00464a' : 'rgba(0,0,0,0.08)',
+                    backgroundColor: mode === 'join' ? 'rgba(0,70,74,0.1)' : 'transparent',
+                    color: mode === 'join' ? '#00464a' : '#546067'
                   }}
                 >
-                  Progenitor B
+                  Juntar-me a uma existente
                 </button>
               </div>
             </div>
+
+            {mode === 'join' && (
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#191c1e' }}>Código de convite</label>
+                <input
+                  type="text"
+                  className="w-full rounded-lg border px-4 py-3 text-sm uppercase"
+                  style={{ borderColor: 'rgba(0,0,0,0.08)', backgroundColor: '#ffffff' }}
+                  placeholder="ABC123"
+                  value={joinCode}
+                  onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+                  required={mode === 'join'}
+                />
+              </div>
+            )}
 
             <div>
               <label className="block text-sm font-medium mb-2" style={{ color: '#191c1e' }}>Município</label>
