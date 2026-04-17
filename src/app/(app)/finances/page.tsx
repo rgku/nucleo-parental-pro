@@ -93,6 +93,9 @@ export default function FinancesPage() {
 
   useEffect(() => {
     fetchData()
+    if (window.location.search.includes('new=true')) {
+      setShowAddModal(true)
+    }
   }, [])
 
   const fetchData = async () => {
