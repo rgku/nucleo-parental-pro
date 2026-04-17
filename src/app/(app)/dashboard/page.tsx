@@ -153,13 +153,7 @@ export default function DashboardPage() {
 
         {nextEvent ? (
           <div 
-            className="rounded-2xl p-5 shadow-lg"
-            style={{ 
-              background: nextEvent.parent === 'parent_b' 
-                ? 'linear-gradient(135deg, #004d40, #00695f)' 
-                : 'linear-gradient(135deg, #00464a, #005662)',
-              backgroundColor: nextEvent.parent === 'parent_b' ? '#004d40' : '#00464a'
-            }}
+            className="rounded-2xl p-5 shadow-lg bg-gradient-to-br from-primary to-primary/80 text-white"
           >
             <div className="flex justify-between items-start mb-3">
               <span className="text-xs font-medium uppercase tracking-wider text-white/80">
