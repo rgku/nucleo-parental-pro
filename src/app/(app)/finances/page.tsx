@@ -98,6 +98,15 @@ export default function FinancesPage() {
     }
   }, [])
 
+  useEffect(() => {
+    if (showAddModal || showEditModal) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => { document.body.style.overflow = '' }
+  }, [showAddModal, showEditModal])
+
   const fetchData = async () => {
     const supabase = getSupabaseClient()
     if (!supabase) {

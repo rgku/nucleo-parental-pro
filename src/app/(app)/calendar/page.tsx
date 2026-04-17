@@ -77,6 +77,15 @@ export default function CalendarPage() {
     fetchEvents()
   }, [])
 
+  useEffect(() => {
+    if (showAddModal) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => { document.body.style.overflow = '' }
+  }, [showAddModal])
+
   const fetchEvents = async () => {
     const supabase = await getSupabaseClient()
     if (!supabase) return
