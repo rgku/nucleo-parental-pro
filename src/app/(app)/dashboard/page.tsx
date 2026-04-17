@@ -38,6 +38,7 @@ interface CalendarEvent {
   title: string
   start_date: string
   type: string
+  parent?: string
 }
 
 export default function DashboardPage() {
@@ -151,13 +152,21 @@ export default function DashboardPage() {
         </section>
 
         {nextEvent ? (
-          <div className="bg-tertiary rounded-2xl p-5 shadow-lg">
+          <div 
+            className="rounded-2xl p-5 shadow-lg"
+            style={{ 
+              background: nextEvent.parent === 'parent_b' 
+                ? 'linear-gradient(135deg, #004d40, #00695f)' 
+                : 'linear-gradient(135deg, #00464a, #005662)',
+              backgroundColor: nextEvent.parent === 'parent_b' ? '#004d40' : '#00464a'
+            }}
+          >
             <div className="flex justify-between items-start mb-3">
               <span className="text-xs font-medium uppercase tracking-wider text-white/80">
                 Próxima Custódia
               </span>
               <div className="bg-white/20 text-white px-2 py-1 rounded text-[10px] font-bold uppercase tracking-tighter">
-                {nextEvent.type === 'custody' ? 'Troca' : nextEvent.type}
+                {nextEvent.parent === 'parent_b' ? 'Progenitor B' : nextEvent.parent === 'parent_a' ? 'Progenitor A' : nextEvent.type}
               </div>
             </div>
             <h2 className="text-2xl font-bold font-headline text-white">{nextEvent.title}</h2>
