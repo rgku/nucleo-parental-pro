@@ -62,6 +62,7 @@ export default function CalendarPage() {
   const [newEventType, setNewEventType] = useState('custody')
   const [isRange, setIsRange] = useState(false)
   const [endDate, setEndDate] = useState<string | null>(null)
+  const [eventTime, setEventTime] = useState('12:00')
 
   const todayStr = new Date().toISOString().split('T')[0]
   const nextCustodyEvent = useMemo(() => 
@@ -281,7 +282,7 @@ export default function CalendarPage() {
       const insertData: any = {
           parental_unit_id: parentalUnit.id,
           title: newEventTitle,
-          start_date: `${selectedDate}T00:00:00`,
+          start_date: `${selectedDate}T${eventTime}:00`,
           type: newEventType,
           created_by: profile.id,
           parent: profile.role,
@@ -308,6 +309,7 @@ export default function CalendarPage() {
       setNewEventType('custody')
       setIsRange(false)
       setEndDate(null)
+      setEventTime('12:00')
       
       setTimeout(() => fetchEvents(), 500)
     } catch (error) {
@@ -536,6 +538,17 @@ export default function CalendarPage() {
                   value={newEventTitle}
                   onChange={(e) => setNewEventTitle(e.target.value)}
                   placeholder="ex: Dia de descida"
+                  className="w-full p-3 rounded-xl border border-outline-variant/30 bg-white"
+                />
+              </div>
+
+              {/* Time picker */}
+              <div>
+                <label className="text-xs text-secondary mb-1 block">Hora (opcional)</label>
+                <input
+                  type="time"
+                  value={eventTime}
+                  onChange={(e) => setEventTime(e.target.value)}
                   className="w-full p-3 rounded-xl border border-outline-variant/30 bg-white"
                 />
               </div>
