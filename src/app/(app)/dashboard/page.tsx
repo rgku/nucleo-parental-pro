@@ -150,6 +150,40 @@ export default function DashboardPage() {
           </p>
         </section>
 
+        {nextEvent ? (
+          <div className="bg-tertiary rounded-2xl p-5 shadow-lg">
+            <div className="flex justify-between items-start mb-3">
+              <span className="text-xs font-medium uppercase tracking-wider text-white/80">
+                Próxima Custódia
+              </span>
+              <div className="bg-white/20 text-white px-2 py-1 rounded text-[10px] font-bold uppercase tracking-tighter">
+                {nextEvent.type === 'custody' ? 'Troca' : nextEvent.type}
+              </div>
+            </div>
+            <h2 className="text-2xl font-bold font-headline text-white">{nextEvent.title}</h2>
+            <div className="mt-3 flex items-center gap-3 text-white/90">
+              <div className="flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-sm">calendar_today</span>
+                <span className="text-sm font-medium">{formatDatePT(nextEvent.start_date)}</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-sm">schedule</span>
+                <span className="text-sm font-medium">{formatTimePT(nextEvent.start_date)}</span>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-surface-container-lowest rounded-2xl p-5 shadow-sm border border-dashed border-outline/30">
+            <div className="flex items-center gap-3 text-secondary">
+              <span className="material-symbols-outlined">event_busy</span>
+              <div>
+                <p className="text-sm font-medium">Sem eventos agendados</p>
+                <p className="text-xs">Crie um evento no calendário</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {pendingExpenses.length > 0 && (
           <section className="bg-orange-soft/10 rounded-xl p-4 border-l-4 border-orange-soft">
             <div className="flex items-start gap-3">
@@ -196,38 +230,6 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
-
-        {nextEvent ? (
-          <div className="bg-white rounded-2xl p-5 shadow-sm" style={{ backgroundColor: '#ffffff', boxShadow: '0 32px 64px -12px rgba(0,0,0,0.04)' }}>
-            <div className="flex justify-between items-start mb-4">
-              <span className="text-xs font-medium uppercase tracking-wider text-secondary">
-                Próxima Custódia
-              </span>
-              <div className="bg-tertiary/10 text-tertiary px-2 py-1 rounded text-[10px] font-bold uppercase tracking-tighter">
-                {nextEvent.type}
-              </div>
-            </div>
-            <h2 className="text-xl font-bold font-headline">{nextEvent.title}</h2>
-            <div className="mt-2 flex items-center gap-2 text-secondary">
-              <span className="material-symbols-outlined text-sm">calendar_today</span>
-              <span className="text-sm">{formatDatePT(nextEvent.start_date)}</span>
-            </div>
-            <div className="mt-1 flex items-center gap-2 text-secondary">
-              <span className="material-symbols-outlined text-sm">schedule</span>
-              <span className="text-sm">{formatTimePT(nextEvent.start_date)}</span>
-            </div>
-          </div>
-        ) : (
-          <div className="bg-white rounded-2xl p-5 shadow-sm" style={{ backgroundColor: '#ffffff', boxShadow: '0 32px 64px -12px rgba(0,0,0,0.04)' }}>
-            <div className="flex items-center gap-3 text-secondary">
-              <span className="material-symbols-outlined">event_busy</span>
-              <div>
-                <p className="text-sm font-medium">Sem eventos agendados</p>
-                <p className="text-xs">Crie um evento no calendário</p>
-              </div>
-            </div>
-          </div>
-        )}
 
         <section className="space-y-4">
           <h3 className="text-sm font-bold text-on-surface uppercase tracking-widest px-1">
