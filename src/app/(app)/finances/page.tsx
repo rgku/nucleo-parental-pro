@@ -84,6 +84,9 @@ export default function FinancesPage() {
   const [newFile, setNewFile] = useState<File | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const editFileInputRef = useRef<HTMLInputElement>(null)
+  const [dragY, setDragY] = useState(0)
+  const [isDragging, setIsDragging] = useState(false)
+  const dragStartY = useRef(0)
 
   const [editDescription, setEditDescription] = useState('')
   const [editAmount, setEditAmount] = useState('')
@@ -553,7 +556,27 @@ export default function FinancesPage() {
 
       {showAddModal && (
         <div className="fixed inset-0 flex items-end md:items-center justify-center z-50" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <div className="rounded-t-3xl md:rounded-2xl p-6 w-full max-w-md" style={{ backgroundColor: '#ffffff', animation: 'slideUp 0.4s ease-out', maxHeight: '90vh', overflowY: 'auto' }}>
+          <div 
+            className="rounded-t-3xl md:rounded-2xl p-6 w-full max-w-md touch-none"
+            style={{ 
+              backgroundColor: '#ffffff', 
+              animation: isDragging ? 'none' : 'slideUp 0.4s ease-out', 
+              maxHeight: '90vh', 
+              overflowY: 'auto',
+              transform: `translateY(${dragY}px)`,
+              transition: isDragging ? 'none' : 'transform 0.3s ease-out'
+            }}
+            onMouseDown={(e) => { setIsDragging(true); dragStartY.current = e.clientY; }}
+            onMouseMove={(e) => { if (isDragging) setDragY(e.clientY - dragStartY.current); }}
+            onMouseUp={() => { if (dragY > 100) { setShowAddModal(false); setNewFile(null); } setIsDragging(false); setDragY(0); }}
+            onMouseLeave={() => { setIsDragging(false); setDragY(0); }}
+            onTouchStart={(e) => { setIsDragging(true); dragStartY.current = e.touches[0].clientY; }}
+            onTouchMove={(e) => { if (isDragging) setDragY(e.touches[0].clientY - dragStartY.current); }}
+            onTouchEnd={() => { if (dragY > 100) { setShowAddModal(false); setNewFile(null); } setIsDragging(false); setDragY(0); }}
+          >
+            <div className="flex justify-center mb-2">
+              <div className="w-12 h-1.5 rounded-full bg-gray-300" />
+            </div>
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-semibold" style={{ fontFamily: 'Manrope, sans-serif' }}>Nova Despesa</h2>
               <button onClick={() => { setShowAddModal(false); setNewFile(null); }} className="p-2 rounded-full">
