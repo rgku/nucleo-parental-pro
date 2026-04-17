@@ -330,16 +330,33 @@ export default function FinancesPage() {
     const supabase = getSupabaseClient()
     if (!supabase) return
 
-    if (expense.document_id) {
-      await deleteDocument(expense.document_id)
+    setSaving(true)
+    try {
+      // Delete the expense first (the document will be cleaned up automatically by the database)
+      const { error } = await supabase
+        .from('expenses')
+        .delete()
+        .eq('id', expense.id)
+
+      if (error) {
+        console.error('Error deleting expense:', error)
+        alert('Erro ao eliminar: ' + error.message)
+      } else {
+        // Also delete associated document if exists
+        if (expense.document_id) {
+          const doc = documents.find(d => d.id === expense.document_id)
+          if (doc?.file_path) {
+            await supabase.storage.from('documents').remove([doc.file_path])
+          }
+          await supabase.from('documents').delete().eq('id', expense.document_id)
+        }
+        fetchData()
+      }
+    } catch (err) {
+      console.error('Error:', err)
+      alert('Erro ao eliminar despesa')
     }
-
-    await supabase
-      .from('expenses')
-      .delete()
-      .eq('id', expense.id)
-
-    fetchData()
+    setSaving(false)
   }
 
   const openEditModal = (expense: Expense) => {
