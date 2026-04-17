@@ -516,7 +516,9 @@ export default function CalendarPage() {
                       <div className="flex-1">
                         <p className="text-sm font-medium">{event.title}</p>
                         <p className="text-xs text-secondary">
-                          {event.parent === 'parent_a' ? 'Progenitor A' : event.parent === 'parent_b' ? 'Progenitor B' : 'Evento'}
+                          {event.start_date.includes('T') && event.start_date.split('T')[1]?.substring(0, 5) != '00:00' 
+                            ? `${event.parent === 'parent_a' ? 'Progenitor A' : event.parent === 'parent_b' ? 'Progenitor B' : 'Evento'} • ${event.start_date.split('T')[1].substring(0, 5)}`
+                            : event.parent === 'parent_a' ? 'Progenitor A' : event.parent === 'parent_b' ? 'Progenitor B' : 'Evento'}
                         </p>
                       </div>
                       <button
