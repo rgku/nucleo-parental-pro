@@ -492,3 +492,117 @@ CREATE TRIGGER trigger_custody_reminder
 AFTER INSERT ON calendar_events
 FOR EACH ROW
 EXECUTE FUNCTION create_custody_swap_reminder();
+
+-- ============================================
+-- AUTO NOTIFICATIONS TRIGGERS
+-- ============================================
+
+-- Notify other parent when expense is added
+CREATE OR REPLACE FUNCTION notify_expense_added()
+RETURNS TRIGGER AS $$
+DECLARE
+  other_parent_id UUID;
+  amount_eur NUMERIC(10,2);
+BEGIN
+  amount_eur := NEW.amount_cents / 100.0;
+  
+  other_parent_id := (
+    SELECT CASE 
+      WHEN NEW.paid_by_id = (SELECT parent_a_id FROM parental_units WHERE id = NEW.parental_unit_id)
+      THEN parent_b_id
+      ELSE parent_a_id
+    END
+    FROM parental_units WHERE id = NEW.parental_unit_id
+  );
+  
+  IF other_parent_id IS NOT NULL THEN
+    INSERT INTO notifications (user_id, type, title, message)
+    VALUES (
+      other_parent_id,
+      'new_expense',
+      'Nova despesa adicionada',
+      format('€%s - %s', amount_eur::text, NEW.description)
+    );
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_notify_expense
+AFTER INSERT ON expenses
+FOR EACH ROW
+EXECUTE FUNCTION notify_expense_added();
+
+-- Notify other parent when document is added
+CREATE OR REPLACE FUNCTION notify_document_added()
+RETURNS TRIGGER AS $$
+DECLARE
+  other_parent_id UUID;
+  uploader_name TEXT;
+BEGIN
+  other_parent_id := (
+    SELECT CASE 
+      WHEN NEW.uploaded_by = (SELECT parent_a_id FROM parental_units WHERE id = NEW.parental_unit_id)
+      THEN parent_b_id
+      ELSE parent_a_id
+    END
+    FROM parental_units WHERE id = NEW.parental_unit_id
+  );
+  
+  uploader_name := (
+    SELECT p.name FROM profiles p WHERE p.id = NEW.uploaded_by
+  );
+  
+  IF other_parent_id IS NOT NULL THEN
+    INSERT INTO notifications (user_id, type, title, message)
+    VALUES (
+      other_parent_id,
+      'new_document',
+      'Novo documento partilhado',
+      format('%s partilhou: %s', COALESCE(uploader_name, 'Um documento'), NEW.title)
+    );
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_notify_document
+AFTER INSERT ON documents
+FOR EACH ROW
+EXECUTE FUNCTION notify_document_added();
+
+-- Notify other parent when event is added
+CREATE OR REPLACE FUNCTION notify_event_added()
+RETURNS TRIGGER AS $$
+DECLARE
+  other_parent_id UUID;
+  event_date TEXT;
+BEGIN
+  other_parent_id := (
+    SELECT CASE 
+      WHEN NEW.created_by = (SELECT parent_a_id FROM parental_units WHERE id = NEW.parental_unit_id)
+      THEN parent_b_id
+      ELSE parent_a_id
+    END
+    FROM parental_units WHERE id = NEW.parental_unit_id
+  );
+  
+  event_date := to_char(NEW.start_date::timestamp, 'DD/MM/YYYY');
+  
+  IF other_parent_id IS NOT NULL THEN
+    INSERT INTO notifications (user_id, type, title, message)
+    VALUES (
+      other_parent_id,
+      'new_event',
+      'Novo evento adicionado',
+      format('%s em %s', NEW.title, event_date)
+    );
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_notify_event
+AFTER INSERT ON calendar_events
+FOR EACH ROW
+EXECUTE FUNCTION notify_event_added();
