@@ -549,7 +549,7 @@ export default function FinancesPage() {
       </div>
 
       <button onClick={() => setShowAddModal(true)}
-        className="fixed bottom-28 right-6 w-14 h-14 rounded-full flex items-center justify-center z-40 active:scale-90 transition-transform"
+        className="fixed bottom-36 right-6 w-14 h-14 rounded-full flex items-center justify-center z-40 active:scale-90 transition-transform"
         style={{ background: 'linear-gradient(135deg, #00464a, #006064)', boxShadow: '0 8px 32px rgba(0,70,74,0.3)' }}>
         <span className="material-symbols-outlined text-2xl" style={{ color: 'white' }}>add</span>
       </button>
@@ -561,10 +561,11 @@ export default function FinancesPage() {
             style={{ 
               backgroundColor: '#ffffff', 
               animation: isDragging ? 'none' : 'slideUp 0.4s ease-out', 
-              maxHeight: '90vh', 
+              maxHeight: '85vh', 
               overflowY: 'auto',
               transform: `translateY(${dragY}px)`,
-              transition: isDragging ? 'none' : 'transform 0.3s ease-out'
+              transition: isDragging ? 'none' : 'transform 0.3s ease-out',
+              paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 100px)'
             }}
             onMouseDown={(e) => { setIsDragging(true); dragStartY.current = e.clientY; }}
             onMouseMove={(e) => { if (isDragging) setDragY(e.clientY - dragStartY.current); }}
