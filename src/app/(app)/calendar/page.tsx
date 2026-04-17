@@ -65,13 +65,12 @@ export default function CalendarPage() {
 
   const todayStr = new Date().toISOString().split('T')[0]
   const nextCustodyEvent = useMemo(() => 
-    events.filter(e => e.start_date.split('T')[0] >= todayStr && (e.type === 'custody' || e.parent))
-      .sort((a, b) => a.start_date.localeCompare(b.start_date))[0]
-  , [events, todayStr])
+    events.find(e => e.start_date.split('T')[0] >= todayStr && e.type === 'custody')
+  , [events])
+
   const nextOtherEvent = useMemo(() => 
-    events.filter(e => e.start_date.split('T')[0] >= todayStr && e.type !== 'custody' && !e.parent)
-      .sort((a, b) => a.start_date.localeCompare(b.start_date))[0]
-  , [events, todayStr])
+    events.find(e => e.start_date.split('T')[0] >= todayStr && e.type !== 'custody')
+  , [events])
 
   useEffect(() => {
     fetchEvents()
