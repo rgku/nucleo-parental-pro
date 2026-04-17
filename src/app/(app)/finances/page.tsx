@@ -359,6 +359,26 @@ export default function FinancesPage() {
     setSaving(false)
   }
 
+  const handleRemoveDocument = async () => {
+    if (!existingDocId || !parentalUnit) return
+    
+    const confirmRemove = confirm('Tens a certeza que queres remover este documento?')
+    if (!confirmRemove) return
+    
+    const supabase = getSupabaseClient()
+    if (!supabase) return
+    
+    const doc = documents.find(d => d.id === existingDocId)
+    if (doc?.file_path) {
+      await supabase.storage.from('documents').remove([doc.file_path])
+    }
+    await supabase.from('documents').delete().eq('id', existingDocId)
+    
+    setExistingDocId(null)
+    setEditFile(null)
+    fetchData()
+  }
+
   const openEditModal = (expense: Expense) => {
     setSelectedExpense(expense)
     setEditDescription(expense.description)
@@ -635,8 +655,8 @@ export default function FinancesPage() {
                         <span className="material-symbols-outlined text-sm">visibility</span>
                       </a>
                     )}
-                    <button type="button" onClick={() => setExistingDocId(null)} className="p-1">
-                      <span className="material-symbols-outlined text-sm">close</span>
+                    <button type="button" onClick={handleRemoveDocument} className="p-1 text-red-500">
+                      <span className="material-symbols-outlined text-sm">delete</span>
                     </button>
                   </div>
                 )}
