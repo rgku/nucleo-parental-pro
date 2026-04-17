@@ -82,6 +82,15 @@ export function formatDateShortPT(date: Date | string): string {
  * Format time (pt-PT)
  */
 export function formatTimePT(date: Date | string): string {
+  if (typeof date === 'string' && date.includes('T')) {
+    const timePart = date.split('T')[1]
+    if (timePart) {
+      const hourMinute = timePart.split(':')
+      if (hourMinute.length >= 2) {
+        return `${hourMinute[0]}:${hourMinute[1]}`
+      }
+    }
+  }
   const d = typeof date === 'string' ? new Date(date) : date
   return d.toLocaleTimeString('pt-PT', {
     hour: '2-digit',
