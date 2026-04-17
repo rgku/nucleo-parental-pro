@@ -1,21 +1,10 @@
 'use client'
 
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { Card } from '@/components/ui/card'
 import { getMonthNamePT } from '@/lib/utils'
 import { NATIONAL_HOLIDAYS_2026, MUNICIPALITIES, getMunicipalityHoliday } from '@/lib/holidays-pt'
-import { Calendar, dateFnsLocalizer, Views } from 'react-big-calendar'
-import { format, parse, startOfWeek, getDay, addHours } from 'date-fns'
-import { ptBR } from 'date-fns/locale'
-
-const localizer = dateFnsLocalizer({
-  format,
-  parse,
-  startOfWeek,
-  getDay,
-  locales: { 'pt-BR': ptBR },
-})
 
 const getSupabaseClient = () => {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -74,45 +63,6 @@ export default function CalendarPage() {
   const [isRange, setIsRange] = useState(false)
   const [endDate, setEndDate] = useState<string | null>(null)
   const [eventTime, setEventTime] = useState('12:00')
-  const [calendarView, setCalendarView] = useState<typeof Views.MONTH>(Views.MONTH)
-  const [calendarDate, setCalendarDate] = useState(new Date())
-
-  // Convert events to react-big-calendar format
-  const calendarEvents = useMemo(() => {
-    return events.map(event => ({
-      id: event.id,
-      title: event.title,
-      start: new Date(event.start_date),
-      end: event.end_date ? new Date(event.end_date) : addHours(new Date(event.start_date), 1),
-      allDay: !event.start_date.includes('T') || event.start_date.split('T')[1] === '00:00:00',
-      resource: { type: event.type, parent: event.parent }
-    }))
-  }, [events])
-
-  const eventStyleGetter = useCallback((event: any) => {
-    const colors: Record<string, string> = {
-      custody_parent_a: '#2563eb',
-      custody_parent_b: '#0d9488',
-      health: '#f97316',
-      education: '#8b5cf6',
-      activity: '#06b6d4',
-      other: '#71717a',
-    }
-    const key = event.resource?.type === 'custody' 
-      ? `custody_${event.resource?.parent}` 
-      : event.resource?.type || 'other'
-    return {
-      style: {
-        backgroundColor: colors[key] || colors.other,
-        borderRadius: '4px',
-        opacity: 0.9,
-        color: 'white',
-        border: 'none',
-        display: 'block',
-        fontSize: '12px',
-      }
-    }
-  }, [])
 
   const todayStr = new Date().toISOString().split('T')[0]
   const nextCustodyEvent = useMemo(() => 
@@ -417,104 +367,64 @@ export default function CalendarPage() {
           ))}
         </div>
 
-        {/* React Big Calendar */}
-        <Card className="p-2" style={{ minHeight: '500px' }}>
-          <style jsx global>{`
-            .rbc-calendar {
-              font-family: Manrope, sans-serif;
-            }
-            .rbc-header {
-              padding: 8px 4px;
-              font-weight: 700;
-              font-size: 11px;
-              text-transform: uppercase;
-              color: #78716c;
-            }
-            .rbc-month-view, .rbc-time-view {
-              border: none;
-            }
-            .rbc-day-bg {
-              background: white;
-            }
-            .rbc-off-range-bg {
-              background: #fafaf9;
-            }
-            .rbc-today {
-              background: rgba(0, 70, 74, 0.08);
-            }
-            .rbc-toolbar {
-              margin-bottom: 12px;
-              padding: 0;
-            }
-            .rbc-toolbar button {
-              padding: 6px 12px;
-              border-radius: 8px;
-              border: none;
-              font-size: 12px;
-              font-weight: 600;
-              color: #44403c;
-            }
-            .rbc-toolbar button:hover {
-              background: #f5f5f4;
-            }
-            .rbc-toolbar button.rbc-active {
-              background: #00464a;
-              color: white;
-            }
-            .rbc-date-cell {
-              padding: 4px;
-              text-align: right;
-            }
-            .rbc-date-cell.rbc-now {
-              font-weight: 700;
-            }
-            .rbc-date-cell.rbc-off-range {
-              color: #a8a29e;
-            }
-            .rbc-event {
-              border: none !important;
-              padding: 2px 4px;
-            }
-            .rbc-show-more {
-              color: #00464a;
-              font-weight: 600;
-              font-size: 10px;
-            }
-          `}</style>
-          <Calendar
-            localizer={localizer}
-            events={calendarEvents}
-            startAccessor="start"
-            endAccessor="end"
-            style={{ height: 450 }}
-            view={calendarView}
-            onView={(view) => setCalendarView(view as typeof Views.MONTH)}
-            date={calendarDate}
-            onNavigate={setCalendarDate}
-            eventPropGetter={eventStyleGetter}
-            culture="pt-PT"
-            views={['month', 'week', 'day']}
-            toolbar={true}
-            selectable={true}
-            messages={{
-              today: 'Hoje',
-              previous: 'Anterior',
-              next: 'Seguinte',
-              month: 'Mês',
-              week: 'Semana',
-              day: 'Dia',
-              noEventsInRange: 'Sem eventos',
-            }}
-            onSelectSlot={(slotInfo) => {
-              setSelectedDate(format(slotInfo.start, 'yyyy-MM-dd'))
-              setShowAddModal(true)
-            }}
-            onSelectEvent={(event) => {
-              setSelectedDate(format(event.start, 'yyyy-MM-dd'))
-              setSelectedDayEvents(events.filter(e => e.id === event.id))
-              setShowAddModal(true)
-            }}
-          />
+        {/* Calendar Card */}
+        <Card className="p-4">
+          {/* Days Header */}
+          <div className="grid grid-cols-7 mb-4">
+            {DAYS_OF_WEEK.map((day) => (
+              <div
+                key={day}
+                className="text-center text-[10px] font-bold text-secondary uppercase tracking-widest"
+              >
+                {day}
+              </div>
+            ))}
+          </div>
+
+          {/* Calendar Grid */}
+          <div className="grid grid-cols-7 gap-y-2">
+            {calendarDays.map((day, index) => (
+              <div
+                key={index}
+                onClick={() => handleDayClick(day)}
+                className={`flex flex-col items-center gap-0.5 min-h-[40px] cursor-pointer hover:bg-surface-container-low rounded ${
+                  day.date === 0 ? 'invisible' : ''
+                }`}
+              >
+                {day.date > 0 && (
+                  <>
+                    <span
+                      className={`text-xs font-medium ${
+                        day.isToday
+                          ? 'w-6 h-6 flex items-center justify-center rounded-full bg-primary text-white text-xs'
+                          : 'text-on-surface text-xs'
+                      }`}
+                    >
+                      {day.date}
+                    </span>
+                    {day.events.length > 0 && (
+                      <div className="flex gap-1 flex-wrap justify-center">
+                        {day.events.slice(0, 3).map((event, i) => (
+                          <div
+                            key={i}
+                            className={`w-1.5 h-1.5 rounded-full ${getEventColor(event.type, event.parent)}`}
+                          />
+                        ))}
+                      </div>
+                    )}
+                    {day.holiday && (
+                      <>
+                        <div className="w-1.5 h-1.5 rounded-full bg-tertiary" />
+                        <span className="text-[8px] text-tertiary font-medium truncate max-w-[60px]">
+                          {day.holiday}
+                        </span>
+                      </>
+                    )}
+                  </>
+                )}
+              </div>
+            ))}
+          </div>
         </Card>
 
         {/* Legend */}
