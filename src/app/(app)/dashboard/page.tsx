@@ -239,7 +239,7 @@ export default function DashboardPage() {
             Ações Rápidas
           </h3>
           <div className="grid grid-cols-2 gap-4">
-            <a href="/finances" className="bg-gradient-to-br from-primary to-primary-container text-white rounded-xl p-4 flex flex-col items-center justify-center gap-2 transition-transform active:scale-95 shadow-lg shadow-primary/10">
+            <a href="/finances?new=true" className="bg-gradient-to-br from-primary to-primary-container text-white rounded-xl p-4 flex flex-col items-center justify-center gap-2 transition-transform active:scale-95 shadow-lg shadow-primary/10">
               <span className="material-symbols-outlined text-2xl">add_card</span>
               <span className="text-xs font-medium tracking-wide">Nova Despesa</span>
             </a>
