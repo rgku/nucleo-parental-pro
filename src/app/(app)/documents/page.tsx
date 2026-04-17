@@ -347,8 +347,8 @@ export default function DocumentsPage() {
       )}
 
       {showAddModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-surface-container-lowest rounded-2xl p-6 max-w-md w-full shadow-2xl">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end md:items-center justify-center z-50 p-4">
+          <div className="bg-surface-container-lowest rounded-t-2xl md:rounded-2xl p-6 max-w-md w-full shadow-2xl max-h-[85vh] overflow-y-auto" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 80px)' }}>
             <h3 className="font-semibold font-headline mb-4">Adicionar Documento</h3>
             
             <div className="space-y-4">
