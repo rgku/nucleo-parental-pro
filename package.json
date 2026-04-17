@@ -1,6 +1,6 @@
 {
   "name": "nucleo-parental-pro",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "App de gestão de coparentalidade para Portugal",
   "private": true,
   "scripts": {
