@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { Card } from '@/components/ui/card'
 import { getMonthNamePT } from '@/lib/utils'
@@ -43,10 +43,15 @@ const EVENT_TYPES = [
   { id: 'other', label: 'Outro', icon: 'event', color: 'bg-zinc-500' },
 ]
 
+const formatShortDate = (dateStr: string) => {
+  const date = new Date(dateStr)
+  return date.toLocaleDateString('pt-PT', { day: 'numeric', month: 'numeric', year: '2-digit' })
+}
+
 export default function CalendarPage() {
-  const today = new Date()
-  const [currentMonth, setCurrentMonth] = useState(today.getMonth())
-  const [currentYear, setCurrentYear] = useState(today.getFullYear())
+  const currentDate = new Date()
+  const [currentMonth, setCurrentMonth] = useState(currentDate.getMonth())
+  const [currentYear, setCurrentYear] = useState(currentDate.getFullYear())
   const [municipalityId, setMunicipalityId] = useState('lisboa')
   const [events, setEvents] = useState<CalendarEvent[]>([])
   const [profile, setProfile] = useState<{ id: string; role: string } | null>(null)
@@ -57,6 +62,16 @@ export default function CalendarPage() {
   const [newEventType, setNewEventType] = useState('custody')
   const [isRange, setIsRange] = useState(false)
   const [endDate, setEndDate] = useState<string | null>(null)
+
+  const todayStr = new Date().toISOString().split('T')[0]
+  const nextCustodyEvent = useMemo(() => 
+    events.filter(e => e.start_date.split('T')[0] >= todayStr && (e.type === 'custody' || e.parent))
+      .sort((a, b) => a.start_date.localeCompare(b.start_date))[0]
+  , [events, todayStr])
+  const nextOtherEvent = useMemo(() => 
+    events.filter(e => e.start_date.split('T')[0] >= todayStr && e.type !== 'custody' && !e.parent)
+      .sort((a, b) => a.start_date.localeCompare(b.start_date))[0]
+  , [events, todayStr])
 
   useEffect(() => {
     fetchEvents()
@@ -142,9 +157,9 @@ export default function CalendarPage() {
       dayEvents.push(...dayEventsData)
 
       const isToday = 
-        day === today.getDate() && 
-        currentMonth === today.getMonth() && 
-        currentYear === today.getFullYear()
+        day === currentDate.getDate() && 
+        currentMonth === currentDate.getMonth() && 
+        currentYear === currentDate.getFullYear()
 
       days.push({
         date: day,
@@ -456,20 +471,24 @@ export default function CalendarPage() {
               {getMunicipalityHoliday(municipalityId)?.date || '-'} de {getMonthNamePT(currentMonth)}
             </p>
           </div>
+          {nextCustodyEvent && (
           <div className="bg-primary/5 p-3 rounded-xl flex items-center gap-2">
             <span className="material-symbols-outlined text-primary text-xl">child_care</span>
             <div>
               <h3 className="text-xs font-bold text-primary">Próxima Troca</h3>
-              <p className="text-[10px] text-primary/80">13 de Abril, 18:00</p>
+              <p className="text-[10px] text-primary/80">{formatShortDate(nextCustodyEvent.start_date)}</p>
             </div>
           </div>
+          )}
+          {nextOtherEvent && (
           <div className="bg-tertiary/5 p-3 rounded-xl flex items-center gap-2">
-            <span className="material-symbols-outlined text-tertiary text-xl">restaurant</span>
+            <span className="material-symbols-outlined text-tertiary text-xl">{nextOtherEvent.type === 'health' ? 'medical_services' : nextOtherEvent.type === 'education' ? 'school' : nextOtherEvent.type === 'activity' ? 'sports' : 'event'}</span>
             <div>
-              <h3 className="text-xs font-bold text-tertiary">Jantar Pai</h3>
-              <p className="text-[10px] text-tertiary/80">20 de Abril</p>
+              <h3 className="text-xs font-bold text-tertiary">{nextOtherEvent.title}</h3>
+              <p className="text-[10px] text-tertiary/80">{formatShortDate(nextOtherEvent.start_date)}</p>
             </div>
           </div>
+          )}
         </div>
       </div>
 
