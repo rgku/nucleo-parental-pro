@@ -102,7 +102,6 @@ export default function CalendarPage() {
 
       if (!profile) return
       setProfile(profile)
-      console.log('Current profile ID:', profile.id)
 
       const { data: parentalUnit } = await supabase
         .from('parental_units')
@@ -117,8 +116,7 @@ export default function CalendarPage() {
           .select('*')
           .eq('parental_unit_id', parentalUnit.id)
 
-        console.log('Events fetched:', eventsData, eventsError)
-        eventsData?.forEach(e => console.log('Event:', e.id, 'created_by:', e.created_by))
+        console.log('Events fetched:', eventsData?.length)
         setEvents(eventsData || [])
       }
     } catch (error) {
@@ -234,7 +232,13 @@ export default function CalendarPage() {
 
   const deleteEvent = async (eventId: string) => {
     const supabase = await getSupabaseClient()
-    if (!supabase) return
+    if (!supabase || !profile) return
+
+    const eventToDelete = events.find(e => e.id === eventId)
+    if (!eventToDelete || eventToDelete.created_by !== profile.id) {
+      alert('Só podes eliminar os teus próprios eventos')
+      return
+    }
 
     // Optimistic update - remove from UI immediately
     const remainingEvents = selectedDayEvents.filter(e => e.id !== eventId)
