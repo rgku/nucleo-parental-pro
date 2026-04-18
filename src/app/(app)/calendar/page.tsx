@@ -102,6 +102,7 @@ export default function CalendarPage() {
 
       if (!profile) return
       setProfile(profile)
+      console.log('Current profile ID:', profile.id)
 
       const { data: parentalUnit } = await supabase
         .from('parental_units')
@@ -117,6 +118,7 @@ export default function CalendarPage() {
           .eq('parental_unit_id', parentalUnit.id)
 
         console.log('Events fetched:', eventsData, eventsError)
+        eventsData?.forEach(e => console.log('Event:', e.id, 'created_by:', e.created_by))
         setEvents(eventsData || [])
       }
     } catch (error) {
