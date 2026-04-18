@@ -381,16 +381,18 @@ export default function SchoolPage() {
                           </a>
                         )}
                         <p className="text-[10px] text-secondary mt-2">{formatDate(record.created_at)}</p>
-                        {profile && record.created_by === profile.id && (
-                          <div className="flex gap-1 mt-2">
+                        <div className="flex gap-1 mt-2">
+                          {profile && record.created_by === profile.id ? (
                             <button
                               onClick={() => deleteRecord(record.id)}
                               className="p-1 rounded hover:bg-red-100 text-red-400"
                             >
                               <span className="material-symbols-outlined text-sm">delete</span>
                             </button>
-                          </div>
-                        )}
+                          ) : (
+                            <span className="material-symbols-outlined text-sm text-secondary">lock</span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </Card>
