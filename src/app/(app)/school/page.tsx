@@ -130,6 +130,31 @@ export default function SchoolPage() {
     }
   }
 
+  const deleteRecord = async (recordId: string) => {
+    if (!confirm('Tens a certeza que queres eliminar este registo?')) return
+
+    const supabase = getSupabaseClient()
+    if (!supabase || !profile) return
+
+    const recordToDelete = records.find(r => r.id === recordId)
+    if (!recordToDelete || recordToDelete.created_by !== profile.id) {
+      alert('Só podes eliminar os teus próprios registos')
+      return
+    }
+
+    const { error } = await supabase
+      .from('school_records')
+      .delete()
+      .eq('id', recordId)
+
+    if (error) {
+      console.error('Error deleting record:', error)
+      return
+    }
+
+    fetchData()
+  }
+
   const handleAddRecord = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!selectedChildId || !newSubject) return
@@ -356,6 +381,16 @@ export default function SchoolPage() {
                           </a>
                         )}
                         <p className="text-[10px] text-secondary mt-2">{formatDate(record.created_at)}</p>
+                        {profile && record.created_by === profile.id && (
+                          <div className="flex gap-1 mt-2">
+                            <button
+                              onClick={() => deleteRecord(record.id)}
+                              className="p-1 rounded hover:bg-red-100 text-red-400"
+                            >
+                              <span className="material-symbols-outlined text-sm">delete</span>
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </Card>
