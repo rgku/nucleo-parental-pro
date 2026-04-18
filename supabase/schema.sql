@@ -494,6 +494,41 @@ FOR EACH ROW
 EXECUTE FUNCTION create_custody_swap_reminder();
 
 -- ============================================
+-- SCHOOL RECORDS TABLE
+-- ============================================
+
+CREATE TABLE IF NOT EXISTS school_records (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  parental_unit_id UUID NOT NULL REFERENCES parental_units(id) ON DELETE CASCADE,
+  child_id UUID NOT NULL REFERENCES children(id) ON DELETE CASCADE,
+  subject TEXT NOT NULL,
+  category TEXT NOT NULL CHECK (category IN ('grade', 'notice', 'schedule', 'calendar')),
+  grade_value TEXT,
+  content TEXT,
+  attachment_url TEXT,
+  attachment_name TEXT,
+  created_by UUID NOT NULL REFERENCES profiles(id),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_school_records_parental_unit ON school_records(parental_unit_id);
+CREATE INDEX IF NOT EXISTS idx_school_records_child ON school_records(child_id);
+CREATE INDEX IF NOT EXISTS idx_school_records_category ON school_records(category);
+
+ALTER TABLE school_records ENABLE ROW LEVEL SECURITY;
+
+-- RLS for school records
+CREATE POLICY "Parents can view school records" ON school_records FOR SELECT USING (
+  parental_unit_id IN (SELECT id FROM parental_units WHERE parent_a_id IN (SELECT id FROM profiles WHERE user_id = auth.uid()) OR parent_b_id IN (SELECT id FROM profiles WHERE user_id = auth.uid()))
+);
+
+CREATE POLICY "Parents can create school records" ON school_records FOR INSERT WITH CHECK (created_by IN (SELECT id FROM profiles WHERE user_id = auth.uid()));
+
+CREATE POLICY "School record creator can update" ON school_records FOR UPDATE USING (created_by IN (SELECT id FROM profiles WHERE user_id = auth.uid()));
+
+CREATE POLICY "School record creator can delete" ON school_records FOR DELETE USING (created_by IN (SELECT id FROM profiles WHERE user_id = auth.uid()));
+
+-- ============================================
 -- AUTO NOTIFICATIONS TRIGGERS
 -- ============================================
 
@@ -606,3 +641,50 @@ CREATE TRIGGER trigger_notify_event
 AFTER INSERT ON calendar_events
 FOR EACH ROW
 EXECUTE FUNCTION notify_event_added();
+
+-- Notify other parent when school record is added
+CREATE OR REPLACE FUNCTION notify_school_record_added()
+RETURNS TRIGGER AS $$
+DECLARE
+  other_parent_id UUID;
+  child_name TEXT;
+  category_label TEXT;
+BEGIN
+  other_parent_id := (
+    SELECT CASE 
+      WHEN NEW.created_by = (SELECT parent_a_id FROM parental_units WHERE id = NEW.parental_unit_id)
+      THEN parent_b_id
+      ELSE parent_a_id
+    END
+    FROM parental_units WHERE id = NEW.parental_unit_id
+  );
+  
+  child_name := (
+    SELECT name FROM children WHERE id = NEW.child_id
+  );
+  
+  category_label := CASE NEW.category
+    WHEN 'grade' THEN 'Nota'
+    WHEN 'notice' THEN 'Recado'
+    WHEN 'schedule' THEN 'Horário'
+    WHEN 'calendar' THEN 'Calendário'
+    ELSE 'Registo'
+  END;
+  
+  IF other_parent_id IS NOT NULL THEN
+    INSERT INTO notifications (user_id, type, title, message)
+    VALUES (
+      other_parent_id,
+      'new_school_record',
+      format('Novo %s escolar', category_label),
+      format('%s: %s - %s', child_name, category_label, NEW.subject)
+    );
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_notify_school_record
+AFTER INSERT ON school_records
+FOR EACH ROW
+EXECUTE FUNCTION notify_school_record_added();

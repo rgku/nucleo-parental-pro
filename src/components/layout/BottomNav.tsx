@@ -12,8 +12,8 @@ const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
   { href: '/chat', label: 'Chat', icon: 'chat_bubble' },
   { href: '/calendar', label: 'Calendário', icon: 'calendar_today' },
+  { href: '/school', label: 'Escola', icon: 'school' },
   { href: '/finances', label: 'Finanças', icon: 'account_balance_wallet' },
-  { href: '/documents', label: 'Documentos', icon: 'folder' },
 ]
 
 export function BottomNav({ className }: BottomNavProps) {
