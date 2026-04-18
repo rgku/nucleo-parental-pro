@@ -59,6 +59,7 @@ export default function SchoolPage() {
   const [newContent, setNewContent] = useState('')
   const [newFile, setNewFile] = useState<File | null>(null)
   const [uploading, setUploading] = useState(false)
+  const [editingRecord, setEditingRecord] = useState<SchoolRecord | null>(null)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -128,6 +129,34 @@ export default function SchoolPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const updateRecord = async (record: SchoolRecord) => {
+    const supabase = getSupabaseClient()
+    if (!supabase || !profile) return
+
+    if (record.created_by !== profile.id) {
+      alert('Só podes editar os teus próprios registos')
+      return
+    }
+
+    const { error } = await supabase
+      .from('school_records')
+      .update({
+        subject: record.subject,
+        category: record.category,
+        grade_value: record.grade_value,
+        content: record.content,
+      })
+      .eq('id', record.id)
+
+    if (error) {
+      console.error('Error updating record:', error)
+      return
+    }
+
+    setEditingRecord(null)
+    fetchData()
   }
 
   const deleteRecord = async (recordId: string) => {
@@ -382,16 +411,18 @@ export default function SchoolPage() {
                         )}
                         <p className="text-[10px] text-secondary mt-2">{formatDate(record.created_at)}</p>
                         <div className="flex gap-1 mt-2">
-                          {profile && record.created_by === profile.id ? (
-                            <button
-                              onClick={() => deleteRecord(record.id)}
-                              className="p-1 rounded hover:bg-red-100 text-red-400"
-                            >
-                              <span className="material-symbols-outlined text-sm">delete</span>
-                            </button>
-                          ) : (
-                            <span className="material-symbols-outlined text-sm text-secondary">lock</span>
-                          )}
+                          <button
+                            onClick={() => setEditingRecord(record)}
+                            className="p-1 rounded hover:bg-blue-100 text-blue-400"
+                          >
+                            <span className="material-symbols-outlined text-sm">edit</span>
+                          </button>
+                          <button
+                            onClick={() => deleteRecord(record.id)}
+                            className="p-1 rounded hover:bg-red-100 text-red-400"
+                          >
+                            <span className="material-symbols-outlined text-sm">delete</span>
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -544,6 +575,85 @@ export default function SchoolPage() {
               >
                 {uploading ? 'A guardar...' : 'Guardar'}
               </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Modal */}
+      {editingRecord && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <h2 className="text-xl font-semibold mb-4">Editar Registo</h2>
+            <form onSubmit={(e) => {
+              e.preventDefault()
+              updateRecord(editingRecord)
+            }}>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Categoria</label>
+                  <select
+                    value={editingRecord.category}
+                    onChange={(e) => setEditingRecord({ ...editingRecord, category: e.target.value as any })}
+                    className="w-full rounded-lg border px-4 py-3 text-sm"
+                    style={{ borderColor: 'rgba(0,0,0,0.08)' }}
+                  >
+                    {CATEGORIES.map(cat => (
+                      <option key={cat.id} value={cat.id}>{cat.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Disciplina</label>
+                  <input
+                    type="text"
+                    value={editingRecord.subject}
+                    onChange={(e) => setEditingRecord({ ...editingRecord, subject: e.target.value })}
+                    className="w-full rounded-lg border px-4 py-3 text-sm"
+                    style={{ borderColor: 'rgba(0,0,0,0.08)' }}
+                    required
+                  />
+                </div>
+                {editingRecord.category === 'grade' && (
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Nota</label>
+                    <input
+                      type="text"
+                      value={editingRecord.grade_value || ''}
+                      onChange={(e) => setEditingRecord({ ...editingRecord, grade_value: e.target.value })}
+                      className="w-full rounded-lg border px-4 py-3 text-sm"
+                      style={{ borderColor: 'rgba(0,0,0,0.08)' }}
+                    />
+                  </div>
+                )}
+                {editingRecord.category === 'notice' && (
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Recado</label>
+                    <textarea
+                      value={editingRecord.content || ''}
+                      onChange={(e) => setEditingRecord({ ...editingRecord, content: e.target.value })}
+                      className="w-full rounded-lg border px-4 py-3 text-sm resize-none"
+                      style={{ borderColor: 'rgba(0,0,0,0.08)' }}
+                      rows={3}
+                    />
+                  </div>
+                )}
+              </div>
+              <div className="flex gap-2 mt-6">
+                <button
+                  type="button"
+                  onClick={() => setEditingRecord(null)}
+                  className="flex-1 py-3 rounded-xl border font-medium"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-3 bg-primary text-white rounded-xl font-medium"
+                >
+                  Guardar
+                </button>
+              </div>
             </form>
           </div>
         </div>
