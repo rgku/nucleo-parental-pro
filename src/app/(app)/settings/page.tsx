@@ -28,6 +28,12 @@ interface ParentalUnit {
   join_code: string | null
 }
 
+interface Child {
+  id: string
+  name: string
+  birth_date: string
+}
+
 export default function SettingsPage() {
   const router = useRouter()
   const [profile, setProfile] = useState<Profile | null>(null)
@@ -37,6 +43,12 @@ export default function SettingsPage() {
   const [copied, setCopied] = useState(false)
   const [joinCode, setJoinCode] = useState('')
   const [joinError, setJoinError] = useState('')
+
+  const [children, setChildren] = useState<Child[]>([])
+  const [showChildModal, setShowChildModal] = useState(false)
+  const [childName, setChildName] = useState('')
+  const [childBirthDate, setChildBirthDate] = useState('')
+  const [savingChild, setSavingChild] = useState(false)
 
   useEffect(() => {
     fetchData()
@@ -81,6 +93,15 @@ export default function SettingsPage() {
           .single()
 
         setParentalUnit(parentalUnitData)
+
+        if (parentalUnitData) {
+          const { data: childrenData } = await supabase
+            .from('children')
+            .select('*')
+            .eq('parental_unit_id', parentalUnitData.id)
+
+          setChildren(childrenData || [])
+        }
       }
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -201,6 +222,36 @@ export default function SettingsPage() {
     setSaving(false)
   }
 
+  const handleAddChild = async () => {
+    if (!childName.trim() || !childBirthDate || !parentalUnit) return
+
+    setSavingChild(true)
+    const supabase = getSupabaseClient()
+    if (!supabase) return
+
+    await supabase.from('children').insert({
+      parental_unit_id: parentalUnit.id,
+      name: childName.trim(),
+      birth_date: childBirthDate,
+    })
+
+    setChildName('')
+    setChildBirthDate('')
+    setShowChildModal(false)
+    fetchData()
+    setSavingChild(false)
+  }
+
+  const handleDeleteChild = async (childId: string) => {
+    if (!confirm('Tens a certeza que queres remover este filho?')) return
+
+    const supabase = getSupabaseClient()
+    if (!supabase) return
+
+    await supabase.from('children').delete().eq('id', childId)
+    fetchData()
+  }
+
   if (loading) {
     return (
       <AppLayout>
@@ -318,6 +369,49 @@ export default function SettingsPage() {
           )}
         </div>
 
+        {/* Children Section */}
+        {isLinked && (
+          <div className="bg-white rounded-2xl p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">Filhos</h2>
+              <button
+                onClick={() => setShowChildModal(true)}
+                className="p-2 rounded-lg bg-primary/10 text-primary hover:bg-primary/20"
+              >
+                <span className="material-symbols-outlined text-sm">add</span>
+              </button>
+            </div>
+
+            {children.length === 0 ? (
+              <p className="text-sm text-secondary">Nenhum filho registado</p>
+            ) : (
+              <div className="space-y-2">
+                {children.map((child) => (
+                  <div key={child.id} className="flex items-center justify-between p-3 bg-surface-container-low rounded-xl">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center">
+                        <span className="material-symbols-outlined text-secondary">child_care</span>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">{child.name}</p>
+                        <p className="text-xs text-secondary">
+                          {new Date(child.birth_date).toLocaleDateString('pt-PT')}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => handleDeleteChild(child.id)}
+                      className="p-2 text-red-400 hover:text-red-600"
+                    >
+                      <span className="material-symbols-outlined text-sm">delete</span>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Members */}
         {isLinked && (
           <div className="bg-white rounded-2xl p-6 shadow-sm">
@@ -370,6 +464,55 @@ export default function SettingsPage() {
           <span className="material-symbols-outlined">logout</span>
           Terminar Sessão
         </button>
+
+        {/* Add Child Modal */}
+        {showChildModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl p-6 w-full max-w-sm">
+              <h3 className="text-lg font-semibold mb-4">Adicionar Filho</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-xs text-secondary mb-1 block">Nome</label>
+                  <input
+                    type="text"
+                    value={childName}
+                    onChange={(e) => setChildName(e.target.value)}
+                    placeholder="Nome da criança"
+                    className="w-full p-3 rounded-xl border border-outline-variant/30 bg-white"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-secondary mb-1 block">Data de Nascimento</label>
+                  <input
+                    type="date"
+                    value={childBirthDate}
+                    onChange={(e) => setChildBirthDate(e.target.value)}
+                    className="w-full p-3 rounded-xl border border-outline-variant/30 bg-white"
+                  />
+                </div>
+              </div>
+              <div className="flex gap-2 mt-6">
+                <button
+                  onClick={() => {
+                    setShowChildModal(false)
+                    setChildName('')
+                    setChildBirthDate('')
+                  }}
+                  className="flex-1 py-3 rounded-xl border border-outline-variant/30 font-medium"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleAddChild}
+                  disabled={savingChild || !childName.trim() || !childBirthDate}
+                  className="flex-1 py-3 bg-primary text-white rounded-xl font-medium disabled:opacity-50"
+                >
+                  {savingChild ? 'A...' : 'Adicionar'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </AppLayout>
   )
