@@ -101,6 +101,7 @@ export default function CalendarPage() {
         .single()
 
       if (!profile) return
+      setProfile(profile)
 
       const { data: parentalUnit } = await supabase
         .from('parental_units')
@@ -530,12 +531,14 @@ export default function CalendarPage() {
                             : event.parent === 'parent_a' ? 'Progenitor A' : event.parent === 'parent_b' ? 'Progenitor B' : 'Evento'}
                         </p>
                       </div>
-                      <button
-                        onClick={() => deleteEvent(event.id)}
-                        className="p-1.5 rounded-lg hover:bg-red-100 text-red-400"
-                      >
-                        <span className="material-symbols-outlined text-sm">delete</span>
-                      </button>
+                      {profile && event.created_by === profile.id && (
+                        <button
+                          onClick={() => deleteEvent(event.id)}
+                          className="p-1.5 rounded-lg hover:bg-red-100 text-red-400"
+                        >
+                          <span className="material-symbols-outlined text-sm">delete</span>
+                        </button>
+                      )}
                     </div>
                   ))}
                 </div>
