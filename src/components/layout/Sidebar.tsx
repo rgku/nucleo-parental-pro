@@ -14,6 +14,7 @@ const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
   { href: '/chat', label: 'Chat', icon: 'chat' },
   { href: '/calendar', label: 'Calendário', icon: 'calendar_today' },
+  { href: '/school', label: 'Escola', icon: 'school' },
   { href: '/finances', label: 'Finanças', icon: 'payments' },
   { href: '/documents', label: 'Documentos', icon: 'folder' },
 ]
