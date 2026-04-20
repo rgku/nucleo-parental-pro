@@ -274,7 +274,8 @@ export default function SchoolPage() {
   }
 
   const filteredRecords = records.filter(r => 
-    filterCategory === 'all' || r.category === filterCategory
+    (filterCategory === 'all' || r.category === filterCategory) &&
+    (!selectedChildId || r.child_id === selectedChildId)
   )
 
   if (loading) {
